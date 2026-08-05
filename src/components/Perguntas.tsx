@@ -29,21 +29,23 @@ const perguntas = [
 
 export default function Perguntas() {
   return (
-    <section className="band">
-      <div className="shell">
+    <section id="perguntas" className="faixa faixa-colada">
+      <div className="shell-l">
         <Reveal>
-          <h2 className="t-h2">Perguntas que todo mundo faz</h2>
+          <h2 className="t-secao mx-auto max-w-[24ch] text-center">
+            Perguntas que todo mundo faz
+          </h2>
         </Reveal>
 
-        <div className="mt-6 space-y-3">
+        <div className="mx-auto mt-9 max-w-[820px] space-y-3">
           {perguntas.map((item, i) => (
             <Reveal key={item.q} delay={i * 50}>
-              <details className="card group !py-0">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-5 font-[family-name:var(--font-outfit)] text-[1.0625rem] font-semibold">
+              <details className="painel painel-hover group px-5 md:px-7">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-5 py-5 font-[family-name:var(--font-outfit)] text-[1.0625rem] font-semibold text-[#F6ECEF]">
                   {item.q}
                   <span
                     aria-hidden
-                    className="grid h-7 w-7 flex-none place-items-center rounded-full bg-[#FFD6E0] text-[#FF6B6B] transition-transform duration-300 group-open:rotate-45"
+                    className="grid h-8 w-8 flex-none place-items-center rounded-full border border-[#FF3068]/40 bg-[#FF3068]/14 text-[#FF8FB3] transition-transform duration-300 group-open:rotate-45"
                   >
                     <svg width="12" height="12" viewBox="0 0 12 12" focusable="false">
                       <path
@@ -55,7 +57,7 @@ export default function Perguntas() {
                     </svg>
                   </span>
                 </summary>
-                <p className="t-legenda pb-5">{item.a}</p>
+                <p className="t-apoio max-w-[62ch] pb-5 text-[0.9375rem]">{item.a}</p>
               </details>
             </Reveal>
           ))}

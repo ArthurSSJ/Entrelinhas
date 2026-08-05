@@ -19,32 +19,53 @@ const passos: { icon: IconName; titulo: string; texto: string }[] = [
   },
 ];
 
+/**
+ * Três passos numa linha do tempo vertical, não em três cartões lado a lado:
+ * a ordem importa aqui, e coluna só empilha, não encadeia. O fio pontilhado
+ * liga um passo ao outro; no celular ele continua ligando, mais curto.
+ */
 export default function ComoFunciona() {
   return (
-    <section id="como" className="band">
-      <div className="shell">
+    <section id="como" className="faixa relative overflow-hidden">
+      <div className="shell-l relative grid gap-12 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-20">
         <Reveal>
-          <h2 className="t-h2">Como funciona</h2>
-          <p className="mt-3 max-w-[42ch] text-[#6B6570]">
-            Do começo ao relatório aberto: menos tempo do que uma ida ao mercado.
-          </p>
+          <div className="lg:sticky lg:top-28">
+            <h2 className="t-secao">Como funciona</h2>
+            <p className="t-apoio mt-4 max-w-[38ch]">
+              Do começo ao relatório aberto: menos tempo do que uma ida ao mercado.
+            </p>
+          </div>
         </Reveal>
 
-        <ol className="mt-8 space-y-4">
+        <ol className="relative">
+          {/* O fio que amarra os três passos. */}
+          <span
+            aria-hidden
+            className="fio-vertical absolute top-6 bottom-14 left-[27px] w-0.5 md:left-[31px]"
+          />
+
           {passos.map((passo, i) => (
-            <Reveal key={passo.titulo} delay={i * 80}>
-              <li className="card card-hover relative !pt-8 !pl-6">
-                <span className="numero-passo absolute -top-3 left-5" aria-hidden>
+            <Reveal
+              as="li"
+              key={passo.titulo}
+              delay={i * 90}
+              className="relative flex gap-5 pb-10 last:pb-0 md:gap-7"
+            >
+              <span className="relative z-10 flex h-14 w-14 flex-none items-center justify-center rounded-full border border-[#FF3068]/40 bg-[#14060A] md:h-16 md:w-16">
+                <span className="marca-passo text-[1.75rem] md:text-[2rem]" aria-hidden>
                   {i + 1}
                 </span>
-                <div className="flex items-start gap-4">
-                  <Icon3D name={passo.icon} size={56} className="flex-none" />
-                  <div>
-                    <h3 className="t-h3">{passo.titulo}</h3>
-                    <p className="t-legenda mt-1.5">{passo.texto}</p>
-                  </div>
+              </span>
+
+              <div className="painel painel-hover flex flex-1 items-start gap-4 p-5 md:p-6">
+                <Icon3D name={passo.icon} size={54} className="flex-none" />
+                <div>
+                  <h3 className="font-[family-name:var(--font-outfit)] text-[1.125rem] font-semibold text-[#F6ECEF]">
+                    {passo.titulo}
+                  </h3>
+                  <p className="t-apoio mt-1.5 text-[0.9375rem]">{passo.texto}</p>
                 </div>
-              </li>
+              </div>
             </Reveal>
           ))}
         </ol>

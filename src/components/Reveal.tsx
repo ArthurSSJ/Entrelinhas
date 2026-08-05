@@ -1,21 +1,36 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
-/** Entrada suave ao rolar. Um observador por elemento, desligado após aparecer. */
+/**
+ * Entrada suave ao rolar. Um observador por elemento, desligado após aparecer.
+ *
+ * `dir` faz o bloco entrar do lado em que ele mora na composição: a coluna da
+ * direita vem da direita. Serve para a leitura, não para enfeite, e some
+ * inteiro sob `prefers-reduced-motion`.
+ */
 export default function Reveal({
   children,
   delay = 0,
+  dir,
+  as = "div",
   className = "",
 }: {
   children: React.ReactNode;
   delay?: number;
+  dir?: "esq" | "dir";
+  /** `li` quando o bloco mora dentro de uma lista: `ol`/`ul` não aceitam `div`. */
+  as?: "div" | "li";
   className?: string;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const alvo = useRef<HTMLElement | null>(null);
+
+  const guardar = useCallback((el: HTMLElement | null) => {
+    alvo.current = el;
+  }, []);
 
   useEffect(() => {
-    const el = ref.current;
+    const el = alvo.current;
     if (!el) return;
 
     const observer = new IntersectionObserver(
@@ -31,9 +46,12 @@ export default function Reveal({
     return () => observer.disconnect();
   }, []);
 
-  return (
-    <div ref={ref} className={`reveal ${className}`} style={{ transitionDelay: `${delay}ms` }}>
-      {children}
-    </div>
-  );
+  const props = {
+    ref: guardar,
+    "data-dir": dir,
+    className: `reveal ${className}`,
+    style: { transitionDelay: `${delay}ms` },
+  };
+
+  return as === "li" ? <li {...props}>{children}</li> : <div {...props}>{children}</div>;
 }

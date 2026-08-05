@@ -3,7 +3,10 @@ import Reveal from "./Reveal";
 
 /**
  * Objeções antes do preço. Dizer o que o produto não é dá mais confiança do que
- * jurar o que ele é — e é o que segura o pedido de reembolso depois.
+ * jurar o que ele é, e é o que segura o pedido de reembolso depois.
+ *
+ * Cada linha coloca o mito e a correção lado a lado, num painel só: o olho
+ * compara na horizontal em vez de ler oito frases soltas.
  */
 const pares = [
   {
@@ -26,20 +29,23 @@ const pares = [
 
 export default function Objecoes() {
   return (
-    <section className="band pt-0">
-      <div className="shell">
+    <section className="faixa faixa-colada">
+      <div className="shell-l">
         <Reveal>
-          <h2 className="t-h2">Para não haver mal-entendido</h2>
+          <h2 className="t-secao">Para não haver mal-entendido</h2>
         </Reveal>
 
-        <div className="mt-7 space-y-3">
-          {pares.map((par, i) => (
-            <Reveal key={par.nao} delay={i * 60}>
-              <div className="card card-hover !p-5">
-                <p className="flex items-start gap-2.5 text-[0.9375rem] font-semibold text-[#6B6570]">
+        <Reveal delay={70}>
+          <ul className="painel mt-8 divide-y divide-white/8 overflow-hidden">
+            {pares.map((par) => (
+              <li
+                key={par.nao}
+                className="grid gap-3 px-5 py-5 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] md:items-center md:gap-8 md:px-8 md:py-6"
+              >
+                <p className="flex items-start gap-3 text-[0.9375rem] font-semibold text-[#B7A2AA] md:items-center">
                   <span
                     aria-hidden
-                    className="mt-0.5 grid h-5 w-5 flex-none place-items-center rounded-full bg-[#6B6570]/12"
+                    className="mt-0.5 grid h-5 w-5 flex-none place-items-center rounded-full bg-white/8 md:mt-0"
                   >
                     <svg width="9" height="9" viewBox="0 0 10 10" focusable="false">
                       <path
@@ -52,10 +58,11 @@ export default function Objecoes() {
                   </span>
                   {par.nao}
                 </p>
-                <p className="mt-2 flex items-start gap-2.5 text-[0.9375rem]">
+
+                <p className="flex items-start gap-3 text-[0.9375rem] text-[#F6ECEF] md:items-center">
                   <span
                     aria-hidden
-                    className="mt-0.5 grid h-5 w-5 flex-none place-items-center rounded-full bg-[#4ADE80]/20 text-[#22A55B]"
+                    className="mt-0.5 grid h-5 w-5 flex-none place-items-center rounded-full bg-[#FF3068]/18 text-[#FF8FB3] md:mt-0"
                   >
                     <svg width="11" height="11" viewBox="0 0 14 14" focusable="false">
                       <path
@@ -70,17 +77,17 @@ export default function Objecoes() {
                   </span>
                   {par.sim}
                 </p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
+              </li>
+            ))}
+          </ul>
+        </Reveal>
 
-        <Reveal delay={100}>
-          <p className="t-legenda mt-5 flex items-start gap-3 rounded-2xl border border-[#FFD6E0] bg-white/70 p-4">
-            <Icon3D name="coracao" size={34} className="flex-none" />
+        <Reveal delay={110}>
+          <p className="mt-6 flex max-w-[72ch] items-start gap-4 text-[0.9375rem] leading-relaxed text-[#B7A2AA]">
+            <Icon3D name="coracao" size={38} className="flex-none" />
             <span>
               A conversa é de duas pessoas. Envie só conversas das quais você participou, e use o
-              que ler para falar com quem está do outro lado — não sobre.
+              que ler para falar com quem está do outro lado, não sobre.
             </span>
           </p>
         </Reveal>

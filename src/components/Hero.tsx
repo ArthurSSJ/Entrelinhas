@@ -6,68 +6,55 @@ import { Sublinhado } from "./Enfeites";
 /**
  * O herói é a tese do produto: entre duas mensagens comuns existe uma terceira
  * coisa, que ninguém escreveu e todo mundo sente. É isso que o site lê.
+ *
+ * A divisão é assimétrica, não centralizada: de um lado a frase, do outro a
+ * prova. A pessoa lê a promessa e vê o exemplo no mesmo relance.
  */
 export default function Hero() {
   return (
-    <section
-      id="topo"
-      className="relative overflow-hidden"
-      style={{
-        background: "linear-gradient(135deg, #FFF8F5 0%, #FFD6E0 50%, #FF8FAB 100%)",
-      }}
-    >
-      <div
+    <section id="topo" className="relative overflow-hidden">
+      <span aria-hidden className="brasa brasa-vinho -top-40 -left-32 h-[34rem] w-[34rem]" />
+      <span
         aria-hidden
-        className="pointer-events-none absolute -top-24 -left-20 h-72 w-72 rounded-full opacity-50 blur-3xl"
-        style={{ background: "radial-gradient(circle, #FFFFFF 0%, transparent 70%)" }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute top-40 -right-16 h-64 w-64 rounded-full opacity-40 blur-3xl"
-        style={{ background: "radial-gradient(circle, #A78BFA 0%, transparent 70%)" }}
+        className="brasa brasa-rosa top-24 -right-40 h-[30rem] w-[30rem]"
+        style={{ animationDelay: "-9s" }}
       />
 
-      <div className="shell relative pt-12 pb-16 md:pt-16 md:pb-24">
-        <Reveal>
-          <span className="eyebrow eyebrow-forte">
-            <Icon3D name="escudo" size={28} />
-            Sua conversa não fica guardada
-          </span>
-        </Reveal>
+      <div className="shell-l relative grid items-center gap-14 pt-12 pb-16 md:pt-20 md:pb-24 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16">
+        <div>
+          <Reveal>
+            <span className="selo">
+              <Icon3D name="escudo" size={26} />
+              Sua conversa não fica guardada
+            </span>
+          </Reveal>
 
-        <Reveal delay={80}>
-          <h1 className="t-h1 mt-5 text-[#2D2A32]">
-            O que vocês dizem
-            <br />
-            nas <Sublinhado cor="#FFFFFF">entrelinhas</Sublinhado>
-          </h1>
-        </Reveal>
+          <Reveal delay={80}>
+            <h1 className="t-display titulo-luz mt-6">
+              O que vocês dizem
+              <br />
+              nas <Sublinhado cor="#FF3068">entrelinhas</Sublinhado>
+            </h1>
+          </Reveal>
 
-        <Reveal delay={140}>
-          <p className="mt-5 max-w-[42ch] text-[1.0625rem] text-[#2D2A32]/75">
-            Envie o histórico de uma conversa e receba uma leitura honesta dos padrões de vocês.
-            Sem julgamento, sem palpite — só o que já está escrito aí.
-          </p>
-        </Reveal>
+          <Reveal delay={140}>
+            <p className="t-apoio mt-6 max-w-[44ch] text-[1.0625rem] md:text-[1.125rem]">
+              Envie o histórico de uma conversa e receba uma leitura honesta dos padrões de vocês.
+            </p>
+          </Reveal>
 
-        <Reveal delay={200}>
+          <Reveal delay={200}>
+            <Link
+              href="/analise"
+              className="btn btn-neon btn-neon-pulso btn-lg btn-block mt-8 sm:w-auto sm:px-10"
+            >
+              Iniciar minha análise
+            </Link>
+          </Reveal>
+        </div>
+
+        <Reveal delay={120} dir="dir">
           <FioDeConversa />
-        </Reveal>
-
-        <Reveal delay={260}>
-          <Link href="/analise" className="btn btn-primary btn-lg btn-block btn-pulse mt-8">
-            Iniciar minha análise
-          </Link>
-        </Reveal>
-
-        <Reveal delay={320}>
-          <ul className="mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[0.875rem] text-[#2D2A32]/65">
-            <li>Sem cadastro</li>
-            <li aria-hidden>·</li>
-            <li>Ninguém é avisado</li>
-            <li aria-hidden>·</li>
-            <li>Você só paga no final</li>
-          </ul>
         </Reveal>
       </div>
     </section>
@@ -78,38 +65,47 @@ export default function Hero() {
  * Assinatura visual: duas mensagens comuns e, no espaço entre elas, o que a
  * leitura enxerga. O nome do produto está desenhado, não escrito.
  *
- * Os horários ficam visíveis de propósito. Quem lê faz a conta sozinho — 23:47,
- * depois 08:12 — e só então o achado confirma o que a pessoa já percebeu. É a
- * mesma sensação que o relatório entrega, em três segundos.
+ * Os horários ficam visíveis de propósito. Quem lê faz a conta sozinho, 23:47 e
+ * depois 08:12, e só então o achado confirma o que a pessoa já tinha percebido.
+ * É a mesma sensação que o relatório entrega, em três segundos.
  */
 function FioDeConversa() {
   return (
-    <figure className="card mt-9 !p-5" style={{ boxShadow: "0 18px 44px rgba(45,42,50,0.12)" }}>
-      <figcaption className="mb-4 flex items-center gap-2 text-[0.6875rem] font-semibold tracking-[0.12em] text-[#6B6570]/70 uppercase">
-        Exemplo
-        <span className="h-px flex-1 bg-black/10" />
-      </figcaption>
+    <div className="relative">
+      {/* Peça 3D grande atrás do cartão, como os renders das referências. */}
+      <Icon3D
+        name="conversa"
+        size={132}
+        className="animate-float-slow pointer-events-none absolute -top-16 -right-2 z-0 drop-shadow-[0_18px_44px_rgba(255,48,104,0.5)] md:-top-20 md:-right-8"
+      />
 
-      <Balao lado="dir" hora="23:47" lida className="fio-msg">
-        a gente precisa marcar aquela viagem
-      </Balao>
+      <figure className="painel relative z-10 p-5 md:p-6">
+        <figcaption className="mb-4 flex items-center gap-3 text-[0.6875rem] font-semibold tracking-[0.14em] text-[#B7A2AA] uppercase">
+          Exemplo
+          <span className="linha-fina h-px flex-1" />
+        </figcaption>
 
-      <span className="fio-liga fio-achado mt-3 block" aria-hidden />
+        <Balao lado="dir" hora="23:47" lida className="fio-msg">
+          a gente precisa marcar aquela viagem
+        </Balao>
 
-      <p className="fio-achado mt-1 flex items-center gap-2.5 rounded-2xl border border-[#A78BFA]/25 bg-[#A78BFA]/10 px-3 py-2.5">
-        <Icon3D name="lupa" size={30} className="flex-none" />
-        <span className="font-[family-name:var(--font-outfit)] text-[0.875rem] leading-snug font-semibold text-[#5B3FD0]">
-          Mais de 8 horas para responder.
-          <span className="font-medium text-[#6B4FD8]/85"> É a 14ª vez desde março.</span>
-        </span>
-      </p>
+        <span className="fio-liga fio-achado mt-3 block" aria-hidden />
 
-      <span className="fio-liga fio-achado mt-1 block" aria-hidden />
+        <p className="fio-achado mt-1 flex items-center gap-3 rounded-[18px] border border-[#FF3068]/35 bg-[#FF3068]/12 px-3.5 py-3">
+          <Icon3D name="lupa" size={32} className="flex-none" />
+          <span className="font-[family-name:var(--font-outfit)] text-[0.875rem] leading-snug font-semibold text-[#FF8FB3]">
+            Mais de 8 horas para responder.
+            <span className="font-medium text-[#F6ECEF]/80"> É a 14ª vez desde março.</span>
+          </span>
+        </p>
 
-      <Balao lado="esq" hora="08:12" className="fio-msg mt-3" style={{ animationDelay: "0.45s" }}>
-        total, depois vejo aqui 🙂
-      </Balao>
-    </figure>
+        <span className="fio-liga fio-achado mt-1 block" aria-hidden />
+
+        <Balao lado="esq" hora="08:12" className="fio-msg mt-3" style={{ animationDelay: "0.45s" }}>
+          total, depois vejo aqui 🙂
+        </Balao>
+      </figure>
+    </div>
   );
 }
 
@@ -135,14 +131,14 @@ function Balao({
         className={[
           "flex max-w-[86%] items-end gap-2 px-3.5 py-2.5 text-[0.9375rem] leading-snug",
           minha
-            ? "rounded-[18px] rounded-br-[6px] bg-gradient-to-br from-[#FF8FAB] to-[#FF6B6B] text-white"
-            : "rounded-[18px] rounded-bl-[6px] bg-[#FFF8F5] text-[#2D2A32]",
+            ? "rounded-[18px] rounded-br-[6px] bg-[#E01048] text-white"
+            : "rounded-[18px] rounded-bl-[6px] border border-white/10 bg-white/7 text-[#F6ECEF]",
         ].join(" ")}
       >
         {children}
         <span
           className={`flex flex-none items-center gap-0.5 self-end pb-0.5 ${
-            minha ? "text-white/75" : "text-[#6B6570]/70"
+            minha ? "text-white/80" : "text-[#B7A2AA]"
           }`}
         >
           <time className="fio-hora">{hora}</time>

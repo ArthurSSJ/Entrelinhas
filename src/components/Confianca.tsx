@@ -19,28 +19,34 @@ const garantias: { icon: IconName; titulo: string; texto: string }[] = [
   },
 ];
 
+/**
+ * Sem cartões: as três garantias moram no mesmo painel, separadas por um fio.
+ * São promessas do mesmo contrato, não três produtos.
+ */
 export default function Confianca() {
   return (
-    <section className="band bg-white">
-      <div className="shell">
+    <section className="faixa faixa-colada">
+      <div className="shell-l">
         <Reveal>
-          <h2 className="t-h2">Você está entregando algo íntimo</h2>
-          <p className="mt-3 max-w-[44ch] text-[#6B6570]">
+          <h2 className="t-secao max-w-[22ch]">Você está entregando algo íntimo</h2>
+          <p className="t-apoio mt-4 max-w-[48ch]">
             Por isso vale dizer com todas as letras o que acontece do outro lado.
           </p>
         </Reveal>
 
-        <div className="mt-7 grid gap-4 md:grid-cols-3">
-          {garantias.map((item, i) => (
-            <Reveal key={item.titulo} delay={i * 70}>
-              <div className="card card-hover h-full bg-[#FFF8F5]">
+        <Reveal delay={80}>
+          <div className="painel mt-8 grid divide-y divide-white/8 md:grid-cols-3 md:divide-x md:divide-y-0">
+            {garantias.map((item) => (
+              <div key={item.titulo} className="p-6 md:p-8">
                 <Icon3D name={item.icon} size={52} />
-                <h3 className="t-h3 mt-3">{item.titulo}</h3>
-                <p className="t-legenda mt-1.5">{item.texto}</p>
+                <h3 className="mt-4 font-[family-name:var(--font-outfit)] text-[1.0625rem] font-semibold text-[#F6ECEF]">
+                  {item.titulo}
+                </h3>
+                <p className="t-apoio mt-2 text-[0.9375rem]">{item.texto}</p>
               </div>
-            </Reveal>
-          ))}
-        </div>
+            ))}
+          </div>
+        </Reveal>
       </div>
     </section>
   );

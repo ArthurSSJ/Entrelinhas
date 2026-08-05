@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Outfit } from "next/font/google";
+import { Manrope, Outfit } from "next/font/google";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -9,10 +9,12 @@ const outfit = Outfit({
   display: "swap",
 });
 
-const inter = Inter({
+/* Manrope no corpo: tem a mesma cara arredondada e geométrica do Outfit,
+   então título e texto parecem a mesma família em dois pesos de voz. */
+const manrope = Manrope({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-inter",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-manrope",
   display: "swap",
 });
 
@@ -39,7 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="pt-BR"
       data-scroll-behavior="smooth"
-      className={`${outfit.variable} ${inter.variable}`}
+      className={`${outfit.variable} ${manrope.variable}`}
     >
       <body>{children}</body>
     </html>

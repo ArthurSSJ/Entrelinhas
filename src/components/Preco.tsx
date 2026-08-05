@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Icon3D from "./Icon3D";
 import Reveal from "./Reveal";
-import { Manchas, Onda } from "./Enfeites";
 import { BASE_CENTS, UPSELL_CENTS, brl } from "@/lib/pricing";
 
 const inclui = [
@@ -13,69 +12,78 @@ const inclui = [
 
 export default function Preco() {
   return (
-    <>
-      <Onda cor="#FFFFFF" />
-      <section id="preco" className="relative overflow-hidden bg-white pb-14 md:pb-20">
-        <Manchas variante="roxo" />
+    <section id="preco" className="faixa relative overflow-hidden">
+      <span
+        aria-hidden
+        className="brasa brasa-vinho top-10 left-1/2 h-[32rem] w-[32rem] -translate-x-1/2"
+      />
 
-        <div className="shell relative">
-          <Reveal>
-            <h2 className="t-h2">Um preço só, no final</h2>
-            <p className="mt-3 max-w-[42ch] text-[#6B6570]">
+      <div className="shell-l relative">
+        <Reveal>
+          <div className="mx-auto max-w-[46ch] text-center">
+            <h2 className="t-secao">Um preço só, no final</h2>
+            <p className="t-apoio mt-4">
               Você envia, a leitura acontece, e só então aparece o pagamento. Se a leitura falhar,
               nada é cobrado.
             </p>
-          </Reveal>
+          </div>
+        </Reveal>
 
-          <Reveal delay={80}>
-            <div
-              className="card mt-7 !p-7 text-center"
-              style={{ boxShadow: "0 20px 50px rgba(255,143,171,0.22)" }}
-            >
-              <Icon3D name="presente" size={72} className="mx-auto animate-float-slow" />
+        <Reveal delay={90}>
+          <div className="painel painel-neon mx-auto mt-10 max-w-[520px] p-7 text-center md:p-9">
+            <Icon3D
+              name="presente"
+              size={84}
+              className="animate-float-slow mx-auto drop-shadow-[0_18px_40px_rgba(255,48,104,0.45)]"
+            />
 
-              <p className="t-legenda mt-4">Análise completa</p>
-              <p className="mt-1 font-[family-name:var(--font-outfit)] text-[3rem] leading-none font-bold tracking-tight">
-                {brl(BASE_CENTS)}
-              </p>
-              <p className="t-legenda mt-2">Pagamento único. Sem assinatura, sem renovação.</p>
+            <p className="mt-5 text-[0.9375rem] text-[#B7A2AA]">Análise completa</p>
+            <p className="titulo-luz mt-1 font-[family-name:var(--font-outfit)] text-[3.25rem] font-bold tracking-tight">
+              {brl(BASE_CENTS)}
+            </p>
+            <p className="text-[0.9375rem] text-[#B7A2AA]">
+              Pagamento único. Sem assinatura, sem renovação.
+            </p>
 
-              <ul className="mt-6 space-y-2.5 text-left">
-                {inclui.map((item) => (
-                  <li key={item} className="flex items-start gap-2.5 text-[0.9375rem]">
-                    <span
-                      aria-hidden
-                      className="mt-0.5 grid h-5 w-5 flex-none place-items-center rounded-full bg-[#4ADE80]/20 text-[#22A55B]"
-                    >
-                      <svg width="11" height="11" viewBox="0 0 14 14" focusable="false">
-                        <path
-                          d="M2 7.5 5.5 11 12 3.5"
-                          stroke="currentColor"
-                          strokeWidth="2.6"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          fill="none"
-                        />
-                      </svg>
-                    </span>
-                    {item}
-                  </li>
-                ))}
-                <li className="flex items-start gap-2.5 border-t border-black/5 pt-2.5 text-[0.9375rem] text-[#6B6570]">
-                  <Icon3D name="alerta" size={22} className="mt-px flex-none" />
-                  Análise avançada de traição, se você quiser: + {brl(UPSELL_CENTS)}
+            <ul className="mt-7 space-y-3 text-left">
+              {inclui.map((item) => (
+                <li
+                  key={item}
+                  className="flex items-start gap-3 text-[0.9375rem] text-[#F6ECEF]/90"
+                >
+                  <span
+                    aria-hidden
+                    className="mt-0.5 grid h-5 w-5 flex-none place-items-center rounded-full bg-[#FF3068]/18 text-[#FF8FB3]"
+                  >
+                    <svg width="11" height="11" viewBox="0 0 14 14" focusable="false">
+                      <path
+                        d="M2 7.5 5.5 11 12 3.5"
+                        stroke="currentColor"
+                        strokeWidth="2.6"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        fill="none"
+                      />
+                    </svg>
+                  </span>
+                  {item}
                 </li>
-              </ul>
+              ))}
+              <li className="flex items-start gap-3 border-t border-white/8 pt-3 text-[0.9375rem] text-[#B7A2AA]">
+                <Icon3D name="alerta" size={22} className="mt-px flex-none" />
+                Análise avançada de traição, se você quiser: + {brl(UPSELL_CENTS)}
+              </li>
+            </ul>
 
-              <Link href="/analise" className="btn btn-primary btn-lg btn-block mt-7">
-                Iniciar minha análise
-              </Link>
-              <p className="t-legenda mt-3">Leva 2 minutos e você não precisa criar conta.</p>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-      <Onda cor="#FFFFFF" virada />
-    </>
+            <Link href="/analise" className="btn btn-neon btn-lg btn-block mt-8">
+              Iniciar minha análise
+            </Link>
+            <p className="mt-4 text-[0.875rem] text-[#B7A2AA]">
+              Leva 2 minutos e você não precisa criar conta.
+            </p>
+          </div>
+        </Reveal>
+      </div>
+    </section>
   );
 }

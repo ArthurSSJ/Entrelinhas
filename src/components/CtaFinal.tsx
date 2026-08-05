@@ -2,34 +2,47 @@ import Link from "next/link";
 import Icon3D from "./Icon3D";
 import Reveal from "./Reveal";
 
+/**
+ * O fecho não é outro cartão de oferta: é uma frase grande no escuro, com o
+ * brilho subindo do chão. A decisão já foi tomada lá em cima ou não foi.
+ */
 export default function CtaFinal() {
   return (
-    <section className="relative overflow-hidden">
-      <div
+    <section id="fim" className="relative overflow-hidden py-20 md:py-28">
+      <span
         aria-hidden
-        className="absolute inset-0"
-        style={{ background: "linear-gradient(135deg, #FFD6E0 0%, #FF8FAB 60%, #FF6B6B 100%)" }}
+        className="brasa brasa-rosa bottom-[-14rem] left-1/2 h-[34rem] w-[34rem] -translate-x-1/2 !opacity-30"
       />
-      <div
+      <span
         aria-hidden
-        className="pointer-events-none absolute -top-16 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full opacity-45 blur-3xl"
-        style={{ background: "radial-gradient(circle, #FFFFFF 0%, transparent 70%)" }}
+        className="brasa brasa-vinho top-[-10rem] left-1/2 h-[30rem] w-[30rem] -translate-x-1/2"
+        style={{ animationDelay: "-11s" }}
       />
 
-      <div className="shell relative py-14 text-center md:py-20">
+      <div className="shell-l relative text-center">
         <Reveal>
-          <Icon3D name="coracao" size={76} className="mx-auto animate-float-slow" />
-          <h2 className="t-h2 mt-5 text-white">Dá para continuar adivinhando. Ou dá para ler.</h2>
-          <p className="mx-auto mt-3 max-w-[38ch] text-white/85">
+          <Icon3D
+            name="coracao"
+            size={80}
+            className="animate-float-slow mx-auto drop-shadow-[0_20px_50px_rgba(255,48,104,0.5)]"
+          />
+
+          <h2 className="titulo-luz mx-auto mt-7 max-w-[22ch] font-[family-name:var(--font-outfit)] text-[2.125rem] font-bold tracking-[-0.03em] md:text-[3.25rem]">
+            Dá para continuar adivinhando. Ou dá para ler.
+          </h2>
+
+          <p className="t-apoio mx-auto mt-5 max-w-[44ch] text-[1.0625rem]">
             Dois minutos, uma conversa exportada, e uma noite a menos rolando a tela para cima.
           </p>
+
           <Link
             href="/analise"
-            className="btn btn-lg btn-block mt-7 bg-white text-[#FF6B6B] shadow-[0_10px_30px_rgba(45,42,50,0.18)] hover:brightness-105"
+            className="btn btn-neon btn-lg btn-block mt-9 sm:mx-auto sm:w-auto sm:px-12"
           >
             Iniciar minha análise
           </Link>
-          <p className="mt-3 text-[0.875rem] text-white/80">
+
+          <p className="mt-4 text-[0.875rem] text-[#B7A2AA]">
             Sua conversa não fica guardada. Você só paga no final.
           </p>
         </Reveal>

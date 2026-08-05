@@ -14,11 +14,26 @@
   --color-sucesso: #4ade80;
   --color-erro: #ef4444;
 
+  /* Home noturna. Um acento só: o rosa.
+     - rosa-neon  → brilhos, bordas e texto grande
+     - rosa-fundo → preenchimento de botão (branco por cima passa AA, 4.8:1)
+     - rosa-claro → texto pequeno em cima do escuro (8.9:1) */
+  --color-noite: #0b0407;
+  --color-noite-2: #14060a;
+  --color-noite-3: #1d0810;
+  --color-rosa-neon: #ff3068;
+  --color-rosa-fundo: #e01048;
+  --color-rosa-claro: #ff8fb3;
+  --color-nevoa: #f6ecef;
+  --color-nevoa-2: #b7a2aa;
+
   --font-display: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
 
   --radius-card: 24px;
   --radius-soft: 16px;
+  --radius-painel: 28px;
+  --radius-bloco: 18px;
 
   --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.05);
   --shadow-lift: 0 12px 32px rgba(45, 42, 50, 0.09);
@@ -1015,6 +1030,362 @@
 }
 
 /* ============================================================
+   HOME NOTURNA
+   ------------------------------------------------------------
+   Tudo aqui vive dentro de `.noite` e só a página inicial usa.
+   As telas do fluxo (/analise, /relatorio, /termos, /privacidade)
+   continuam no tema claro sem uma linha alterada.
+
+   Regras travadas para a página inteira:
+     · tema        → escuro, do topo ao rodapé, sem seção invertida
+     · acento      → rosa, e só ele
+     · cantos      → painel 28px · bloco interno 18px · botão pílula
+   ============================================================ */
+
+.noite {
+  position: relative;
+  background: var(--color-noite);
+  color: var(--color-nevoa);
+}
+
+/* O fundo do documento acompanha, senão o creme aparece no repique
+   do scroll e no espaço abaixo do rodapé. */
+body:has(.noite) {
+  background: var(--color-noite);
+  color: var(--color-nevoa);
+}
+
+.noite :focus-visible {
+  outline-color: var(--color-rosa-claro);
+}
+
+.noite ::selection {
+  background: rgba(255, 48, 104, 0.32);
+  color: #fff;
+}
+
+/* Container largo. O `.shell` estreito continua servindo o fluxo. */
+.shell-l {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 20px;
+}
+
+@media (min-width: 768px) {
+  .shell-l {
+    padding-inline: 32px;
+  }
+}
+
+.faixa {
+  padding-block: 56px;
+}
+
+@media (min-width: 768px) {
+  .faixa {
+    padding-block: 88px;
+  }
+}
+
+/* Continua a seção anterior em vez de abrir outra: some com o respiro de cima.
+   (`pt-0` do Tailwind não venceria `.faixa`, que não está em layer.) */
+.faixa-colada {
+  padding-top: 0;
+}
+
+/* ---------- luz de fundo ---------- */
+
+/* Vinho profundo atrás de tudo: é o que separa o preto do preto. */
+.brasa {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  filter: blur(90px);
+  opacity: 0.55;
+  animation: deriva 26s ease-in-out infinite;
+}
+
+.brasa-vinho {
+  background: radial-gradient(circle, #7a0c28 0%, transparent 70%);
+}
+
+.brasa-rosa {
+  background: radial-gradient(circle, var(--color-rosa-neon) 0%, transparent 70%);
+  opacity: 0.24;
+}
+
+/* ---------- tipografia ---------- */
+
+/* Headline prateada das referências. Reservada ao topo e ao fecho:
+   se todo título brilhar, nenhum brilha. */
+.titulo-luz {
+  background: linear-gradient(168deg, #ffffff 12%, #d8c6cc 58%, #9d868e 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  line-height: 1.06;
+  padding-bottom: 0.08em;
+}
+
+.t-display {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.06;
+}
+
+.t-secao {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.18;
+  color: var(--color-nevoa);
+  text-wrap: balance;
+}
+
+.t-apoio {
+  color: var(--color-nevoa-2);
+  line-height: 1.65;
+}
+
+@media (min-width: 768px) {
+  .t-display {
+    font-size: 4rem;
+  }
+  .t-secao {
+    font-size: 2.375rem;
+  }
+}
+
+/* ---------- superfícies ---------- */
+
+.painel {
+  position: relative;
+  border-radius: var(--radius-painel);
+  background:
+    linear-gradient(155deg, rgba(255, 255, 255, 0.055) 0%, rgba(255, 255, 255, 0.015) 100%),
+    var(--color-noite-2);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 24px 60px rgba(0, 0, 0, 0.55);
+}
+
+.painel-hover {
+  transition:
+    transform 0.3s cubic-bezier(0.2, 0.8, 0.3, 1),
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.painel-hover:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 48, 104, 0.4);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    0 28px 70px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba(255, 48, 104, 0.14);
+}
+
+/* Painel em destaque: o anel de neon das referências. */
+.painel-neon {
+  border-color: rgba(255, 48, 104, 0.5);
+  background:
+    linear-gradient(155deg, rgba(255, 48, 104, 0.14) 0%, rgba(255, 48, 104, 0.03) 60%),
+    var(--color-noite-2);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 0 1px rgba(255, 48, 104, 0.18),
+    0 0 48px rgba(255, 48, 104, 0.28),
+    0 28px 70px rgba(0, 0, 0, 0.6);
+}
+
+/* Painel com cor no fundo. Existe para a grade não virar seis vidros iguais. */
+.painel-tinto {
+  background:
+    linear-gradient(150deg, rgba(255, 48, 104, 0.24) 0%, rgba(255, 48, 104, 0.05) 62%),
+    var(--color-noite-2);
+  border-color: rgba(255, 48, 104, 0.22);
+}
+
+.bloco {
+  border-radius: var(--radius-bloco);
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* ---------- botões ---------- */
+
+.btn-neon {
+  background: var(--color-rosa-fundo);
+  color: #fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 10px 30px rgba(255, 48, 104, 0.34);
+}
+
+.btn-neon:hover:not(:disabled) {
+  background: #f01a54;
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.32),
+    0 16px 42px rgba(255, 48, 104, 0.48);
+}
+
+.btn-neon:active:not(:disabled) {
+  transform: scale(0.985);
+}
+
+.btn-vidro {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-nevoa);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(10px);
+}
+
+.btn-vidro:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 48, 104, 0.45);
+  transform: translateY(-2px);
+}
+
+.btn-vidro:active:not(:disabled) {
+  transform: scale(0.985);
+}
+
+/* Pulso discreto no botão do topo: chama sem piscar. */
+@keyframes pulso-neon {
+  0%,
+  88%,
+  100% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.28),
+      0 10px 30px rgba(255, 48, 104, 0.34);
+  }
+  94% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.32),
+      0 14px 44px rgba(255, 48, 104, 0.6);
+  }
+}
+
+.btn-neon-pulso {
+  animation: pulso-neon 4.5s ease-in-out infinite;
+}
+
+/* ---------- peças pequenas ---------- */
+
+.selo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 18px 8px 10px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 48, 104, 0.32);
+  box-shadow: 0 0 26px rgba(255, 48, 104, 0.16);
+  backdrop-filter: blur(10px);
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-nevoa);
+}
+
+.etiqueta {
+  display: inline-block;
+  padding: 5px 13px;
+  border-radius: 9999px;
+  background: var(--color-rosa-fundo);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.marca-passo {
+  font-family: var(--font-display);
+  font-size: 2.75rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(255, 48, 104, 0.7);
+}
+
+.fio-vertical {
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(255, 48, 104, 0.55) 0 4px,
+    transparent 4px 10px
+  );
+}
+
+.linha-fina {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.14) 30%,
+    rgba(255, 255, 255, 0.14) 70%,
+    transparent
+  );
+}
+
+/* ---------- ajustes das peças herdadas ---------- */
+
+/* O balão de exemplo e a moldura do celular nasceram no tema claro. */
+.noite .fio-liga {
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(255, 48, 104, 0.6) 0 3px,
+    transparent 3px 6px
+  );
+}
+
+.noite .moldura {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 48, 104, 0.16) 100%);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 30px 70px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.noite .moldura::before {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.noite .moldura-tela {
+  background: #120509;
+}
+
+.noite .barra-fixa {
+  background: rgba(11, 4, 7, 0.92);
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+/* O grão fica mais fino no escuro: no claro ele é papel, aqui é filme. */
+body:has(.noite)::after {
+  opacity: 0.04;
+}
+
+/* Reveal com direção: o conteúdo entra do lado em que ele mora. */
+.reveal[data-dir="esq"] {
+  transform: translateX(-24px);
+}
+
+.reveal[data-dir="dir"] {
+  transform: translateX(24px);
+}
+
+.reveal[data-dir="esq"].is-in,
+.reveal[data-dir="dir"].is-in {
+  transform: none;
+}
+
+/* ============================================================
    Reduced motion
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {
@@ -1031,7 +1402,7 @@
   }
 
   .reveal {
-    opacity: 1;
-    transform: none;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
