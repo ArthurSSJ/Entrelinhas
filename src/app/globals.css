@@ -1,0 +1,1037 @@
+@import "tailwindcss";
+
+/* ============================================================
+   Entrelinhas — design tokens
+   ============================================================ */
+@theme {
+  --color-rosa: #ff8fab;
+  --color-rosa-suave: #ffd6e0;
+  --color-coral: #ff6b6b;
+  --color-creme: #fff8f5;
+  --color-roxo: #a78bfa;
+  --color-tinta: #2d2a32;
+  --color-tinta-suave: #6b6570;
+  --color-sucesso: #4ade80;
+  --color-erro: #ef4444;
+
+  --font-display: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-card: 24px;
+  --radius-soft: 16px;
+
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --shadow-lift: 0 12px 32px rgba(45, 42, 50, 0.09);
+  --shadow-cta: 0 8px 24px rgba(255, 143, 171, 0.35);
+
+  --animate-float-slow: floaty 6s ease-in-out infinite;
+}
+
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(-3deg);
+  }
+}
+
+@keyframes pulse-cta {
+  0%,
+  88%,
+  100% {
+    transform: scale(1);
+    box-shadow: var(--shadow-cta);
+  }
+  94% {
+    transform: scale(1.028);
+    box-shadow: 0 12px 34px rgba(255, 143, 171, 0.5);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: -220% 0;
+  }
+  to {
+    background-position: 220% 0;
+  }
+}
+
+@keyframes spin-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rise {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.6) rotate(0deg);
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-130px) scale(1) rotate(var(--spin, 25deg));
+  }
+}
+
+@keyframes stage-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-creme);
+    color: var(--color-tinta);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    line-height: 1.4;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-roxo);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  ::selection {
+    background: var(--color-rosa-suave);
+    color: var(--color-tinta);
+  }
+
+  /* Grão de papel por cima de tudo. É o que tira o aspecto de vetor chapado:
+     nenhuma superfície fica perfeitamente lisa. */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 180px;
+  }
+
+  @media print {
+    body::after {
+      display: none;
+    }
+  }
+}
+
+/* ============================================================
+   Layout
+   ============================================================ */
+.shell {
+  width: 100%;
+  max-width: 480px;
+  margin-inline: auto;
+  padding-inline: 20px;
+}
+
+@media (min-width: 768px) {
+  .shell {
+    max-width: 720px;
+    padding-inline: 24px;
+  }
+}
+
+.band {
+  padding-block: 56px;
+}
+
+@media (min-width: 768px) {
+  .band {
+    padding-block: 88px;
+  }
+}
+
+/* ============================================================
+   Typography helpers
+   ============================================================ */
+.t-h1 {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.t-h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.t-h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.t-legenda {
+  font-size: 0.875rem;
+  color: var(--color-tinta-suave);
+}
+
+@media (min-width: 768px) {
+  .t-h1 {
+    font-size: 3rem;
+  }
+  .t-h2 {
+    font-size: 2rem;
+  }
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px 7px 10px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(255, 143, 171, 0.28);
+  box-shadow: 0 4px 14px rgba(255, 143, 171, 0.16);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-tinta-suave);
+  backdrop-filter: blur(8px);
+}
+
+/* Selo de privacidade: a objeção que trava a compra merece corpo. */
+.eyebrow-forte {
+  gap: 10px;
+  padding: 10px 20px 10px 12px;
+  background: #fff;
+  border: 1.5px solid rgba(167, 139, 250, 0.4);
+  box-shadow: 0 10px 26px rgba(167, 139, 250, 0.24);
+  font-family: var(--font-display);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-tinta);
+}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 9999px;
+  padding: 16px 28px;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    transform 0.22s cubic-bezier(0.2, 0.8, 0.3, 1),
+    box-shadow 0.22s ease,
+    filter 0.22s ease;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  filter: saturate(0.5);
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, #ff8fab 0%, #ff6b6b 100%);
+  color: #fff;
+  box-shadow: var(--shadow-cta);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px rgba(255, 107, 107, 0.42);
+  filter: brightness(1.05);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-quiet {
+  background: #fff;
+  color: var(--color-tinta);
+  border: 1px solid rgba(45, 42, 50, 0.1);
+  box-shadow: var(--shadow-card);
+}
+
+.btn-quiet:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lift);
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn-lg {
+  padding: 19px 32px;
+  font-size: 1.0625rem;
+}
+
+.btn-pulse {
+  animation: pulse-cta 4s ease-in-out infinite;
+}
+
+/* ============================================================
+   Cards
+   ============================================================ */
+.card {
+  background: #fff;
+  border-radius: var(--radius-card);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-card);
+  padding: 24px;
+}
+
+.card-hover {
+  transition:
+    transform 0.28s cubic-bezier(0.2, 0.8, 0.3, 1),
+    box-shadow 0.28s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lift);
+}
+
+/* ============================================================
+   Upload zone
+   ============================================================ */
+.dropzone {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 34px 22px;
+  border-radius: var(--radius-card);
+  border: 2px dashed var(--color-rosa);
+  background: linear-gradient(180deg, #fff 0%, rgba(255, 214, 224, 0.35) 100%);
+  cursor: pointer;
+  text-align: center;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.dropzone:hover,
+.dropzone[data-state="drag"] {
+  border-color: var(--color-coral);
+  background: linear-gradient(180deg, #fff 0%, rgba(255, 214, 224, 0.75) 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(255, 143, 171, 0.24);
+}
+
+.dropzone[data-state="ready"] {
+  border-style: solid;
+  border-color: var(--color-sucesso);
+  background: linear-gradient(180deg, #fff 0%, rgba(74, 222, 128, 0.12) 100%);
+}
+
+.dropzone[data-state="error"] {
+  border-color: var(--color-erro);
+  background: linear-gradient(180deg, #fff 0%, rgba(239, 68, 68, 0.08) 100%);
+}
+
+/* ============================================================
+   Choice rows (checkbox / upsell)
+   ============================================================ */
+.choice {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  width: 100%;
+  text-align: left;
+  padding: 18px;
+  border-radius: var(--radius-soft);
+  background: #fff;
+  border: 1px solid rgba(45, 42, 50, 0.09);
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.choice:hover {
+  border-color: rgba(255, 143, 171, 0.65);
+}
+
+.choice[data-on="true"] {
+  border-color: var(--color-rosa);
+  background: rgba(255, 214, 224, 0.3);
+  box-shadow: 0 6px 18px rgba(255, 143, 171, 0.18);
+}
+
+.choice-upsell {
+  border: 1.5px solid rgba(255, 107, 107, 0.5);
+  background: linear-gradient(135deg, #fff 0%, rgba(255, 107, 107, 0.07) 100%);
+}
+
+.choice-upsell[data-on="true"] {
+  border-color: var(--color-coral);
+  background: linear-gradient(135deg, #fff 0%, rgba(255, 107, 107, 0.16) 100%);
+  box-shadow: 0 8px 24px rgba(255, 107, 107, 0.22);
+}
+
+.tick {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  margin-top: 2px;
+  border-radius: 9px;
+  border: 2px solid rgba(45, 42, 50, 0.18);
+  background: #fff;
+  display: grid;
+  place-items: center;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.tick svg {
+  opacity: 0;
+  transform: scale(0.5);
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+[data-on="true"] .tick {
+  background: linear-gradient(135deg, #ff8fab, #ff6b6b);
+  border-color: transparent;
+}
+
+[data-on="true"] .tick svg {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.badge-preco {
+  display: inline-block;
+  padding: 4px 11px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #ff8fab, #ff6b6b);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   Fio de conversa (exemplo do topo)
+   ------------------------------------------------------------
+   As mensagens entram primeiro e o achado aparece depois, como se
+   a leitura acontecesse ali. Os horários ficam à vista para a pessoa
+   fazer a conta antes de alguém contar o resultado.
+   ============================================================ */
+@keyframes fio-msg {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fio-achado {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.93);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.fio-msg {
+  animation: fio-msg 0.6s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+.fio-achado {
+  animation: fio-achado 0.7s cubic-bezier(0.2, 0.9, 0.3, 1) 1.15s both;
+}
+
+/* Liga o achado às duas mensagens: ele vem do espaço entre elas. */
+.fio-liga {
+  width: 2px;
+  height: 16px;
+  margin-inline: auto;
+  border-radius: 2px;
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(167, 139, 250, 0.55) 0 3px,
+    transparent 3px 6px
+  );
+}
+
+.fio-hora {
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+/* ============================================================
+   Acabamentos
+   ============================================================ */
+
+/* Manchas de cor que respiram atrás do conteúdo. */
+@keyframes deriva {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(18px, -22px) scale(1.08);
+  }
+  66% {
+    transform: translate(-14px, 16px) scale(0.95);
+  }
+}
+
+.mancha {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(60px);
+  pointer-events: none;
+  animation: deriva 22s ease-in-out infinite;
+}
+
+/* Cartão levemente torto: quebra a grade perfeita sem virar bagunça. */
+.torto-esq {
+  transform: rotate(-1.1deg);
+}
+
+.torto-dir {
+  transform: rotate(1.1deg);
+}
+
+.torto-esq:hover,
+.torto-dir:hover {
+  transform: rotate(0deg) translateY(-4px);
+}
+
+/* Número grande do passo, encostando na borda do cartão. */
+.numero-passo {
+  font-family: var(--font-display);
+  font-size: 3.5rem;
+  font-weight: 700;
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  background: linear-gradient(135deg, #ff8fab 0%, #ff6b6b 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Divisória em onda entre seções. */
+.onda {
+  display: block;
+  width: 100%;
+  height: 40px;
+}
+
+@media (min-width: 768px) {
+  .onda {
+    height: 64px;
+  }
+}
+
+/* Barra de etapas do fluxo. */
+.trilha {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.trilha-passo {
+  height: 5px;
+  flex: 1;
+  border-radius: 9999px;
+  background: rgba(45, 42, 50, 0.1);
+  overflow: hidden;
+}
+
+.trilha-passo[data-on="true"] {
+  background: linear-gradient(90deg, #a78bfa 0%, #ff8fab 100%);
+}
+
+/* Barra de ação fixa no rodapé do celular. */
+.barra-fixa {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 50;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  background: rgba(255, 248, 245, 0.9);
+  border-top: 1px solid rgba(45, 42, 50, 0.07);
+  backdrop-filter: blur(14px);
+  transform: translateY(120%);
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.barra-fixa[data-visivel="true"] {
+  transform: none;
+}
+
+@media (min-width: 768px) {
+  .barra-fixa {
+    display: none;
+  }
+}
+
+/* Celular desenhado, para mostrar o relatório sem foto de tela. */
+.moldura {
+  position: relative;
+  width: 100%;
+  max-width: 268px;
+  margin-inline: auto;
+  padding: 10px;
+  border-radius: 38px;
+  background: linear-gradient(160deg, #fff 0%, #ffe9ef 100%);
+  border: 1px solid rgba(45, 42, 50, 0.08);
+  box-shadow:
+    0 24px 60px rgba(45, 42, 50, 0.16),
+    inset 0 1px 0 #fff;
+}
+
+.moldura::before {
+  content: "";
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  width: 62px;
+  height: 5px;
+  border-radius: 9999px;
+  background: rgba(45, 42, 50, 0.12);
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.moldura-tela {
+  border-radius: 30px;
+  background: var(--color-creme);
+  padding: 34px 14px 16px;
+  overflow: hidden;
+}
+
+/* Aspas grandes atrás dos depoimentos. */
+.depoimento {
+  position: relative;
+  overflow: hidden;
+}
+
+.depoimento::before {
+  content: "\201C";
+  position: absolute;
+  top: -26px;
+  right: 8px;
+  font-family: var(--font-display);
+  font-size: 8rem;
+  line-height: 1;
+  color: var(--color-rosa-suave);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.inicial {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex: none;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #ffd6e0 0%, #ff8fab 100%);
+  font-family: var(--font-display);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* Telas desenhadas do tutorial: o alvo do toque pisca devagar. */
+@keyframes foco {
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px rgba(255, 143, 171, 0.9);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(255, 143, 171, 0.28);
+  }
+}
+
+.foco {
+  position: relative;
+  border-radius: 8px;
+  animation: foco 2s ease-in-out infinite;
+}
+
+.mock {
+  width: 100%;
+  max-width: 232px;
+  margin-inline: auto;
+  border-radius: 22px;
+  overflow: hidden;
+  background: #ece5dd;
+  border: 6px solid #2d2a32;
+  box-shadow: 0 12px 30px rgba(45, 42, 50, 0.18);
+  font-size: 9px;
+  line-height: 1.3;
+  user-select: none;
+}
+
+.mock-barra {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 8px;
+  background: #4c8b72;
+  color: #fff;
+}
+
+.mock-lista {
+  background: #fff;
+  color: #2d2a32;
+}
+
+.mock-item {
+  padding: 7px 10px;
+  border-bottom: 1px solid rgba(45, 42, 50, 0.06);
+}
+
+/* Lista de reconhecimento: cada item é uma frase que a pessoa já pensou. */
+.espelho {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 15px 18px;
+  border-radius: var(--radius-soft);
+  background: #fff;
+  border: 1px solid rgba(45, 42, 50, 0.07);
+  box-shadow: 0 2px 10px rgba(45, 42, 50, 0.04);
+}
+
+/* ============================================================
+   Stage transitions
+   ============================================================ */
+.stage {
+  animation: stage-in 0.45s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+/* Scroll reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* ============================================================
+   Processing
+   ============================================================ */
+.orbit {
+  position: relative;
+  width: 168px;
+  height: 168px;
+  margin-inline: auto;
+}
+
+.orbit-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px dashed rgba(167, 139, 250, 0.35);
+  animation: spin-orbit 14s linear infinite;
+}
+
+.orbit-sat {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 42px;
+  height: 42px;
+  margin: -21px;
+  animation: spin-orbit 14s linear infinite;
+}
+
+.progress-track {
+  height: 8px;
+  border-radius: 9999px;
+  background: rgba(167, 139, 250, 0.18);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #a78bfa 0%, #ff8fab 100%);
+  transition: width 0.6s cubic-bezier(0.3, 0.8, 0.3, 1);
+}
+
+/* ============================================================
+   Locked report (paywall)
+   ============================================================ */
+.locked-bar {
+  height: 11px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 214, 224, 0.55) 0%,
+    rgba(167, 139, 250, 0.3) 50%,
+    rgba(255, 214, 224, 0.55) 100%
+  );
+  background-size: 220% 100%;
+  animation: shimmer 2.6s linear infinite;
+}
+
+.pix-code {
+  font-family: ui-monospace, "SFMono-Regular", "Cascadia Code", monospace;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  word-break: break-all;
+  color: var(--color-tinta-suave);
+  background: var(--color-creme);
+  border: 1px solid rgba(45, 42, 50, 0.08);
+  border-radius: 12px;
+  padding: 12px;
+  max-height: 92px;
+  overflow: auto;
+}
+
+/* ============================================================
+   Confetti
+   ============================================================ */
+.confetti {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  overflow: hidden;
+}
+
+.confetti span {
+  position: absolute;
+  bottom: 18%;
+  animation: rise 2.6s ease-out forwards;
+}
+
+/* ============================================================
+   Modal
+   ============================================================ */
+.modal-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(45, 42, 50, 0.42);
+  backdrop-filter: blur(6px);
+  animation: stage-in 0.3s ease both;
+  padding: 16px;
+}
+
+@media (min-width: 768px) {
+  .modal-veil {
+    align-items: center;
+  }
+}
+
+.modal-sheet {
+  width: 100%;
+  max-width: 520px;
+  max-height: 86vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 28px;
+  padding: 26px 22px calc(26px + env(safe-area-inset-bottom));
+  box-shadow: 0 24px 60px rgba(45, 42, 50, 0.28);
+  animation: stage-in 0.38s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+/* ============================================================
+   Report body
+   ============================================================ */
+.report-body p {
+  margin-block: 0 0.85em;
+  color: var(--color-tinta-suave);
+}
+
+.report-body p:last-child {
+  margin-bottom: 0;
+}
+
+.report-body strong {
+  color: var(--color-tinta);
+  font-weight: 600;
+}
+
+/* ============================================================
+   Impressão — o "Salvar em PDF" do navegador
+   ------------------------------------------------------------
+   Na tela o relatório mora no meio de uma página de vendas. No papel
+   ele precisa chegar sozinho: sem cabeçalho, sem botão, sem rodapé.
+   ============================================================ */
+
+/* Só aparece no papel. */
+.so-impressao {
+  display: none;
+}
+
+@media print {
+  @page {
+    margin: 14mm 12mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #000;
+    font-size: 11pt;
+  }
+
+  /* Fora tudo que é navegação e venda. */
+  header,
+  footer,
+  .nao-imprimir,
+  .confetti {
+    display: none !important;
+  }
+
+  /* Guarda para navegadores sem :has() — some com as seções de venda. */
+  main > section:not(#comecar) {
+    display: none !important;
+  }
+
+  /* Se o relatório não está na tela, não há o que imprimir. */
+  main > section:not(:has(.imprimivel)) {
+    display: none !important;
+  }
+
+  .band {
+    padding-block: 0 !important;
+  }
+
+  .shell {
+    max-width: none !important;
+    padding-inline: 0 !important;
+  }
+
+  .so-impressao {
+    display: block;
+  }
+
+  .stage {
+    animation: none !important;
+  }
+
+  /* Cartões viram blocos de texto separados por uma linha fina. */
+  .card {
+    box-shadow: none !important;
+    border: 0 !important;
+    border-top: 1px solid #ddd !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+    padding: 14px 0 !important;
+    break-inside: avoid;
+  }
+
+  .card-hover:hover {
+    transform: none !important;
+  }
+
+  h1,
+  h2,
+  h3 {
+    color: #000;
+    break-after: avoid;
+  }
+
+  .report-body p {
+    color: #1a1a1a;
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* O nível de risco é informação, não enfeite: força a cor no papel. */
+  .nivel-risco {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  a[href^="mailto:"]::after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    color: #555;
+  }
+}
+
+/* ============================================================
+   Reduced motion
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
