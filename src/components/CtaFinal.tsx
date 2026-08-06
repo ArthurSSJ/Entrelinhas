@@ -34,19 +34,20 @@ export default function CtaFinal() {
             Dá para continuar adivinhando. Ou dá para ler.
           </h2>
 
-          <p className="t-apoio mx-auto mt-5 max-w-[44ch] text-[1.0625rem]">
-            Dois minutos, uma conversa exportada, e uma noite a menos rolando a tela para cima.
+          <p className="t-apoio mx-auto mt-5 max-w-[46ch] text-[1.0625rem]">
+            Dois minutos agora, ou mais uma semana montando teoria às três da manhã. As duas coisas
+            custam. Só uma responde.
           </p>
 
           <Link
             href="/analise"
             className="btn btn-neon btn-lg btn-block mt-9 sm:mx-auto sm:w-auto sm:px-12"
           >
-            Iniciar minha análise
+            Ler minha conversa
           </Link>
 
           <p className="mt-4 text-[0.875rem] text-[#B7A2AA]">
-            Sua conversa não fica guardada. Você só paga no final.
+            Sua conversa não fica guardada. Você lê a primeira conclusão antes de pagar.
           </p>
         </Reveal>
       </div>

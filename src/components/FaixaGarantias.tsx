@@ -5,7 +5,7 @@ import Reveal from "./Reveal";
  * primeiro clique e as coloca onde elas cabem: linha fina, sem cartão, sem
  * ícone. É informação de rodapé de anúncio, não seção de venda.
  */
-const garantias = ["Sem cadastro", "Ninguém é avisado", "Você só paga no final"];
+const garantias = ["Sem cadastro", "Ninguém do outro lado é avisado", "Você vê antes de pagar"];
 
 export default function FaixaGarantias() {
   return (
@@ -15,7 +15,7 @@ export default function FaixaGarantias() {
       <div className="shell-l flex flex-col items-start gap-5 py-7 md:flex-row md:items-center md:justify-between md:gap-8">
         <Reveal>
           <p className="text-[0.9375rem] text-[#B7A2AA]">
-            Sem julgamento, sem palpite.{" "}
+            Sem julgamento, sem palpite, sem sermão.{" "}
             <span className="text-[#F6ECEF]">Só o que já está escrito aí.</span>
           </p>
         </Reveal>

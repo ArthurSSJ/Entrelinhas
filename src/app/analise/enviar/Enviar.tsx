@@ -108,8 +108,8 @@ export default function Enviar() {
 
       <h1 className="t-h2">Traga a conversa</h1>
       <p className="mt-2 text-[#B7A2AA]">
-        Solte o arquivo .txt que você acabou de exportar. Ele some da nossa mão assim que a leitura
-        termina.
+        Solte o arquivo .txt que você acabou de exportar. Ele é lido uma vez e apagado assim que o
+        relatório fica pronto.
       </p>
 
       <div
@@ -238,7 +238,7 @@ export default function Enviar() {
           <span className="t-legenda mt-1 block">
             {sugerida
               ? "Você disse que a dúvida é sobre outra pessoa, então já deixamos marcado. Dá para desmarcar."
-              : "Uma leitura separada sobre sinais de envolvimento com outra pessoa: mudanças de horário, de tom e de assunto."}
+              : "Uma leitura separada sobre sinais de envolvimento com outra pessoa: mudança de horário, de tom e de assunto, com o trecho que sustenta cada uma."}
           </span>
         </span>
         <Icon3D name="alerta" size={44} className="flex-none" />
@@ -290,7 +290,7 @@ export default function Enviar() {
           : !arquivo
             ? "Escolha o arquivo para continuar"
             : faltaEscolher
-              ? "Diga qual desses é você"
+              ? "Diga qual desses nomes é você"
               : !aceitou
                 ? "Aceite os termos para continuar"
                 : "Ler minha conversa"}
@@ -301,7 +301,7 @@ export default function Enviar() {
           <>Fase de testes: a leitura sai liberada, sem cobrança.</>
         ) : (
           <>
-            Você só paga depois que a leitura ficar pronta: {brl(totalCents(avancada))}
+            Você lê a primeira conclusão antes de pagar. Depois, {brl(totalCents(avancada))}
             {avancada ? ` (${brl(BASE_CENTS)} + adicional)` : ""}.
           </>
         )}

@@ -6,7 +6,7 @@ import { BASE_CENTS, UPSELL_CENTS, brl } from "@/lib/pricing";
 
 const inclui = [
   "Seis leituras sobre a conversa de vocês",
-  "Os trechos que sustentam cada conclusão",
+  "A data e o trecho que sustentam cada conclusão",
   "Uma sugestão concreta para esta semana",
   "Salvar em PDF direto do celular",
 ];
@@ -22,10 +22,10 @@ export default function Preco() {
       <div className="shell-l relative">
         <Reveal>
           <div className="mx-auto max-w-[46ch] text-center">
-            <h2 className="t-secao">Um preço só, no final</h2>
+            <h2 className="t-secao">Um preço só. E você paga depois.</h2>
             <p className="t-apoio mt-4">
-              Você envia, a leitura acontece, e só então aparece o pagamento. Se a leitura falhar,
-              nada é cobrado.
+              Você envia, a leitura acontece, você lê a primeira conclusão, e só então aparece o
+              pagamento. Se a leitura falhar, nada é cobrado.
             </p>
           </div>
         </Reveal>
@@ -45,8 +45,11 @@ export default function Preco() {
             <p className="titulo-luz mt-1 font-[family-name:var(--font-outfit)] text-[3.25rem] font-bold tracking-tight">
               {brl(BASE_CENTS)}
             </p>
-            <p className="text-[0.9375rem] text-[#B7A2AA]">
-              Pagamento único. Sem assinatura, sem renovação.
+            <p className="mx-auto mt-2 max-w-[34ch] text-[0.9375rem] leading-snug text-[#FF8FB3]">
+              Você já perdeu mais do que isso numa noite só, rolando a tela para cima.
+            </p>
+            <p className="mt-3 text-[0.875rem] text-[#B7A2AA]">
+              Pagamento único. Sem assinatura, sem renovação, sem cobrança no mês que vem.
             </p>
 
             <ul className="mt-7 space-y-3 text-left">
@@ -80,10 +83,10 @@ export default function Preco() {
             </ul>
 
             <Link href="/analise" className="btn btn-neon btn-lg btn-block mt-8">
-              Iniciar minha análise
+              Ler minha conversa
             </Link>
             <p className="mt-4 text-[0.875rem] text-[#B7A2AA]">
-              Leva 2 minutos e você não precisa criar conta.
+              Dois minutos, sem cadastro, e ninguém do outro lado é avisado.
             </p>
           </div>
         </Reveal>

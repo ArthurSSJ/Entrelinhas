@@ -75,7 +75,8 @@ export default function Tutorial() {
 
       <h1 className="t-h2">Agora exporte a conversa</h1>
       <p className="mt-2 text-[#B7A2AA]">
-        Isso acontece dentro do WhatsApp, no seu celular. Ninguém do outro lado é avisado.
+        Tudo acontece dentro do seu celular. O WhatsApp não avisa ninguém que você exportou, nem
+        agora nem depois.
       </p>
 
       {/* Seletor de aparelho */}
@@ -131,7 +132,7 @@ export default function Tutorial() {
       <p className="t-legenda mt-6 flex items-start gap-2.5 rounded-2xl border border-[#FF3068]/25 bg-white/6 p-4">
         <Icon3D name="conversa" size={30} className="flex-none" />
         Conversa muito longa? O WhatsApp pode dividir em mais de um arquivo. Envie o mais recente:
-        ele já conta bastante.
+        ele já conta bastante da história.
       </p>
 
       <Link href="/analise/enviar" className="btn btn-primary btn-lg btn-block mt-6">

@@ -5,32 +5,35 @@ const itens: { icon: IconName; titulo: string; texto: string }[] = [
   {
     icon: "conversa",
     titulo: "Quem sustenta a conversa",
-    texto: "Quem manda a primeira mensagem, quem responde mais rápido, quem deixa no vácuo.",
+    texto:
+      "Quem manda a primeira mensagem, quem responde em minutos, quem responde em horas. Com os números do lado.",
   },
   {
     icon: "coracao",
     titulo: "Onde o tom mudou",
-    texto: "O mês em que os apelidos sumiram, o dia em que as mensagens ficaram funcionais.",
+    texto: "O mês em que os apelidos sumiram e as mensagens viraram combinado de horário.",
   },
   {
     icon: "lupa",
     titulo: "Os assuntos que ninguém termina",
-    texto: "Temas que aparecem, esquentam e somem sempre do mesmo jeito.",
+    texto: "Os temas que aparecem, esquentam e morrem sempre no mesmo ponto.",
   },
   {
     icon: "celular",
     titulo: "O horário das brigas",
-    texto: "A hora do dia em que as conversas de vocês azedam, e a hora em que dão certo.",
+    texto: "A hora do dia em que a conversa de vocês azeda. E a hora em que ela dá certo.",
   },
   {
     icon: "escudo",
     titulo: "O que vocês fazem bem",
-    texto: "Sim, isso também. Nem tudo que se repete é problema.",
+    texto:
+      "Sim, isso também. Nem tudo que se repete é problema, e vale saber o que vocês precisam preservar.",
   },
   {
     icon: "foguete",
     titulo: "Uma coisa para tentar esta semana",
-    texto: "Um passo pequeno e concreto, tirado da própria conversa de vocês.",
+    texto:
+      "Um passo pequeno e concreto, tirado da conversa de vocês. Não é conselho de biscoito da sorte.",
   },
 ];
 
@@ -51,8 +54,9 @@ export default function OQueRecebe() {
       <div className="shell-l relative">
         <Reveal>
           <h2 className="t-secao">O que vem no relatório</h2>
-          <p className="t-apoio mt-4 max-w-[50ch]">
-            Seis leituras escritas em português comum, cada uma apoiada no que está na conversa.
+          <p className="t-apoio mt-4 max-w-[56ch]">
+            Seis leituras em português comum. Cada conclusão vem com a data e o trecho que a
+            sustenta, para você conferir se é verdade em vez de acreditar.
           </p>
         </Reveal>
 

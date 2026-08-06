@@ -5,17 +5,18 @@ const passos: { icon: IconName; titulo: string; texto: string }[] = [
   {
     icon: "celular",
     titulo: "Exporte a conversa",
-    texto: "Quatro toques dentro do WhatsApp. A gente mostra cada um deles na tela seguinte.",
+    texto:
+      "Quatro toques dentro do WhatsApp, no seu celular. A gente desenha cada tela na etapa seguinte.",
   },
   {
     icon: "nuvem",
     titulo: "Responda e envie",
-    texto: "Quatro perguntas rápidas sobre a relação e o arquivo .txt. Sem cadastro, sem senha.",
+    texto: "Quatro perguntas rápidas e o arquivo .txt. Sem cadastro, sem senha, sem e-mail.",
   },
   {
     icon: "presente",
     titulo: "Leia o que apareceu",
-    texto: "Em menos de dois minutos o relatório fica pronto. Você paga só para abrir.",
+    texto: "Em menos de dois minutos está pronto. Você lê a primeira conclusão antes de pagar.",
   },
 ];
 
@@ -31,8 +32,9 @@ export default function ComoFunciona() {
         <Reveal>
           <div className="lg:sticky lg:top-28">
             <h2 className="t-secao">Como funciona</h2>
-            <p className="t-apoio mt-4 max-w-[38ch]">
-              Do começo ao relatório aberto: menos tempo do que uma ida ao mercado.
+            <p className="t-apoio mt-4 max-w-[40ch]">
+              Dois minutos do começo ao relatório aberto. É menos tempo do que você já gastou hoje
+              relendo a conversa.
             </p>
           </div>
         </Reveal>

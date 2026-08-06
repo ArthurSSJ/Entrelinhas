@@ -44,7 +44,7 @@ export default function CtaFlutuante() {
     <div className="barra-fixa" data-visivel={visivel} aria-hidden={!visivel}>
       <div className="flex items-center gap-3">
         <p className="min-w-0 flex-1 text-[0.8125rem] leading-tight text-[#B7A2AA]">
-          Análise completa
+          Você paga depois de ver
           <span className="block font-[family-name:var(--font-outfit)] text-[1.0625rem] font-bold text-[#F6ECEF]">
             {brl(BASE_CENTS)}
           </span>
@@ -54,7 +54,7 @@ export default function CtaFlutuante() {
           tabIndex={visivel ? undefined : -1}
           className="btn btn-neon flex-none px-5 py-3 text-[0.875rem] whitespace-nowrap"
         >
-          Iniciar minha análise
+          Ler minha conversa
         </Link>
       </div>
     </div>

@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import Icon3D, { type IconName } from "./Icon3D";
 
 const etapas = [
-  "Enviando sua conversa…",
-  "Lendo do começo ao fim…",
-  "Encontrando os padrões…",
-  "Escrevendo o que dá para dizer…",
-  "Quase pronto…",
+  "Recebendo a conversa…",
+  "Lendo do primeiro dia até hoje…",
+  "Contando o que se repete…",
+  "Escrevendo em português…",
+  "Fechando o relatório…",
 ];
 
 /** Ícones em órbita, um por assunto da leitura. */
@@ -64,7 +64,7 @@ export default function EtapaProcessando({ fila = 0 }: { fila?: number }) {
       <p className="mt-2 text-[#B7A2AA]">
         {fila > 0
           ? `Tem ${fila === 1 ? "mais uma conversa" : `mais ${fila} conversas`} sendo lida agora. A sua entra em seguida.`
-          : "Isso costuma levar menos de um minuto. Pode deixar a tela aberta."}
+          : "Costuma levar menos de um minuto. Não feche a aba: é aqui que o relatório abre."}
       </p>
 
       <div className="progress-track mx-auto mt-7 max-w-[320px]">

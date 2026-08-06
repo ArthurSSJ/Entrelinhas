@@ -40,7 +40,7 @@ export const PERGUNTAS: Pergunta[] = [
   {
     id: "tempo",
     titulo: "Há quanto tempo vocês conversam?",
-    ajuda: "Ajuda a saber o que é mudança e o que sempre foi assim.",
+    ajuda: "Separa o que mudou do que sempre foi assim.",
     opcoes: [
       { id: "curto", texto: "Menos de 3 meses" },
       { id: "medio", texto: "De 3 meses a 1 ano" },
@@ -51,7 +51,7 @@ export const PERGUNTAS: Pergunta[] = [
   {
     id: "duvida",
     titulo: "O que você quer entender?",
-    ajuda: "Escolha o que mais pesa. A leitura começa por aí.",
+    ajuda: "Escolha o que mais pesa. O relatório começa por aí.",
     opcoes: [
       { id: "interesse", texto: "Se ainda existe interesse do outro lado", icon: "coracao" },
       { id: "briga", texto: "Por que a gente briga sempre pelo mesmo motivo", icon: "conversa" },
@@ -67,7 +67,7 @@ export const PERGUNTAS: Pergunta[] = [
   {
     id: "sentimento",
     titulo: "Como você tem se sentido?",
-    ajuda: "Sem resposta certa. Isso muda o tom do que a gente escreve.",
+    ajuda: "Não tem resposta certa. Isso muda o tom do que a gente escreve.",
     opcoes: [
       { id: "inseguranca", texto: "Insegurança" },
       { id: "cansaco", texto: "Cansaço" },

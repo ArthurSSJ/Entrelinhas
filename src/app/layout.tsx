@@ -19,12 +19,13 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Entrelinhas · entenda o que sua conversa já diz",
+  title: "Entrelinhas · o que a conversa de vocês já diz",
   description:
-    "Envie o histórico de uma conversa do WhatsApp e receba uma leitura clara dos padrões do relacionamento. A conversa não fica guardada.",
+    "Envie uma conversa do WhatsApp e receba em dois minutos os padrões que se repetem. Sem cadastro, ninguém do outro lado é avisado, e a conversa não fica guardada.",
   openGraph: {
-    title: "Entrelinhas",
-    description: "Entenda o que sua conversa já diz.",
+    title: "Você já sabe. Só não consegue nomear.",
+    description:
+      "A leitura da conversa de vocês em dois minutos. Sem cadastro e sem ninguém ficar sabendo.",
     locale: "pt_BR",
     type: "website",
   },

@@ -60,7 +60,7 @@ export default function Cabecalho({ modo = "texto" }: { modo?: Modo }) {
             href="/analise"
             className="btn btn-primary flex-none px-4 py-2.5 text-[0.8125rem] whitespace-nowrap md:px-6 md:text-[0.9375rem]"
           >
-            Iniciar minha análise
+            Ler minha conversa
           </Link>
         )}
       </div>

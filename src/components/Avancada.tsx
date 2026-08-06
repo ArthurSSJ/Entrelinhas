@@ -5,6 +5,10 @@ import { brl, UPSELL_CENTS } from "@/lib/pricing";
 /**
  * O único bloco da página com anel de neon aceso. É um adicional pago e opcional:
  * precisa ser achado sem ser confundido com a oferta principal.
+ *
+ * O limite do que ela faz está escrito no próprio anúncio, e não no rodapé.
+ * Prometer prova de traição venderia mais hoje e voltaria como reembolso na
+ * semana seguinte, porque conversa nenhuma prova isso.
  */
 export default function Avancada() {
   return (
@@ -22,14 +26,19 @@ export default function Avancada() {
                 <span className="etiqueta">Adicional · {brl(UPSELL_CENTS)}</span>
                 <h2 className="t-secao mt-3">Análise avançada de traição</h2>
 
-                <p className="t-apoio mt-4 max-w-[56ch]">
-                  Uma leitura separada, só sobre sinais de envolvimento com outra pessoa: mudanças
-                  de horário, de tom, de assunto e de tempo de resposta. Cada conclusão vem com o
-                  trecho em que ela se apoia.
+                <p className="t-apoio mt-4 max-w-[58ch]">
+                  Se a sua dúvida tem nome, e o nome é outra pessoa, essa leitura vem separada:
+                  mudanças de horário, de tom, de assunto e de tempo de resposta, comparadas com o
+                  começo da conversa.
+                </p>
+
+                <p className="mt-4 max-w-[58ch] text-[0.9375rem] leading-relaxed text-[#F6ECEF]/85">
+                  Ela não acusa e não absolve ninguém. Mostra o que mudou, quando mudou e em qual
+                  mensagem. O que fazer com isso continua sendo decisão sua.
                 </p>
 
                 <p className="mt-5 text-[0.9375rem] text-[#B7A2AA]">
-                  Você escolhe se quer isso na hora de enviar a conversa. Dá para seguir sem.
+                  Você marca na hora de enviar a conversa. Dá para seguir sem.
                 </p>
               </div>
 

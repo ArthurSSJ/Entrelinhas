@@ -5,8 +5,9 @@ import Reveal from "./Reveal";
 import { Sublinhado } from "./Enfeites";
 
 /**
- * O herói é a tese do produto: entre duas mensagens comuns existe uma terceira
- * coisa, que ninguém escreveu e todo mundo sente. É isso que o site lê.
+ * O herói fala com quem já desconfia de alguma coisa e não consegue dizer o
+ * quê. Ele não promete revelação: promete nome. Por isso a frase é a dúvida da
+ * pessoa devolvida em voz alta, e não uma descrição do produto.
  *
  * A divisão é assimétrica, não centralizada: de um lado a frase, do outro a
  * prova. A pessoa lê a promessa e vê o exemplo no mesmo relance.
@@ -21,26 +22,27 @@ export default function Hero() {
         style={{ animationDelay: "-9s" }}
       />
 
-      <div className="shell-l relative grid items-center gap-14 pt-12 pb-16 md:pt-20 md:pb-24 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16">
+      <div className="shell-l relative grid items-center gap-14 pt-12 pb-16 md:pt-20 md:pb-24 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-16">
         <div>
           <Reveal>
             <span className="selo">
               <Icon3D name="escudo" size={26} />
-              Sua conversa não fica guardada
+              Ninguém é avisado. Nada fica guardado.
             </span>
           </Reveal>
 
           <Reveal delay={80}>
             <h1 className="t-display titulo-luz mt-6">
-              O que vocês dizem
+              Você já sabe.
               <br />
-              nas <Sublinhado cor="#FF3068">entrelinhas</Sublinhado>
+              Só falta <Sublinhado cor="#FF3068">nomear</Sublinhado>.
             </h1>
           </Reveal>
 
           <Reveal delay={140}>
-            <p className="t-apoio mt-6 max-w-[44ch] text-[1.0625rem] md:text-[1.125rem]">
-              Envie o histórico de uma conversa e receba uma leitura honesta dos padrões de vocês.
+            <p className="t-apoio mt-6 max-w-[46ch] text-[1.0625rem] md:text-[1.125rem]">
+              Está tudo escrito nas entrelinhas da conversa de vocês. Em dois minutos, você lê de
+              uma vez.
             </p>
           </Reveal>
 
@@ -49,7 +51,7 @@ export default function Hero() {
               href="/analise"
               className="btn btn-neon btn-neon-pulso btn-lg btn-block mt-8 sm:w-auto sm:px-10"
             >
-              Iniciar minha análise
+              Ler minha conversa
             </Link>
           </Reveal>
         </div>
@@ -99,8 +101,8 @@ function FioDeConversa() {
         <p className="fio-achado mt-1 flex items-center gap-3 rounded-[18px] border border-[#FF3068]/35 bg-[#FF3068]/12 px-3.5 py-3">
           <Icon3D name="lupa" size={32} className="flex-none" />
           <span className="font-[family-name:var(--font-outfit)] text-[0.875rem] leading-snug font-semibold text-[#FF8FB3]">
-            Mais de 8 horas para responder.
-            <span className="font-medium text-[#F6ECEF]/80"> É a 14ª vez desde março.</span>
+            8 horas para responder.
+            <span className="font-medium text-[#F6ECEF]/80"> A 14ª vez só desde março.</span>
           </span>
         </p>
 

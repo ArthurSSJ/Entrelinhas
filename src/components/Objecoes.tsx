@@ -10,20 +10,20 @@ import Reveal from "./Reveal";
  */
 const pares = [
   {
-    nao: "Não é um detector de mentira",
-    sim: "É uma leitura dos padrões que estão escritos na conversa.",
+    nao: "Não é detector de mentira",
+    sim: "É a leitura dos padrões que já estão escritos na conversa.",
   },
   {
-    nao: "Não é um app de espionagem",
-    sim: "Você envia uma conversa que é sua. Ninguém do outro lado fica sabendo.",
+    nao: "Não é app de espionagem",
+    sim: "Você envia uma conversa que é sua. Ninguém do outro lado descobre, hoje nem depois.",
   },
   {
     nao: "Não é terapia",
-    sim: "É material para começar uma conversa difícil com mais clareza.",
+    sim: "É o material para começar a conversa difícil já sabendo o que dizer.",
   },
   {
-    nao: "Não é um gráfico com números soltos",
-    sim: "É texto em português comum, sobre vocês dois, que dá para ler no ônibus.",
+    nao: "Não é gráfico com números soltos",
+    sim: "É texto sobre vocês dois, que dá para ler inteiro numa viagem de ônibus.",
   },
 ];
 
@@ -32,7 +32,7 @@ export default function Objecoes() {
     <section className="faixa faixa-colada">
       <div className="shell-l">
         <Reveal>
-          <h2 className="t-secao">Para não haver mal-entendido</h2>
+          <h2 className="t-secao">O que você não vai receber</h2>
         </Reveal>
 
         <Reveal delay={70}>
@@ -86,8 +86,8 @@ export default function Objecoes() {
           <p className="mt-6 flex max-w-[72ch] items-start gap-4 text-[0.9375rem] leading-relaxed text-[#B7A2AA]">
             <Icon3D name="coracao" size={38} className="flex-none" />
             <span>
-              A conversa é de duas pessoas. Envie só conversas das quais você participou, e use o
-              que ler para falar com quem está do outro lado, não sobre.
+              A conversa é de duas pessoas. Envie só conversa da qual você participou, e use o que
+              ler para falar com quem está do outro lado, não pelas costas dele.
             </span>
           </p>
         </Reveal>

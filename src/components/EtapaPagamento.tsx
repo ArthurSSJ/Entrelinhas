@@ -31,18 +31,17 @@ export default function EtapaPagamento({ estado, erro, onRecomecar }: Props) {
           <Icon3D name="brilho" size={18} />
           Leitura concluída
         </span>
-        <h2 className="t-h2 mt-3">
-          {preview?.headline ?? "Sua análise está pronta."}
-        </h2>
+        <h2 className="t-h2 mt-3">{preview?.headline ?? "Sua análise está pronta."}</h2>
         <p className="mt-2 text-[#B7A2AA]">
-          Encontramos <strong className="text-[#F6ECEF]">{preview?.patternCount ?? 0} padrões</strong>{" "}
-          na conversa de vocês.
+          Essa é a primeira conclusão. Atrás dela tem mais{" "}
+          <strong className="text-[#F6ECEF]">{preview?.patternCount ?? 0} padrões</strong> na
+          conversa de vocês.
         </p>
       </div>
 
       {/* O que existe do outro lado */}
       <div className="card mt-6">
-        <h3 className="t-h3">O que o relatório traz</h3>
+        <h3 className="t-h3">O que ainda está fechado</h3>
         <ul className="mt-4 space-y-4">
           {(preview?.sectionTitles ?? []).map((titulo) => (
             <li key={titulo}>
@@ -65,6 +64,11 @@ export default function EtapaPagamento({ estado, erro, onRecomecar }: Props) {
             </li>
           )}
         </ul>
+
+        <p className="t-legenda mt-5">
+          Cada uma dessas leituras vem com a data e o trecho da conversa de vocês em que ela se
+          apoia.
+        </p>
       </div>
 
       {/* Valor */}
@@ -99,7 +103,7 @@ export default function EtapaPagamento({ estado, erro, onRecomecar }: Props) {
 
       {cobranca?.kind === "redirect" && (
         <a href={cobranca.url} className="btn btn-primary btn-lg btn-block btn-pulse mt-5">
-          Liberar meu relatório
+          Abrir meu relatório
         </a>
       )}
 
@@ -120,7 +124,7 @@ export default function EtapaPagamento({ estado, erro, onRecomecar }: Props) {
       <button
         type="button"
         onClick={onRecomecar}
-        className="mt-6 block w-full text-center text-[0.875rem] text-[#B7A2AA] underline underline-offset-4"
+        className="mt-8 block w-full text-center text-[0.875rem] text-[#B7A2AA] underline underline-offset-4"
       >
         Começar de novo com outra conversa
       </button>

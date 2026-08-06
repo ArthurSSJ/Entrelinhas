@@ -5,17 +5,19 @@ const garantias: { icon: IconName; titulo: string; texto: string }[] = [
   {
     icon: "cadeado",
     titulo: "A conversa não fica guardada",
-    texto: "Ela é lida uma vez e apagada. Nada é gravado em disco.",
+    texto: "Ela é lida uma única vez e apagada em seguida. Nada é gravado em disco.",
   },
   {
     icon: "escudo",
-    titulo: "Sem cadastro",
-    texto: "Sem conta, sem senha, sem e-mail. Você entra, envia e recebe.",
+    titulo: "Ninguém fica sabendo",
+    texto:
+      "A exportação acontece no seu celular e não avisa ninguém. Sem conta, sem senha, sem e-mail.",
   },
   {
     icon: "coracao",
     titulo: "Sem julgamento",
-    texto: "O relatório descreve o que está escrito. Quem decide o que fazer é você.",
+    texto:
+      "O relatório descreve o que está escrito. Não torce por ninguém e não manda você terminar nada.",
   },
 ];
 
@@ -28,9 +30,10 @@ export default function Confianca() {
     <section className="faixa faixa-colada">
       <div className="shell-l">
         <Reveal>
-          <h2 className="t-secao max-w-[22ch]">Você está entregando algo íntimo</h2>
-          <p className="t-apoio mt-4 max-w-[48ch]">
-            Por isso vale dizer com todas as letras o que acontece do outro lado.
+          <h2 className="t-secao max-w-[22ch]">Você está prestes a entregar algo íntimo</h2>
+          <p className="t-apoio mt-4 max-w-[50ch]">
+            Então vale dizer com todas as letras o que acontece do outro lado, antes de você
+            clicar.
           </p>
         </Reveal>
 

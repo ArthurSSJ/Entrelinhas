@@ -3,7 +3,7 @@ import Perguntas from "./Perguntas";
 
 export const metadata: Metadata = {
   title: "Sobre vocês dois · Entrelinhas",
-  description: "Quatro perguntas rápidas antes de ler a conversa.",
+  description: "Quatro perguntas rápidas antes da leitura. Nada disso vira cadastro.",
 };
 
 export default function PaginaPerguntas() {
