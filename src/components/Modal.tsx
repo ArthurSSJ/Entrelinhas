@@ -46,7 +46,7 @@ export default function Modal({
             type="button"
             onClick={onFechar}
             aria-label="Fechar"
-            className="-mt-1 grid h-9 w-9 flex-none place-items-center rounded-full bg-[#FFF8F5] text-[#6B6570] transition hover:bg-[#FFD6E0]"
+            className="-mt-1 grid h-9 w-9 flex-none place-items-center rounded-full bg-white/8 text-[#B7A2AA] transition hover:bg-white/16 hover:text-[#F6ECEF]"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden focusable="false">
               <path

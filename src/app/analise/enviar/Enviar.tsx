@@ -107,7 +107,7 @@ export default function Enviar() {
       <Trilha atual={6} total={6} />
 
       <h1 className="t-h2">Traga a conversa</h1>
-      <p className="mt-2 text-[#6B6570]">
+      <p className="mt-2 text-[#B7A2AA]">
         Solte o arquivo .txt que você acabou de exportar. Ele some da nossa mão assim que a leitura
         termina.
       </p>
@@ -141,7 +141,7 @@ export default function Enviar() {
           <>
             <p className="t-h3 break-all">{arquivo.name}</p>
             <p className="t-legenda">{readableSize(arquivo.size)} · pronto para enviar</p>
-            <span className="mt-1 text-[0.875rem] font-medium text-[#FF8FAB] underline underline-offset-4">
+            <span className="mt-1 text-[0.875rem] font-medium text-[#FF8FB3] underline underline-offset-4">
               Trocar arquivo
             </span>
           </>
@@ -149,7 +149,7 @@ export default function Enviar() {
           <>
             <p className="t-h3">Solte o arquivo aqui</p>
             <p className="t-legenda">ou toque para escolher no seu celular</p>
-            <span className="t-legenda mt-1 rounded-full bg-[#FFF8F5] px-3 py-1">
+            <span className="t-legenda mt-1 rounded-full bg-white/6 px-3 py-1">
               Aceita apenas .txt
             </span>
           </>
@@ -167,7 +167,7 @@ export default function Enviar() {
       {erro && (
         <p
           role="alert"
-          className="mt-3 flex items-start gap-2 rounded-2xl bg-[#EF4444]/8 px-4 py-3 text-[0.875rem] text-[#B91C1C]"
+          className="mt-3 flex items-start gap-2 rounded-2xl bg-[#FF5A5A]/12 px-4 py-3 text-[0.875rem] text-[#FFA3A3]"
         >
           <Icon3D name="alerta" size={22} className="mt-px flex-none" />
           {erro}
@@ -261,7 +261,7 @@ export default function Enviar() {
           <span
             role="link"
             tabIndex={0}
-            className="t-legenda mt-1 inline-block font-medium text-[#FF8FAB] underline underline-offset-4"
+            className="t-legenda mt-1 inline-block font-medium text-[#FF8FB3] underline underline-offset-4"
             onClick={(e) => {
               e.stopPropagation();
               setVerTermos(true);
@@ -301,7 +301,7 @@ export default function Enviar() {
           <>Fase de testes: a leitura sai liberada, sem cobrança.</>
         ) : (
           <>
-            Você só paga depois que a leitura ficar pronta — {brl(totalCents(avancada))}
+            Você só paga depois que a leitura ficar pronta: {brl(totalCents(avancada))}
             {avancada ? ` (${brl(BASE_CENTS)} + adicional)` : ""}.
           </>
         )}

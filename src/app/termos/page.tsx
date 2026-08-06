@@ -4,7 +4,7 @@ import Rodape from "@/components/Rodape";
 import Icon3D from "@/components/Icon3D";
 
 export const metadata: Metadata = {
-  title: "Termos de uso — Entrelinhas",
+  title: "Termos de uso · Entrelinhas",
   description: "As regras do serviço, em português claro.",
 };
 
@@ -29,7 +29,7 @@ export default function Termos() {
           <p>
             O relatório não é um diagnóstico, não é prova de nada e não substitui terapia,
             aconselhamento ou orientação jurídica. Ele descreve o que está escrito na conversa e
-            nada além disso. A análise avançada de traição aponta sinais no texto — ela não afirma nem
+            nada além disso. A análise avançada de traição aponta sinais no texto, e não afirma nem
             desmente que alguém tenha feito algo.
           </p>
 
@@ -61,7 +61,7 @@ export default function Termos() {
           <h2 className="t-h2 mt-8">Idade mínima</h2>
           <p>O serviço é destinado a maiores de 18 anos.</p>
 
-          <p className="t-legenda mt-10 rounded-2xl bg-white px-4 py-3">
+          <p className="t-legenda mt-10 bloco px-4 py-3">
             Este texto descreve o funcionamento do produto e serve como base. Antes de colocar no
             ar, peça a revisão de alguém da área jurídica.
           </p>

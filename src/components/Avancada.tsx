@@ -1,4 +1,4 @@
-import Icon3D from "./Icon3D";
+import Image from "next/image";
 import Reveal from "./Reveal";
 import { brl, UPSELL_CENTS } from "@/lib/pricing";
 
@@ -33,10 +33,13 @@ export default function Avancada() {
                 </p>
               </div>
 
-              <Icon3D
-                name="alerta"
-                size={132}
-                className="animate-float-slow mx-auto flex-none drop-shadow-[0_20px_50px_rgba(255,48,104,0.5)] md:size-[168px]"
+              <Image
+                src="/render/alerta.png"
+                alt=""
+                width={760}
+                height={760}
+                aria-hidden
+                className="animate-float-slow mx-auto w-[150px] flex-none drop-shadow-[0_22px_54px_rgba(255,48,104,0.45)] md:w-[200px]"
               />
             </div>
           </div>

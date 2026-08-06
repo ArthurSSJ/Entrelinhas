@@ -1,5 +1,4 @@
-import type { Viewport } from "next";
-import CabecalhoNoite from "@/components/CabecalhoNoite";
+import Cabecalho from "@/components/Cabecalho";
 import Hero from "@/components/Hero";
 import FaixaGarantias from "@/components/FaixaGarantias";
 import Reconhecimento from "@/components/Reconhecimento";
@@ -13,19 +12,12 @@ import Preco from "@/components/Preco";
 import Perguntas from "@/components/Perguntas";
 import CtaFinal from "@/components/CtaFinal";
 import CtaFlutuante from "@/components/CtaFlutuante";
-import RodapeNoite from "@/components/RodapeNoite";
-
-/* A home é escura do topo ao rodapé; a barra do navegador acompanha. */
-export const viewport: Viewport = {
-  themeColor: "#0B0407",
-  width: "device-width",
-  initialScale: 1,
-};
+import Rodape from "@/components/Rodape";
 
 export default function Home() {
   return (
-    <div className="noite">
-      <CabecalhoNoite />
+    <>
+      <Cabecalho modo="home" />
       <main>
         <Hero />
         <FaixaGarantias />
@@ -40,8 +32,8 @@ export default function Home() {
         <Perguntas />
         <CtaFinal />
       </main>
-      <RodapeNoite />
+      <Rodape largo />
       <CtaFlutuante />
-    </div>
+    </>
   );
 }

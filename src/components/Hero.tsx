@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import Icon3D from "./Icon3D";
 import Reveal from "./Reveal";
@@ -72,14 +73,18 @@ export default function Hero() {
 function FioDeConversa() {
   return (
     <div className="relative">
-      {/* Peça 3D grande atrás do cartão, como os renders das referências. */}
-      <Icon3D
-        name="conversa"
-        size={132}
-        className="animate-float-slow pointer-events-none absolute -top-16 -right-2 z-0 drop-shadow-[0_18px_44px_rgba(255,48,104,0.5)] md:-top-20 md:-right-8"
+      {/* Render 3D acima do cartão; o cartão sobe por cima e come o rodapé dele. */}
+      <Image
+        src="/render/heroi.png"
+        alt=""
+        width={1300}
+        height={1040}
+        priority
+        aria-hidden
+        className="animate-float-slow pointer-events-none relative z-0 ml-auto w-[94%] max-w-[500px] drop-shadow-[0_26px_64px_rgba(255,48,104,0.32)]"
       />
 
-      <figure className="painel relative z-10 p-5 md:p-6">
+      <figure className="painel relative z-10 -mt-[22%] p-5 md:p-6">
         <figcaption className="mb-4 flex items-center gap-3 text-[0.6875rem] font-semibold tracking-[0.14em] text-[#B7A2AA] uppercase">
           Exemplo
           <span className="linha-fina h-px flex-1" />

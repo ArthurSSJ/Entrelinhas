@@ -69,7 +69,7 @@ export default function Perguntas() {
                   <span className="flex-none" style={{ width: 38 }} aria-hidden />
                 )}
                 <span className="flex-1 text-[1rem] leading-snug font-medium">{opcao.texto}</span>
-                <span className="flex-none text-[#FF8FAB]" aria-hidden>
+                <span className="flex-none text-[#FF8FB3]" aria-hidden>
                   <svg width="18" height="18" viewBox="0 0 18 18" focusable="false">
                     <path
                       d="M6 3.5 11.5 9 6 14.5"
@@ -91,13 +91,13 @@ export default function Perguntas() {
         <button
           type="button"
           onClick={() => setIndice((i) => i - 1)}
-          className="mt-7 text-[0.875rem] text-[#6B6570] underline underline-offset-4"
+          className="mt-7 text-[0.875rem] text-[#B7A2AA] underline underline-offset-4"
         >
           Voltar
         </button>
       )}
 
-      <p className="t-legenda mt-8 flex items-start gap-2.5 rounded-2xl border border-[#FFD6E0] bg-white/70 p-4">
+      <p className="t-legenda mt-8 flex items-start gap-2.5 rounded-2xl border border-[#FF3068]/25 bg-white/6 p-4">
         <Icon3D name="escudo" size={30} className="flex-none" />
         Nada disso vira cadastro. As respostas somem quando você fecha a aba.
       </p>

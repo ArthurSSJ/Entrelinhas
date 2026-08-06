@@ -57,7 +57,7 @@ export async function analisarConversa(bruto: string, ctx: Contexto): Promise<Re
 
   if (mensagens.length < MINIMO_MENSAGENS) {
     throw new Error(
-      `Não conseguimos ler essa conversa — só reconhecemos ${mensagens.length} mensagens. Confira se o arquivo é o .txt exportado do WhatsApp, sem mídia.`,
+      `Não conseguimos ler essa conversa: só reconhecemos ${mensagens.length} mensagens. Confira se o arquivo é o .txt exportado do WhatsApp, sem mídia.`,
     );
   }
 
@@ -110,7 +110,7 @@ export async function analisarConversa(bruto: string, ctx: Contexto): Promise<Re
         } catch (segundo) {
           if (!(segundo instanceof Congestionado)) throw segundo;
           throw new Error(
-            "Não conseguimos ler agora: teve gente demais ao mesmo tempo. Tente de novo em um minuto — nada foi cobrado.",
+            "Não conseguimos ler agora: teve gente demais ao mesmo tempo. Tente de novo em um minuto. Nada foi cobrado.",
           );
         }
       }
@@ -207,8 +207,13 @@ Se todas as seis seções forem confortáveis de ler, você falhou.
 O contrário também é falha: não invente crise. Se a relação está bem, diga que está bem — mas mostre COMO ela funciona, não que é bonita.
 Elogio não é leitura. No relatório inteiro, no máximo uma seção pode ser positiva.
 
+PONTUAÇÃO
+Nunca use travessão (—) nem meia-risca (–) no texto do relatório. Onde a frase pediria um,
+escreva duas frases com ponto, ou use vírgula, dois-pontos ou parênteses. Hífen comum (-) só
+em palavra composta e intervalo.
+
 TÍTULOS
-Escreva em caixa baixa, como frase — "O tom mudou em março", não "O Tom Mudou em Março".
+Escreva em caixa baixa, como frase: "O tom mudou em março", não "O Tom Mudou em Março".
 O título é uma observação sobre esta conversa, não uma categoria de manual.
 Assim, sim: "Quem começa as conversas", "O tom mudou em março", "Assuntos que ninguém termina", "Você cancela, ela remarca", "Ela cala antes de reclamar".
 Assim, não, nunca: "Comunicação", "Comunicação aberta", "Afeto e riso", "Demonstrações de carinho", "Tensão no ar", "Tensão e desculpas", "Planos e encontros", "Rotina e cansaço", "Pontos de atenção", "Momentos de conexão".

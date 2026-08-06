@@ -10,7 +10,7 @@ export type Cena = "chat-android" | "chat-iphone" | "menu-android" | "exportar" 
 
 export default function TelaMock({ cena }: { cena: Cena }) {
   return (
-    <div className="mt-4 rounded-2xl bg-[#FFF8F5] px-4 py-5">
+    <div className="bloco mt-4 px-4 py-5">
       <div className="mock" role="img" aria-label={rotulos[cena]}>
         {telas[cena]()}
       </div>

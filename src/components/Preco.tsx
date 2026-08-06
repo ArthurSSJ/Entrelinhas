@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import Icon3D from "./Icon3D";
 import Reveal from "./Reveal";
@@ -31,10 +32,13 @@ export default function Preco() {
 
         <Reveal delay={90}>
           <div className="painel painel-neon mx-auto mt-10 max-w-[520px] p-7 text-center md:p-9">
-            <Icon3D
-              name="presente"
-              size={84}
-              className="animate-float-slow mx-auto drop-shadow-[0_18px_40px_rgba(255,48,104,0.45)]"
+            <Image
+              src="/render/presente.png"
+              alt=""
+              width={760}
+              height={760}
+              aria-hidden
+              className="animate-float-slow mx-auto w-[132px] drop-shadow-[0_18px_44px_rgba(255,48,104,0.42)]"
             />
 
             <p className="mt-5 text-[0.9375rem] text-[#B7A2AA]">Análise completa</p>

@@ -74,13 +74,13 @@ export default function Tutorial() {
       <Trilha atual={5} total={6} />
 
       <h1 className="t-h2">Agora exporte a conversa</h1>
-      <p className="mt-2 text-[#6B6570]">
+      <p className="mt-2 text-[#B7A2AA]">
         Isso acontece dentro do WhatsApp, no seu celular. Ninguém do outro lado é avisado.
       </p>
 
       {/* Seletor de aparelho */}
       <div
-        className="mt-6 flex gap-1 rounded-full border border-black/6 bg-white p-1"
+        className="mt-6 flex gap-1 rounded-full border border-white/10 bg-white/5 p-1"
         role="tablist"
         aria-label="Escolha o aparelho"
       >
@@ -94,8 +94,8 @@ export default function Tutorial() {
             className={[
               "flex-1 rounded-full py-2.5 font-[family-name:var(--font-outfit)] text-[0.9375rem] font-semibold transition",
               aparelho === opcao
-                ? "bg-gradient-to-r from-[#FF8FAB] to-[#FF6B6B] text-white shadow-[0_6px_16px_rgba(255,143,171,0.35)]"
-                : "text-[#6B6570]",
+                ? "bg-[#E01048] text-white shadow-[0_6px_18px_rgba(255,48,104,0.4)]"
+                : "text-[#B7A2AA]",
             ].join(" ")}
           >
             {opcao === "android" ? "Android" : "iPhone"}
@@ -119,7 +119,7 @@ export default function Tutorial() {
             <TelaMock cena={passo.cena} />
 
             {passo.dica && (
-              <p className="t-legenda mt-3 flex items-start gap-2 rounded-xl bg-[#FFF8F5] px-3 py-2.5">
+              <p className="t-legenda mt-3 flex items-start gap-2 rounded-xl bg-white/6 px-3 py-2.5">
                 <Icon3D name="brilho" size={20} className="mt-px flex-none" />
                 {passo.dica}
               </p>
@@ -128,9 +128,9 @@ export default function Tutorial() {
         ))}
       </ol>
 
-      <p className="t-legenda mt-6 flex items-start gap-2.5 rounded-2xl border border-[#FFD6E0] bg-white/70 p-4">
+      <p className="t-legenda mt-6 flex items-start gap-2.5 rounded-2xl border border-[#FF3068]/25 bg-white/6 p-4">
         <Icon3D name="conversa" size={30} className="flex-none" />
-        Conversa muito longa? O WhatsApp pode dividir em mais de um arquivo. Envie o mais recente —
+        Conversa muito longa? O WhatsApp pode dividir em mais de um arquivo. Envie o mais recente:
         ele já conta bastante.
       </p>
 
@@ -140,7 +140,7 @@ export default function Tutorial() {
 
       <Link
         href="/analise"
-        className="mt-4 block text-center text-[0.875rem] text-[#6B6570] underline underline-offset-4"
+        className="mt-4 block text-center text-[0.875rem] text-[#B7A2AA] underline underline-offset-4"
       >
         Voltar
       </Link>

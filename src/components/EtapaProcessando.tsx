@@ -61,7 +61,7 @@ export default function EtapaProcessando({ fila = 0 }: { fila?: number }) {
       <h2 className="t-h2 mt-7" aria-live="polite">
         {fila > 0 ? "Sua vez está chegando…" : etapas[passo]}
       </h2>
-      <p className="mt-2 text-[#6B6570]">
+      <p className="mt-2 text-[#B7A2AA]">
         {fila > 0
           ? `Tem ${fila === 1 ? "mais uma conversa" : `mais ${fila} conversas`} sendo lida agora. A sua entra em seguida.`
           : "Isso costuma levar menos de um minuto. Pode deixar a tela aberta."}
@@ -71,7 +71,7 @@ export default function EtapaProcessando({ fila = 0 }: { fila?: number }) {
         <div className="progress-fill" style={{ width: `${progresso}%` }} />
       </div>
 
-      <p className="t-legenda mx-auto mt-6 flex max-w-[36ch] items-center justify-center gap-2 rounded-2xl bg-white/70 px-4 py-3">
+      <p className="t-legenda mx-auto mt-6 flex max-w-[36ch] items-center justify-center gap-2 rounded-2xl bg-white/6 px-4 py-3">
         <Icon3D name="cadeado" size={22} className="flex-none" />
         Sua conversa é apagada assim que a leitura acabar.
       </p>

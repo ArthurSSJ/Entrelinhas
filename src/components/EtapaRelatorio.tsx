@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import Icon3D, { type IconName } from "./Icon3D";
 import Confete from "./Confete";
@@ -20,10 +21,15 @@ const iconesValidos: IconName[] = [
   "cadeado",
 ];
 
+/**
+ * O nível é a única coisa da página que foge do rosa: aqui a cor carrega
+ * informação, e três tons do mesmo rosa não se leem como uma escala. Todos
+ * passam AA com o texto branco por cima.
+ */
 const rotuloNivel = {
-  baixo: { texto: "Sem sinais de alerta", cor: "#4ADE80" },
-  medio: { texto: "Alguns pontos de atenção", cor: "#FF8FAB" },
-  alto: { texto: "Vale uma conversa", cor: "#FF6B6B" },
+  baixo: { texto: "Sem sinais de alerta", cor: "#1F7A45" },
+  medio: { texto: "Alguns pontos de atenção", cor: "#B4671C" },
+  alto: { texto: "Vale uma conversa", cor: "#C10C3E" },
 } as const;
 
 export default function EtapaRelatorio({ estado }: { estado: AnalysisState }) {
@@ -46,14 +52,21 @@ export default function EtapaRelatorio({ estado }: { estado: AnalysisState }) {
       </p>
 
       <div className="text-center">
-        <Icon3D name="coracao" size={84} className="mx-auto animate-float-slow" />
+        <Image
+          src="/render/coracao.png"
+          alt=""
+          width={760}
+          height={760}
+          aria-hidden
+          className="animate-float-slow mx-auto w-[112px] drop-shadow-[0_18px_44px_rgba(255,48,104,0.42)]"
+        />
         <span className="eyebrow mt-4">
           <Icon3D name="brilho" size={18} />
           {relatorio.patternCount} padrões encontrados
         </span>
         <h2 className="t-h2 mt-3">{relatorio.headline}</h2>
         {relatorio.summary && (
-          <p className="mx-auto mt-3 max-w-[46ch] text-[#6B6570]">{relatorio.summary}</p>
+          <p className="mx-auto mt-3 max-w-[46ch] text-[#B7A2AA]">{relatorio.summary}</p>
         )}
       </div>
 
@@ -74,11 +87,8 @@ export default function EtapaRelatorio({ estado }: { estado: AnalysisState }) {
 
         {relatorio.advanced && (
           <article
-            className="card card-hover"
-            style={{
-              borderColor: `${rotuloNivel[relatorio.advanced.level].cor}55`,
-              background: "linear-gradient(135deg, #fff 0%, rgba(255,107,107,0.05) 100%)",
-            }}
+            className="card card-hover painel-tinto"
+            style={{ borderColor: `${rotuloNivel[relatorio.advanced.level].cor}88` }}
           >
             <div className="flex items-start gap-3">
               <Icon3D name="alerta" size={46} className="flex-none" />
@@ -103,12 +113,7 @@ export default function EtapaRelatorio({ estado }: { estado: AnalysisState }) {
 
       {relatorio.acoes && relatorio.acoes.length > 0 && (
         <section
-          className="card mt-4"
-          style={{
-            borderColor: "rgba(167,139,250,0.35)",
-            background: "linear-gradient(135deg, #fff 0%, rgba(167,139,250,0.07) 100%)",
-          }}
-        >
+          className="card painel-tinto mt-4">
           <div className="flex items-start gap-3">
             <Icon3D name="foguete" size={46} className="flex-none" />
             <div className="pt-1">
@@ -122,13 +127,13 @@ export default function EtapaRelatorio({ estado }: { estado: AnalysisState }) {
               <li key={`${acao.titulo}-${i}`} className="flex items-start gap-3">
                 <span
                   aria-hidden
-                  className="grid h-6 w-6 flex-none place-items-center rounded-full bg-[#A78BFA]/15 font-[family-name:var(--font-outfit)] text-[0.8125rem] font-bold text-[#6B4FD8]"
+                  className="grid h-6 w-6 flex-none place-items-center rounded-full bg-[#FF3068]/18 font-[family-name:var(--font-outfit)] text-[0.8125rem] font-bold text-[#FF8FB3]"
                 >
                   {i + 1}
                 </span>
                 <p className="text-[0.9375rem] leading-snug">
                   {acao.titulo && <strong className="font-semibold">{acao.titulo}. </strong>}
-                  <span className="text-[#6B6570]">{acao.texto}</span>
+                  <span className="text-[#B7A2AA]">{acao.texto}</span>
                 </p>
               </li>
             ))}
@@ -144,7 +149,7 @@ export default function EtapaRelatorio({ estado }: { estado: AnalysisState }) {
       <div className="card nao-imprimir mt-6 text-center">
         <Icon3D name="cadeado" size={40} className="mx-auto" />
         <p className="t-legenda mt-2">
-          A conversa que você enviou já foi apagada. Este relatório fica aberto por duas horas —
+          A conversa que você enviou já foi apagada. Este relatório fica aberto por duas horas:
           salve agora se quiser guardar.
         </p>
         <button type="button" className="btn btn-quiet btn-block mt-4" onClick={() => window.print()}>

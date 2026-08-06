@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import Icon3D from "./Icon3D";
 import type { AnalysisState } from "@/lib/types";
@@ -18,7 +19,14 @@ export default function EtapaPagamento({ estado, erro, onRecomecar }: Props) {
   return (
     <div className="stage">
       <div className="text-center">
-        <Icon3D name="presente" size={80} className="mx-auto animate-float-slow" />
+        <Image
+          src="/render/presente.png"
+          alt=""
+          width={760}
+          height={760}
+          aria-hidden
+          className="animate-float-slow mx-auto w-[112px] drop-shadow-[0_18px_44px_rgba(255,48,104,0.42)]"
+        />
         <span className="eyebrow mt-4">
           <Icon3D name="brilho" size={18} />
           Leitura concluída
@@ -26,8 +34,8 @@ export default function EtapaPagamento({ estado, erro, onRecomecar }: Props) {
         <h2 className="t-h2 mt-3">
           {preview?.headline ?? "Sua análise está pronta."}
         </h2>
-        <p className="mt-2 text-[#6B6570]">
-          Encontramos <strong className="text-[#2D2A32]">{preview?.patternCount ?? 0} padrões</strong>{" "}
+        <p className="mt-2 text-[#B7A2AA]">
+          Encontramos <strong className="text-[#F6ECEF]">{preview?.patternCount ?? 0} padrões</strong>{" "}
           na conversa de vocês.
         </p>
       </div>
@@ -47,7 +55,7 @@ export default function EtapaPagamento({ estado, erro, onRecomecar }: Props) {
             </li>
           ))}
           {preview?.hasAdvanced && (
-            <li className="rounded-2xl border border-[#FF6B6B]/35 bg-[#FF6B6B]/6 p-4">
+            <li className="rounded-2xl border border-[#FF3068]/35 bg-[#FF3068]/8 p-4">
               <p className="flex items-start gap-2 text-[0.9375rem] font-medium">
                 <Icon3D name="alerta" size={22} className="mt-0.5 flex-none" />
                 Análise avançada de traição
@@ -63,16 +71,16 @@ export default function EtapaPagamento({ estado, erro, onRecomecar }: Props) {
       <div className="card mt-4">
         <dl className="space-y-2 text-[0.9375rem]">
           <div className="flex items-baseline justify-between gap-4">
-            <dt className="text-[#6B6570]">Análise completa</dt>
+            <dt className="text-[#B7A2AA]">Análise completa</dt>
             <dd>{brl(BASE_CENTS)}</dd>
           </div>
           {estado.withAdvanced && (
             <div className="flex items-baseline justify-between gap-4">
-              <dt className="text-[#6B6570]">Análise avançada de traição</dt>
+              <dt className="text-[#B7A2AA]">Análise avançada de traição</dt>
               <dd>{brl(UPSELL_CENTS)}</dd>
             </div>
           )}
-          <div className="flex items-baseline justify-between gap-4 border-t border-black/5 pt-2.5">
+          <div className="flex items-baseline justify-between gap-4 border-t border-white/8 pt-2.5">
             <dt className="font-[family-name:var(--font-outfit)] font-semibold">Total</dt>
             <dd className="font-[family-name:var(--font-outfit)] text-[1.375rem] font-bold">
               {brl(estado.amountCents)}
@@ -82,7 +90,7 @@ export default function EtapaPagamento({ estado, erro, onRecomecar }: Props) {
       </div>
 
       {erro && (
-        <p role="alert" className="mt-4 rounded-2xl bg-[#EF4444]/8 px-4 py-3 text-[0.875rem] text-[#B91C1C]">
+        <p role="alert" className="mt-4 rounded-2xl bg-[#FF5A5A]/12 px-4 py-3 text-[0.875rem] text-[#FFA3A3]">
           {erro}
         </p>
       )}
@@ -112,7 +120,7 @@ export default function EtapaPagamento({ estado, erro, onRecomecar }: Props) {
       <button
         type="button"
         onClick={onRecomecar}
-        className="mt-6 block w-full text-center text-[0.875rem] text-[#6B6570] underline underline-offset-4"
+        className="mt-6 block w-full text-center text-[0.875rem] text-[#B7A2AA] underline underline-offset-4"
       >
         Começar de novo com outra conversa
       </button>
@@ -151,7 +159,7 @@ function BlocoPix({ brCode, qrImage }: { brCode: string; qrImage?: string }) {
           alt="QR Code do PIX para liberar o relatório"
           width={200}
           height={200}
-          className="mx-auto mt-4 h-[200px] w-[200px] rounded-2xl border border-black/5"
+          className="mx-auto mt-4 h-[200px] w-[200px] rounded-2xl border border-white/12 bg-white p-2"
         />
       )}
 

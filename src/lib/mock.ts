@@ -7,7 +7,7 @@ import type { Report } from "./types";
  */
 export function mockReport(withAdvanced: boolean): Report {
   return {
-    headline: "Vocês conversam muito — e falam pouco sobre vocês.",
+    headline: "Vocês conversam muito, e falam pouco sobre vocês.",
     summary:
       "A conversa tem ritmo e carinho. O que aparece com força é uma diferença de tempo: uma pessoa abre assunto difícil de madrugada, a outra responde de manhã, já resolvida. Nada disso é ruptura. É só um desencontro de horário que virou hábito.",
     patternCount: withAdvanced ? 7 : 6,
@@ -15,7 +15,7 @@ export function mockReport(withAdvanced: boolean): Report {
       {
         icon: "conversa",
         title: "Quem começa as conversas",
-        body: "Em 68% dos dias, a primeira mensagem é sua. Isso não significa desinteresse do outro lado — as respostas chegam rápido e longas. Significa que o papel de iniciar ficou só com você, e esse tipo de papel cansa em silêncio.",
+        body: "Em 68% dos dias, a primeira mensagem é sua. Isso não significa desinteresse do outro lado: as respostas chegam rápido e longas. Significa que o papel de iniciar ficou só com você, e esse tipo de papel cansa em silêncio.",
       },
       {
         icon: "coracao",
@@ -40,14 +40,14 @@ export function mockReport(withAdvanced: boolean): Report {
       {
         icon: "foguete",
         title: "Uma coisa para tentar esta semana",
-        body: "Escolha um dos três assuntos inacabados e traga ele num horário calmo, pessoalmente. Não para resolver — só para nomear. A conversa de vocês já mostrou que dá conta.",
+        body: "Escolha um dos três assuntos inacabados e traga ele num horário calmo, pessoalmente. Não para resolver, só para nomear. A conversa de vocês já mostrou que dá conta.",
       },
     ],
     acoes: [
       {
         titulo: "Escolha um assunto inacabado",
         texto:
-          "Dos três que ficaram pendentes, pegue o mais fácil — a viagem de julho — e traga num horário calmo. Não para resolver, só para nomear.",
+          "Dos três que ficaram pendentes, pegue o mais fácil (a viagem de julho) e traga num horário calmo. Não para resolver, só para nomear.",
       },
       {
         titulo: "Troque o horário das conversas difíceis",

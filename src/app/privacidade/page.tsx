@@ -4,7 +4,7 @@ import Rodape from "@/components/Rodape";
 import Icon3D from "@/components/Icon3D";
 
 export const metadata: Metadata = {
-  title: "Privacidade — Entrelinhas",
+  title: "Privacidade · Entrelinhas",
   description: "O que acontece com a conversa que você envia.",
 };
 
@@ -74,7 +74,7 @@ export default function Privacidade() {
             com o link que você recebeu.
           </p>
 
-          <p className="t-legenda mt-10 rounded-2xl bg-white px-4 py-3">
+          <p className="t-legenda mt-10 bloco px-4 py-3">
             Este texto descreve o funcionamento do produto e serve como base. Antes de colocar no
             ar, peça a revisão de alguém da área jurídica para adequá-lo à LGPD e à realidade da sua
             operação.

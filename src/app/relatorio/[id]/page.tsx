@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Acompanhar from "./Acompanhar";
 
 export const metadata: Metadata = {
-  title: "Sua análise — Entrelinhas",
+  title: "Sua análise · Entrelinhas",
   description: "A leitura da sua conversa.",
   robots: { index: false, follow: false },
 };

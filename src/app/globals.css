@@ -2,30 +2,28 @@
 
 /* ============================================================
    Entrelinhas — design tokens
+   ------------------------------------------------------------
+   O site inteiro é escuro, do topo ao rodapé, em todas as telas.
+   Um acento só: o rosa.
+
+     rosa-neon   brilho, borda, texto grande
+     rosa-fundo  preenchimento de botão (branco por cima dá 4,8:1)
+     rosa-claro  texto pequeno em cima do escuro (8,9:1)
+
+   Cantos: painel 28px · bloco 18px · botão pílula. Sem exceção.
    ============================================================ */
 @theme {
-  --color-rosa: #ff8fab;
-  --color-rosa-suave: #ffd6e0;
-  --color-coral: #ff6b6b;
-  --color-creme: #fff8f5;
-  --color-roxo: #a78bfa;
-  --color-tinta: #2d2a32;
-  --color-tinta-suave: #6b6570;
-  --color-sucesso: #4ade80;
-  --color-erro: #ef4444;
-
-  /* Home noturna. Um acento só: o rosa.
-     - rosa-neon  → brilhos, bordas e texto grande
-     - rosa-fundo → preenchimento de botão (branco por cima passa AA, 4.8:1)
-     - rosa-claro → texto pequeno em cima do escuro (8.9:1) */
   --color-noite: #0b0407;
   --color-noite-2: #14060a;
   --color-noite-3: #1d0810;
   --color-rosa-neon: #ff3068;
   --color-rosa-fundo: #e01048;
   --color-rosa-claro: #ff8fb3;
+  --color-vinho: #7a0c28;
   --color-nevoa: #f6ecef;
   --color-nevoa-2: #b7a2aa;
+  --color-sucesso: #4ade80;
+  --color-erro: #ff5a5a;
 
   --font-display: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
@@ -34,10 +32,6 @@
   --radius-soft: 16px;
   --radius-painel: 28px;
   --radius-bloco: 18px;
-
-  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.05);
-  --shadow-lift: 0 12px 32px rgba(45, 42, 50, 0.09);
-  --shadow-cta: 0 8px 24px rgba(255, 143, 171, 0.35);
 
   --animate-float-slow: floaty 6s ease-in-out infinite;
 }
@@ -52,16 +46,18 @@
   }
 }
 
-@keyframes pulse-cta {
+@keyframes pulso-neon {
   0%,
   88%,
   100% {
-    transform: scale(1);
-    box-shadow: var(--shadow-cta);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.28),
+      0 10px 30px rgba(255, 48, 104, 0.34);
   }
   94% {
-    transform: scale(1.028);
-    box-shadow: 0 12px 34px rgba(255, 143, 171, 0.5);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.32),
+      0 14px 44px rgba(255, 48, 104, 0.6);
   }
 }
 
@@ -105,6 +101,20 @@
   }
 }
 
+/* Manchas de cor que respiram atrás do conteúdo. */
+@keyframes deriva {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(18px, -22px) scale(1.08);
+  }
+  66% {
+    transform: translate(-14px, 16px) scale(0.95);
+  }
+}
+
 /* ============================================================
    Base
    ============================================================ */
@@ -112,11 +122,12 @@
   html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+    background-color: var(--color-noite);
   }
 
   body {
-    background-color: var(--color-creme);
-    color: var(--color-tinta);
+    background-color: var(--color-noite);
+    color: var(--color-nevoa);
     font-family: var(--font-sans);
     font-size: 1rem;
     line-height: 1.6;
@@ -129,23 +140,23 @@
   h3,
   h4 {
     font-family: var(--font-display);
-    line-height: 1.4;
+    line-height: 1.3;
     letter-spacing: -0.02em;
     text-wrap: balance;
   }
 
   :focus-visible {
-    outline: 3px solid var(--color-roxo);
+    outline: 3px solid var(--color-rosa-claro);
     outline-offset: 3px;
     border-radius: 6px;
   }
 
   ::selection {
-    background: var(--color-rosa-suave);
-    color: var(--color-tinta);
+    background: rgba(255, 48, 104, 0.34);
+    color: #fff;
   }
 
-  /* Grão de papel por cima de tudo. É o que tira o aspecto de vetor chapado:
+  /* Grão de filme por cima de tudo. É o que tira o aspecto de vetor chapado:
      nenhuma superfície fica perfeitamente lisa. */
   body::after {
     content: "";
@@ -153,7 +164,7 @@
     inset: 0;
     z-index: 9999;
     pointer-events: none;
-    opacity: 0.05;
+    opacity: 0.04;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
     background-size: 180px;
   }
@@ -167,6 +178,9 @@
 
 /* ============================================================
    Layout
+   ------------------------------------------------------------
+   `shell` é a coluna estreita do fluxo (uma pergunta por tela).
+   `shell-l` é a coluna larga das páginas de conteúdo.
    ============================================================ */
 .shell {
   width: 100%;
@@ -182,7 +196,24 @@
   }
 }
 
+.shell-l {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 20px;
+}
+
+@media (min-width: 768px) {
+  .shell-l {
+    padding-inline: 32px;
+  }
+}
+
 .band {
+  padding-block: 56px;
+}
+
+.faixa {
   padding-block: 56px;
 }
 
@@ -190,10 +221,42 @@
   .band {
     padding-block: 88px;
   }
+  .faixa {
+    padding-block: 88px;
+  }
+}
+
+/* Continua a seção anterior em vez de abrir outra: some com o respiro de cima.
+   (`pt-0` do Tailwind não venceria `.faixa`, que não está em layer.) */
+.faixa-colada {
+  padding-top: 0;
 }
 
 /* ============================================================
-   Typography helpers
+   Luz de fundo
+   ============================================================ */
+
+/* Vinho profundo atrás de tudo: é o que separa o preto do preto. */
+.brasa {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  filter: blur(90px);
+  opacity: 0.55;
+  animation: deriva 26s ease-in-out infinite;
+}
+
+.brasa-vinho {
+  background: radial-gradient(circle, var(--color-vinho) 0%, transparent 70%);
+}
+
+.brasa-rosa {
+  background: radial-gradient(circle, var(--color-rosa-neon) 0%, transparent 70%);
+  opacity: 0.24;
+}
+
+/* ============================================================
+   Tipografia
    ============================================================ */
 .t-h1 {
   font-size: 2rem;
@@ -212,7 +275,7 @@
 
 .t-legenda {
   font-size: 0.875rem;
-  color: var(--color-tinta-suave);
+  color: var(--color-nevoa-2);
 }
 
 @media (min-width: 768px) {
@@ -224,36 +287,126 @@
   }
 }
 
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 14px 7px 10px;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.75);
-  border: 1px solid rgba(255, 143, 171, 0.28);
-  box-shadow: 0 4px 14px rgba(255, 143, 171, 0.16);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--color-tinta-suave);
-  backdrop-filter: blur(8px);
+.t-display {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.06;
 }
 
-/* Selo de privacidade: a objeção que trava a compra merece corpo. */
-.eyebrow-forte {
-  gap: 10px;
-  padding: 10px 20px 10px 12px;
-  background: #fff;
-  border: 1.5px solid rgba(167, 139, 250, 0.4);
-  box-shadow: 0 10px 26px rgba(167, 139, 250, 0.24);
+.t-secao {
   font-family: var(--font-display);
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: var(--color-tinta);
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.18;
+  color: var(--color-nevoa);
+  text-wrap: balance;
+}
+
+.t-apoio {
+  color: var(--color-nevoa-2);
+  line-height: 1.65;
+}
+
+@media (min-width: 768px) {
+  .t-display {
+    font-size: 4rem;
+  }
+  .t-secao {
+    font-size: 2.375rem;
+  }
+}
+
+/* Headline prateada das referências. Reservada ao topo e ao fecho:
+   se todo título brilhar, nenhum brilha. */
+.titulo-luz {
+  background: linear-gradient(168deg, #ffffff 12%, #d8c6cc 58%, #9d868e 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  line-height: 1.06;
+  padding-bottom: 0.08em;
 }
 
 /* ============================================================
-   Buttons
+   Superfícies
+   ============================================================ */
+.painel,
+.card {
+  position: relative;
+  border-radius: var(--radius-painel);
+  background:
+    linear-gradient(155deg, rgba(255, 255, 255, 0.055) 0%, rgba(255, 255, 255, 0.015) 100%),
+    var(--color-noite-2);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 24px 60px rgba(0, 0, 0, 0.55);
+}
+
+.card {
+  padding: 24px;
+}
+
+.painel-hover,
+.card-hover {
+  transition:
+    transform 0.3s cubic-bezier(0.2, 0.8, 0.3, 1),
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.painel-hover:hover,
+.card-hover:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 48, 104, 0.4);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    0 28px 70px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba(255, 48, 104, 0.14);
+}
+
+/* Painel em destaque: o anel de neon das referências. */
+.painel-neon {
+  border-color: rgba(255, 48, 104, 0.5);
+  background:
+    linear-gradient(155deg, rgba(255, 48, 104, 0.14) 0%, rgba(255, 48, 104, 0.03) 60%),
+    var(--color-noite-2);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 0 1px rgba(255, 48, 104, 0.18),
+    0 0 48px rgba(255, 48, 104, 0.28),
+    0 28px 70px rgba(0, 0, 0, 0.6);
+}
+
+/* Painel com cor no fundo. Existe para a grade não virar seis vidros iguais. */
+.painel-tinto {
+  background:
+    linear-gradient(150deg, rgba(255, 48, 104, 0.24) 0%, rgba(255, 48, 104, 0.05) 62%),
+    var(--color-noite-2);
+  border-color: rgba(255, 48, 104, 0.22);
+}
+
+.bloco {
+  border-radius: var(--radius-bloco);
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.linha-fina {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.14) 30%,
+    rgba(255, 255, 255, 0.14) 70%,
+    transparent
+  );
+}
+
+/* ============================================================
+   Botões
    ============================================================ */
 .btn {
   display: inline-flex;
@@ -272,41 +425,58 @@
   transition:
     transform 0.22s cubic-bezier(0.2, 0.8, 0.3, 1),
     box-shadow 0.22s ease,
-    filter 0.22s ease;
+    background 0.22s ease;
 }
 
+/* Desligado, mas ainda legível: no escuro, opacidade demais some com o rótulo
+   e a pessoa perde a instrução do que falta fazer. */
 .btn:disabled {
   cursor: not-allowed;
-  opacity: 0.45;
-  filter: saturate(0.5);
+  opacity: 0.62;
+  filter: saturate(0.55);
 }
 
-.btn-primary {
-  background: linear-gradient(90deg, #ff8fab 0%, #ff6b6b 100%);
+.btn-primary,
+.btn-neon {
+  background: var(--color-rosa-fundo);
   color: #fff;
-  box-shadow: var(--shadow-cta);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 10px 30px rgba(255, 48, 104, 0.34);
 }
 
-.btn-primary:hover:not(:disabled) {
+.btn-primary:hover:not(:disabled),
+.btn-neon:hover:not(:disabled) {
+  background: #f01a54;
   transform: translateY(-2px);
-  box-shadow: 0 14px 34px rgba(255, 107, 107, 0.42);
-  filter: brightness(1.05);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.32),
+    0 16px 42px rgba(255, 48, 104, 0.48);
 }
 
-.btn-primary:active:not(:disabled) {
-  transform: translateY(0);
+.btn-primary:active:not(:disabled),
+.btn-neon:active:not(:disabled) {
+  transform: scale(0.985);
 }
 
-.btn-quiet {
-  background: #fff;
-  color: var(--color-tinta);
-  border: 1px solid rgba(45, 42, 50, 0.1);
-  box-shadow: var(--shadow-card);
+.btn-quiet,
+.btn-vidro {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-nevoa);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(10px);
 }
 
-.btn-quiet:hover:not(:disabled) {
+.btn-quiet:hover:not(:disabled),
+.btn-vidro:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 48, 104, 0.45);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-lift);
+}
+
+.btn-quiet:active:not(:disabled),
+.btn-vidro:active:not(:disabled) {
+  transform: scale(0.985);
 }
 
 .btn-block {
@@ -318,34 +488,110 @@
   font-size: 1.0625rem;
 }
 
-.btn-pulse {
-  animation: pulse-cta 4s ease-in-out infinite;
+.btn-pulse,
+.btn-neon-pulso {
+  animation: pulso-neon 4.5s ease-in-out infinite;
 }
 
 /* ============================================================
-   Cards
+   Peças pequenas
    ============================================================ */
-.card {
-  background: #fff;
-  border-radius: var(--radius-card);
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  box-shadow: var(--shadow-card);
-  padding: 24px;
+.eyebrow,
+.selo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 18px 8px 10px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 48, 104, 0.32);
+  box-shadow: 0 0 26px rgba(255, 48, 104, 0.16);
+  backdrop-filter: blur(10px);
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-nevoa);
 }
 
-.card-hover {
-  transition:
-    transform 0.28s cubic-bezier(0.2, 0.8, 0.3, 1),
-    box-shadow 0.28s ease;
+/* Selo de privacidade: a objeção que trava a compra merece corpo. */
+.eyebrow-forte {
+  padding: 10px 22px 10px 12px;
+  border-color: rgba(255, 48, 104, 0.5);
+  box-shadow: 0 0 34px rgba(255, 48, 104, 0.24);
+  font-size: 0.9375rem;
 }
 
-.card-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lift);
+.etiqueta,
+.badge-preco {
+  display: inline-block;
+  padding: 5px 13px;
+  border-radius: 9999px;
+  background: var(--color-rosa-fundo);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.marca-passo {
+  font-family: var(--font-display);
+  font-size: 2.75rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(255, 48, 104, 0.7);
+}
+
+/* Número grande do passo, encostando na borda do cartão. */
+.numero-passo {
+  font-family: var(--font-display);
+  font-size: 3.5rem;
+  font-weight: 700;
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  background: linear-gradient(135deg, var(--color-rosa-claro) 0%, var(--color-rosa-neon) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.fio-vertical {
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(255, 48, 104, 0.55) 0 4px,
+    transparent 4px 10px
+  );
+}
+
+/* Lista de reconhecimento e afins: cada item é uma frase que a pessoa pensou. */
+.espelho {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 15px 18px;
+  border-radius: var(--radius-bloco);
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.inicial {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex: none;
+  border-radius: 9999px;
+  background: var(--color-rosa-fundo);
+  font-family: var(--font-display);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #fff;
 }
 
 /* ============================================================
-   Upload zone
+   Zona de upload
    ============================================================ */
 .dropzone {
   position: relative;
@@ -355,9 +601,9 @@
   gap: 12px;
   width: 100%;
   padding: 34px 22px;
-  border-radius: var(--radius-card);
-  border: 2px dashed var(--color-rosa);
-  background: linear-gradient(180deg, #fff 0%, rgba(255, 214, 224, 0.35) 100%);
+  border-radius: var(--radius-painel);
+  border: 2px dashed rgba(255, 48, 104, 0.45);
+  background: rgba(255, 48, 104, 0.05);
   cursor: pointer;
   text-align: center;
   transition:
@@ -369,25 +615,25 @@
 
 .dropzone:hover,
 .dropzone[data-state="drag"] {
-  border-color: var(--color-coral);
-  background: linear-gradient(180deg, #fff 0%, rgba(255, 214, 224, 0.75) 100%);
+  border-color: var(--color-rosa-neon);
+  background: rgba(255, 48, 104, 0.12);
   transform: translateY(-3px);
-  box-shadow: 0 12px 30px rgba(255, 143, 171, 0.24);
+  box-shadow: 0 0 40px rgba(255, 48, 104, 0.24);
 }
 
 .dropzone[data-state="ready"] {
   border-style: solid;
   border-color: var(--color-sucesso);
-  background: linear-gradient(180deg, #fff 0%, rgba(74, 222, 128, 0.12) 100%);
+  background: rgba(74, 222, 128, 0.08);
 }
 
 .dropzone[data-state="error"] {
   border-color: var(--color-erro);
-  background: linear-gradient(180deg, #fff 0%, rgba(239, 68, 68, 0.08) 100%);
+  background: rgba(255, 90, 90, 0.08);
 }
 
 /* ============================================================
-   Choice rows (checkbox / upsell)
+   Linhas de escolha (opção / adicional)
    ============================================================ */
 .choice {
   display: flex;
@@ -396,9 +642,10 @@
   width: 100%;
   text-align: left;
   padding: 18px;
-  border-radius: var(--radius-soft);
-  background: #fff;
-  border: 1px solid rgba(45, 42, 50, 0.09);
+  border-radius: var(--radius-bloco);
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: var(--color-nevoa);
   cursor: pointer;
   transition:
     border-color 0.2s ease,
@@ -407,24 +654,25 @@
 }
 
 .choice:hover {
-  border-color: rgba(255, 143, 171, 0.65);
+  border-color: rgba(255, 48, 104, 0.45);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .choice[data-on="true"] {
-  border-color: var(--color-rosa);
-  background: rgba(255, 214, 224, 0.3);
-  box-shadow: 0 6px 18px rgba(255, 143, 171, 0.18);
+  border-color: var(--color-rosa-neon);
+  background: rgba(255, 48, 104, 0.14);
+  box-shadow: 0 0 30px rgba(255, 48, 104, 0.18);
 }
 
 .choice-upsell {
-  border: 1.5px solid rgba(255, 107, 107, 0.5);
-  background: linear-gradient(135deg, #fff 0%, rgba(255, 107, 107, 0.07) 100%);
+  border-color: rgba(255, 48, 104, 0.4);
+  background: linear-gradient(150deg, rgba(255, 48, 104, 0.12) 0%, rgba(255, 48, 104, 0.03) 70%);
 }
 
 .choice-upsell[data-on="true"] {
-  border-color: var(--color-coral);
-  background: linear-gradient(135deg, #fff 0%, rgba(255, 107, 107, 0.16) 100%);
-  box-shadow: 0 8px 24px rgba(255, 107, 107, 0.22);
+  border-color: var(--color-rosa-neon);
+  background: linear-gradient(150deg, rgba(255, 48, 104, 0.24) 0%, rgba(255, 48, 104, 0.06) 70%);
+  box-shadow: 0 0 36px rgba(255, 48, 104, 0.26);
 }
 
 .tick {
@@ -433,8 +681,8 @@
   height: 26px;
   margin-top: 2px;
   border-radius: 9px;
-  border: 2px solid rgba(45, 42, 50, 0.18);
-  background: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.04);
   display: grid;
   place-items: center;
   transition:
@@ -452,25 +700,13 @@
 }
 
 [data-on="true"] .tick {
-  background: linear-gradient(135deg, #ff8fab, #ff6b6b);
+  background: var(--color-rosa-fundo);
   border-color: transparent;
 }
 
 [data-on="true"] .tick svg {
   opacity: 1;
   transform: scale(1);
-}
-
-.badge-preco {
-  display: inline-block;
-  padding: 4px 11px;
-  border-radius: 9999px;
-  background: linear-gradient(90deg, #ff8fab, #ff6b6b);
-  color: #fff;
-  font-family: var(--font-display);
-  font-size: 0.8125rem;
-  font-weight: 600;
-  white-space: nowrap;
 }
 
 /* ============================================================
@@ -518,7 +754,7 @@
   border-radius: 2px;
   background: repeating-linear-gradient(
     180deg,
-    rgba(167, 139, 250, 0.55) 0 3px,
+    rgba(255, 48, 104, 0.6) 0 3px,
     transparent 3px 6px
   );
 }
@@ -532,21 +768,6 @@
 /* ============================================================
    Acabamentos
    ============================================================ */
-
-/* Manchas de cor que respiram atrás do conteúdo. */
-@keyframes deriva {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-  33% {
-    transform: translate(18px, -22px) scale(1.08);
-  }
-  66% {
-    transform: translate(-14px, 16px) scale(0.95);
-  }
-}
-
 .mancha {
   position: absolute;
   border-radius: 9999px;
@@ -569,32 +790,6 @@
   transform: rotate(0deg) translateY(-4px);
 }
 
-/* Número grande do passo, encostando na borda do cartão. */
-.numero-passo {
-  font-family: var(--font-display);
-  font-size: 3.5rem;
-  font-weight: 700;
-  line-height: 0.8;
-  letter-spacing: -0.04em;
-  background: linear-gradient(135deg, #ff8fab 0%, #ff6b6b 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-/* Divisória em onda entre seções. */
-.onda {
-  display: block;
-  width: 100%;
-  height: 40px;
-}
-
-@media (min-width: 768px) {
-  .onda {
-    height: 64px;
-  }
-}
-
 /* Barra de etapas do fluxo. */
 .trilha {
   display: flex;
@@ -606,12 +801,12 @@
   height: 5px;
   flex: 1;
   border-radius: 9999px;
-  background: rgba(45, 42, 50, 0.1);
+  background: rgba(255, 255, 255, 0.12);
   overflow: hidden;
 }
 
 .trilha-passo[data-on="true"] {
-  background: linear-gradient(90deg, #a78bfa 0%, #ff8fab 100%);
+  background: linear-gradient(90deg, var(--color-rosa-fundo) 0%, var(--color-rosa-claro) 100%);
 }
 
 /* Barra de ação fixa no rodapé do celular. */
@@ -621,8 +816,8 @@
   bottom: 0;
   z-index: 50;
   padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-  background: rgba(255, 248, 245, 0.9);
-  border-top: 1px solid rgba(45, 42, 50, 0.07);
+  background: rgba(11, 4, 7, 0.92);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(14px);
   transform: translateY(120%);
   transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.3, 1);
@@ -646,11 +841,11 @@
   margin-inline: auto;
   padding: 10px;
   border-radius: 38px;
-  background: linear-gradient(160deg, #fff 0%, #ffe9ef 100%);
-  border: 1px solid rgba(45, 42, 50, 0.08);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 48, 104, 0.16) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow:
-    0 24px 60px rgba(45, 42, 50, 0.16),
-    inset 0 1px 0 #fff;
+    0 30px 70px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .moldura::before {
@@ -661,14 +856,14 @@
   width: 62px;
   height: 5px;
   border-radius: 9999px;
-  background: rgba(45, 42, 50, 0.12);
+  background: rgba(255, 255, 255, 0.22);
   transform: translateX(-50%);
   z-index: 2;
 }
 
 .moldura-tela {
   border-radius: 30px;
-  background: var(--color-creme);
+  background: #120509;
   padding: 34px 14px 16px;
   overflow: hidden;
 }
@@ -687,33 +882,23 @@
   font-family: var(--font-display);
   font-size: 8rem;
   line-height: 1;
-  color: var(--color-rosa-suave);
-  opacity: 0.6;
+  color: rgba(255, 48, 104, 0.18);
   pointer-events: none;
 }
 
-.inicial {
-  display: grid;
-  place-items: center;
-  width: 42px;
-  height: 42px;
-  flex: none;
-  border-radius: 9999px;
-  background: linear-gradient(135deg, #ffd6e0 0%, #ff8fab 100%);
-  font-family: var(--font-display);
-  font-size: 0.9375rem;
-  font-weight: 700;
-  color: #fff;
-}
-
-/* Telas desenhadas do tutorial: o alvo do toque pisca devagar. */
+/* ============================================================
+   Telas desenhadas do tutorial
+   ------------------------------------------------------------
+   O mock reproduz o WhatsApp e por isso continua claro: é a foto de
+   outro aplicativo dentro da nossa página, não uma seção nossa.
+   ============================================================ */
 @keyframes foco {
   0%,
   100% {
-    box-shadow: 0 0 0 3px rgba(255, 143, 171, 0.9);
+    box-shadow: 0 0 0 3px rgba(255, 48, 104, 0.9);
   }
   50% {
-    box-shadow: 0 0 0 7px rgba(255, 143, 171, 0.28);
+    box-shadow: 0 0 0 7px rgba(255, 48, 104, 0.28);
   }
 }
 
@@ -730,10 +915,11 @@
   border-radius: 22px;
   overflow: hidden;
   background: #ece5dd;
-  border: 6px solid #2d2a32;
-  box-shadow: 0 12px 30px rgba(45, 42, 50, 0.18);
+  border: 6px solid #0b0407;
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.5);
   font-size: 9px;
   line-height: 1.3;
+  color: #2d2a32;
   user-select: none;
 }
 
@@ -756,26 +942,14 @@
   border-bottom: 1px solid rgba(45, 42, 50, 0.06);
 }
 
-/* Lista de reconhecimento: cada item é uma frase que a pessoa já pensou. */
-.espelho {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  padding: 15px 18px;
-  border-radius: var(--radius-soft);
-  background: #fff;
-  border: 1px solid rgba(45, 42, 50, 0.07);
-  box-shadow: 0 2px 10px rgba(45, 42, 50, 0.04);
-}
-
 /* ============================================================
-   Stage transitions
+   Transições de etapa
    ============================================================ */
 .stage {
   animation: stage-in 0.45s cubic-bezier(0.2, 0.8, 0.3, 1) both;
 }
 
-/* Scroll reveal */
+/* Entrada ao rolar. `data-dir` faz o bloco vir do lado em que ele mora. */
 .reveal {
   opacity: 0;
   transform: translateY(20px);
@@ -789,8 +963,21 @@
   transform: none;
 }
 
+.reveal[data-dir="esq"] {
+  transform: translateX(-24px);
+}
+
+.reveal[data-dir="dir"] {
+  transform: translateX(24px);
+}
+
+.reveal[data-dir="esq"].is-in,
+.reveal[data-dir="dir"].is-in {
+  transform: none;
+}
+
 /* ============================================================
-   Processing
+   Processamento
    ============================================================ */
 .orbit {
   position: relative;
@@ -803,7 +990,7 @@
   position: absolute;
   inset: 0;
   border-radius: 9999px;
-  border: 2px dashed rgba(167, 139, 250, 0.35);
+  border: 2px dashed rgba(255, 48, 104, 0.4);
   animation: spin-orbit 14s linear infinite;
 }
 
@@ -820,28 +1007,28 @@
 .progress-track {
   height: 8px;
   border-radius: 9999px;
-  background: rgba(167, 139, 250, 0.18);
+  background: rgba(255, 255, 255, 0.1);
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
   border-radius: 9999px;
-  background: linear-gradient(90deg, #a78bfa 0%, #ff8fab 100%);
+  background: linear-gradient(90deg, var(--color-rosa-fundo) 0%, var(--color-rosa-claro) 100%);
   transition: width 0.6s cubic-bezier(0.3, 0.8, 0.3, 1);
 }
 
 /* ============================================================
-   Locked report (paywall)
+   Relatório trancado (paywall)
    ============================================================ */
 .locked-bar {
   height: 11px;
   border-radius: 9999px;
   background: linear-gradient(
     90deg,
-    rgba(255, 214, 224, 0.55) 0%,
-    rgba(167, 139, 250, 0.3) 50%,
-    rgba(255, 214, 224, 0.55) 100%
+    rgba(255, 255, 255, 0.07) 0%,
+    rgba(255, 48, 104, 0.34) 50%,
+    rgba(255, 255, 255, 0.07) 100%
   );
   background-size: 220% 100%;
   animation: shimmer 2.6s linear infinite;
@@ -852,9 +1039,9 @@
   font-size: 0.75rem;
   line-height: 1.5;
   word-break: break-all;
-  color: var(--color-tinta-suave);
-  background: var(--color-creme);
-  border: 1px solid rgba(45, 42, 50, 0.08);
+  color: var(--color-nevoa-2);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   padding: 12px;
   max-height: 92px;
@@ -862,7 +1049,7 @@
 }
 
 /* ============================================================
-   Confetti
+   Confete
    ============================================================ */
 .confetti {
   position: fixed;
@@ -888,7 +1075,7 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  background: rgba(45, 42, 50, 0.42);
+  background: rgba(4, 1, 2, 0.7);
   backdrop-filter: blur(6px);
   animation: stage-in 0.3s ease both;
   padding: 16px;
@@ -905,19 +1092,23 @@
   max-width: 520px;
   max-height: 86vh;
   overflow-y: auto;
-  background: #fff;
-  border-radius: 28px;
+  background:
+    linear-gradient(155deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.015) 100%),
+    var(--color-noite-2);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--color-nevoa);
+  border-radius: var(--radius-painel);
   padding: 26px 22px calc(26px + env(safe-area-inset-bottom));
-  box-shadow: 0 24px 60px rgba(45, 42, 50, 0.28);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7);
   animation: stage-in 0.38s cubic-bezier(0.2, 0.8, 0.3, 1) both;
 }
 
 /* ============================================================
-   Report body
+   Corpo do relatório
    ============================================================ */
 .report-body p {
   margin-block: 0 0.85em;
-  color: var(--color-tinta-suave);
+  color: var(--color-nevoa-2);
 }
 
 .report-body p:last-child {
@@ -925,15 +1116,16 @@
 }
 
 .report-body strong {
-  color: var(--color-tinta);
+  color: var(--color-nevoa);
   font-weight: 600;
 }
 
 /* ============================================================
    Impressão — o "Salvar em PDF" do navegador
    ------------------------------------------------------------
-   Na tela o relatório mora no meio de uma página de vendas. No papel
-   ele precisa chegar sozinho: sem cabeçalho, sem botão, sem rodapé.
+   Na tela o relatório mora numa página escura. No papel ele precisa
+   chegar sozinho e em preto no branco: sem cabeçalho, sem botão,
+   sem fundo, sem brilho.
    ============================================================ */
 
 /* Só aparece no papel. */
@@ -957,7 +1149,9 @@
   header,
   footer,
   .nao-imprimir,
-  .confetti {
+  .confetti,
+  .brasa,
+  .mancha {
     display: none !important;
   }
 
@@ -971,11 +1165,13 @@
     display: none !important;
   }
 
-  .band {
+  .band,
+  .faixa {
     padding-block: 0 !important;
   }
 
-  .shell {
+  .shell,
+  .shell-l {
     max-width: none !important;
     padding-inline: 0 !important;
   }
@@ -988,30 +1184,41 @@
     animation: none !important;
   }
 
-  /* Cartões viram blocos de texto separados por uma linha fina. */
-  .card {
+  /* O tema escuro inteiro cai aqui dentro: tudo que é imprimível vira
+     texto preto sobre branco. A tarja de nível é a única cor que fica. */
+  .imprimivel,
+  .imprimivel :not(.nivel-risco) {
+    color: #111 !important;
+    background-image: none !important;
+    background-color: transparent !important;
     box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Cartões viram blocos de texto separados por uma linha fina. */
+  .card,
+  .painel {
     border: 0 !important;
     border-top: 1px solid #ddd !important;
     border-radius: 0 !important;
-    background: #fff !important;
     padding: 14px 0 !important;
     break-inside: avoid;
   }
 
-  .card-hover:hover {
+  .card-hover:hover,
+  .painel-hover:hover {
     transform: none !important;
   }
 
   h1,
   h2,
   h3 {
-    color: #000;
+    color: #000 !important;
     break-after: avoid;
   }
 
   .report-body p {
-    color: #1a1a1a;
+    color: #1a1a1a !important;
     orphans: 3;
     widows: 3;
   }
@@ -1030,363 +1237,7 @@
 }
 
 /* ============================================================
-   HOME NOTURNA
-   ------------------------------------------------------------
-   Tudo aqui vive dentro de `.noite` e só a página inicial usa.
-   As telas do fluxo (/analise, /relatorio, /termos, /privacidade)
-   continuam no tema claro sem uma linha alterada.
-
-   Regras travadas para a página inteira:
-     · tema        → escuro, do topo ao rodapé, sem seção invertida
-     · acento      → rosa, e só ele
-     · cantos      → painel 28px · bloco interno 18px · botão pílula
-   ============================================================ */
-
-.noite {
-  position: relative;
-  background: var(--color-noite);
-  color: var(--color-nevoa);
-}
-
-/* O fundo do documento acompanha, senão o creme aparece no repique
-   do scroll e no espaço abaixo do rodapé. */
-body:has(.noite) {
-  background: var(--color-noite);
-  color: var(--color-nevoa);
-}
-
-.noite :focus-visible {
-  outline-color: var(--color-rosa-claro);
-}
-
-.noite ::selection {
-  background: rgba(255, 48, 104, 0.32);
-  color: #fff;
-}
-
-/* Container largo. O `.shell` estreito continua servindo o fluxo. */
-.shell-l {
-  width: 100%;
-  max-width: 1200px;
-  margin-inline: auto;
-  padding-inline: 20px;
-}
-
-@media (min-width: 768px) {
-  .shell-l {
-    padding-inline: 32px;
-  }
-}
-
-.faixa {
-  padding-block: 56px;
-}
-
-@media (min-width: 768px) {
-  .faixa {
-    padding-block: 88px;
-  }
-}
-
-/* Continua a seção anterior em vez de abrir outra: some com o respiro de cima.
-   (`pt-0` do Tailwind não venceria `.faixa`, que não está em layer.) */
-.faixa-colada {
-  padding-top: 0;
-}
-
-/* ---------- luz de fundo ---------- */
-
-/* Vinho profundo atrás de tudo: é o que separa o preto do preto. */
-.brasa {
-  position: absolute;
-  border-radius: 9999px;
-  pointer-events: none;
-  filter: blur(90px);
-  opacity: 0.55;
-  animation: deriva 26s ease-in-out infinite;
-}
-
-.brasa-vinho {
-  background: radial-gradient(circle, #7a0c28 0%, transparent 70%);
-}
-
-.brasa-rosa {
-  background: radial-gradient(circle, var(--color-rosa-neon) 0%, transparent 70%);
-  opacity: 0.24;
-}
-
-/* ---------- tipografia ---------- */
-
-/* Headline prateada das referências. Reservada ao topo e ao fecho:
-   se todo título brilhar, nenhum brilha. */
-.titulo-luz {
-  background: linear-gradient(168deg, #ffffff 12%, #d8c6cc 58%, #9d868e 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  line-height: 1.06;
-  padding-bottom: 0.08em;
-}
-
-.t-display {
-  font-family: var(--font-display);
-  font-size: 2.5rem;
-  font-weight: 700;
-  letter-spacing: -0.035em;
-  line-height: 1.06;
-}
-
-.t-secao {
-  font-family: var(--font-display);
-  font-size: 1.75rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.18;
-  color: var(--color-nevoa);
-  text-wrap: balance;
-}
-
-.t-apoio {
-  color: var(--color-nevoa-2);
-  line-height: 1.65;
-}
-
-@media (min-width: 768px) {
-  .t-display {
-    font-size: 4rem;
-  }
-  .t-secao {
-    font-size: 2.375rem;
-  }
-}
-
-/* ---------- superfícies ---------- */
-
-.painel {
-  position: relative;
-  border-radius: var(--radius-painel);
-  background:
-    linear-gradient(155deg, rgba(255, 255, 255, 0.055) 0%, rgba(255, 255, 255, 0.015) 100%),
-    var(--color-noite-2);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.07),
-    0 24px 60px rgba(0, 0, 0, 0.55);
-}
-
-.painel-hover {
-  transition:
-    transform 0.3s cubic-bezier(0.2, 0.8, 0.3, 1),
-    border-color 0.3s ease,
-    box-shadow 0.3s ease;
-}
-
-.painel-hover:hover {
-  transform: translateY(-4px);
-  border-color: rgba(255, 48, 104, 0.4);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.09),
-    0 28px 70px rgba(0, 0, 0, 0.6),
-    0 0 40px rgba(255, 48, 104, 0.14);
-}
-
-/* Painel em destaque: o anel de neon das referências. */
-.painel-neon {
-  border-color: rgba(255, 48, 104, 0.5);
-  background:
-    linear-gradient(155deg, rgba(255, 48, 104, 0.14) 0%, rgba(255, 48, 104, 0.03) 60%),
-    var(--color-noite-2);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 0 0 1px rgba(255, 48, 104, 0.18),
-    0 0 48px rgba(255, 48, 104, 0.28),
-    0 28px 70px rgba(0, 0, 0, 0.6);
-}
-
-/* Painel com cor no fundo. Existe para a grade não virar seis vidros iguais. */
-.painel-tinto {
-  background:
-    linear-gradient(150deg, rgba(255, 48, 104, 0.24) 0%, rgba(255, 48, 104, 0.05) 62%),
-    var(--color-noite-2);
-  border-color: rgba(255, 48, 104, 0.22);
-}
-
-.bloco {
-  border-radius: var(--radius-bloco);
-  background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-}
-
-/* ---------- botões ---------- */
-
-.btn-neon {
-  background: var(--color-rosa-fundo);
-  color: #fff;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.28),
-    0 10px 30px rgba(255, 48, 104, 0.34);
-}
-
-.btn-neon:hover:not(:disabled) {
-  background: #f01a54;
-  transform: translateY(-2px);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.32),
-    0 16px 42px rgba(255, 48, 104, 0.48);
-}
-
-.btn-neon:active:not(:disabled) {
-  transform: scale(0.985);
-}
-
-.btn-vidro {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--color-nevoa);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  backdrop-filter: blur(10px);
-}
-
-.btn-vidro:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 48, 104, 0.45);
-  transform: translateY(-2px);
-}
-
-.btn-vidro:active:not(:disabled) {
-  transform: scale(0.985);
-}
-
-/* Pulso discreto no botão do topo: chama sem piscar. */
-@keyframes pulso-neon {
-  0%,
-  88%,
-  100% {
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.28),
-      0 10px 30px rgba(255, 48, 104, 0.34);
-  }
-  94% {
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.32),
-      0 14px 44px rgba(255, 48, 104, 0.6);
-  }
-}
-
-.btn-neon-pulso {
-  animation: pulso-neon 4.5s ease-in-out infinite;
-}
-
-/* ---------- peças pequenas ---------- */
-
-.selo {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 18px 8px 10px;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 48, 104, 0.32);
-  box-shadow: 0 0 26px rgba(255, 48, 104, 0.16);
-  backdrop-filter: blur(10px);
-  font-family: var(--font-display);
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-nevoa);
-}
-
-.etiqueta {
-  display: inline-block;
-  padding: 5px 13px;
-  border-radius: 9999px;
-  background: var(--color-rosa-fundo);
-  color: #fff;
-  font-family: var(--font-display);
-  font-size: 0.8125rem;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.marca-passo {
-  font-family: var(--font-display);
-  font-size: 2.75rem;
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: -0.05em;
-  color: transparent;
-  -webkit-text-stroke: 1.5px rgba(255, 48, 104, 0.7);
-}
-
-.fio-vertical {
-  background: repeating-linear-gradient(
-    180deg,
-    rgba(255, 48, 104, 0.55) 0 4px,
-    transparent 4px 10px
-  );
-}
-
-.linha-fina {
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.14) 30%,
-    rgba(255, 255, 255, 0.14) 70%,
-    transparent
-  );
-}
-
-/* ---------- ajustes das peças herdadas ---------- */
-
-/* O balão de exemplo e a moldura do celular nasceram no tema claro. */
-.noite .fio-liga {
-  background: repeating-linear-gradient(
-    180deg,
-    rgba(255, 48, 104, 0.6) 0 3px,
-    transparent 3px 6px
-  );
-}
-
-.noite .moldura {
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 48, 104, 0.16) 100%);
-  border-color: rgba(255, 255, 255, 0.12);
-  box-shadow:
-    0 30px 70px rgba(0, 0, 0, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-}
-
-.noite .moldura::before {
-  background: rgba(255, 255, 255, 0.22);
-}
-
-.noite .moldura-tela {
-  background: #120509;
-}
-
-.noite .barra-fixa {
-  background: rgba(11, 4, 7, 0.92);
-  border-top-color: rgba(255, 255, 255, 0.1);
-}
-
-/* O grão fica mais fino no escuro: no claro ele é papel, aqui é filme. */
-body:has(.noite)::after {
-  opacity: 0.04;
-}
-
-/* Reveal com direção: o conteúdo entra do lado em que ele mora. */
-.reveal[data-dir="esq"] {
-  transform: translateX(-24px);
-}
-
-.reveal[data-dir="dir"] {
-  transform: translateX(24px);
-}
-
-.reveal[data-dir="esq"].is-in,
-.reveal[data-dir="dir"].is-in {
-  transform: none;
-}
-
-/* ============================================================
-   Reduced motion
+   Movimento reduzido
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {
   html {

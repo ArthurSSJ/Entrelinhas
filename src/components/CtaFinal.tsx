@@ -1,5 +1,5 @@
+import Image from "next/image";
 import Link from "next/link";
-import Icon3D from "./Icon3D";
 import Reveal from "./Reveal";
 
 /**
@@ -21,10 +21,13 @@ export default function CtaFinal() {
 
       <div className="shell-l relative text-center">
         <Reveal>
-          <Icon3D
-            name="coracao"
-            size={80}
-            className="animate-float-slow mx-auto drop-shadow-[0_20px_50px_rgba(255,48,104,0.5)]"
+          <Image
+            src="/render/coracao.png"
+            alt=""
+            width={760}
+            height={760}
+            aria-hidden
+            className="animate-float-slow mx-auto w-[120px] drop-shadow-[0_22px_54px_rgba(255,48,104,0.45)] md:w-[150px]"
           />
 
           <h2 className="titulo-luz mx-auto mt-7 max-w-[22ch] font-[family-name:var(--font-outfit)] text-[2.125rem] font-bold tracking-[-0.03em] md:text-[3.25rem]">

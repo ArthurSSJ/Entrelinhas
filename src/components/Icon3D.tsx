@@ -1,5 +1,12 @@
 ﻿/**
- * Icon3D — conjunto de ícones 3D "glossy" desenhados à mão em SVG.
+ * Icon3D: conjunto de ícones 3D "glossy" desenhados à mão em SVG.
+ *
+ * Paleta rosa do começo ao fim. A única exceção é o Pix, que fica verde
+ * porque a cor faz parte do reconhecimento da marca na hora de pagar.
+ *
+ * Nos tamanhos grandes (80px para cima) a página usa os renders 3D de
+ * verdade em `public/render`. Estes aqui servem os tamanhos pequenos, onde
+ * um PNG pesaria mais do que ajudaria.
  *
  * Cada ícone segue a mesma receita de material para parecer plástico macio:
  *  1. sombra de contato elíptica e desfocada na base
@@ -105,8 +112,8 @@ function Conversa() {
           <stop offset="1" stopColor="#FFD6E0" />
         </linearGradient>
         <linearGradient id="cv-b" x1="46" y1="38" x2="86" y2="76" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#C4AEFF" />
-          <stop offset="1" stopColor="#8B6BF0" />
+          <stop stopColor="#FF9DBB" />
+          <stop offset="1" stopColor="#E01048" />
         </linearGradient>
       </defs>
       <Chao cy={86} rx={27} />
@@ -134,16 +141,16 @@ function Lupa() {
       <defs>
         <Blur />
         <linearGradient id="lp-a" x1="20" y1="18" x2="62" y2="60" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#EFE7FF" />
-          <stop offset="1" stopColor="#BFA6FF" />
+          <stop stopColor="#FFF0F4" />
+          <stop offset="1" stopColor="#FFB8CE" />
         </linearGradient>
         <linearGradient id="lp-b" x1="14" y1="14" x2="66" y2="64" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#C9B4FF" />
-          <stop offset="1" stopColor="#7C5CE8" />
+          <stop stopColor="#FF9DBB" />
+          <stop offset="1" stopColor="#C10C3E" />
         </linearGradient>
         <linearGradient id="lp-c" x1="58" y1="58" x2="84" y2="84" gradientUnits="userSpaceOnUse">
           <stop stopColor="#FFA8BE" />
-          <stop offset="1" stopColor="#FF6B6B" />
+          <stop offset="1" stopColor="#E01048" />
         </linearGradient>
       </defs>
       <Chao rx={25} />
@@ -162,9 +169,9 @@ function Escudo() {
       <defs>
         <Blur />
         <linearGradient id="es-a" x1="20" y1="10" x2="76" y2="82" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#C9B4FF" />
-          <stop offset="0.55" stopColor="#A78BFA" />
-          <stop offset="1" stopColor="#7C5CE8" />
+          <stop stopColor="#FF9DBB" />
+          <stop offset="0.55" stopColor="#FF3068" />
+          <stop offset="1" stopColor="#C10C3E" />
         </linearGradient>
       </defs>
       <Chao rx={23} />
@@ -195,9 +202,9 @@ function Alerta() {
       <defs>
         <Blur />
         <linearGradient id="al-a" x1="20" y1="10" x2="76" y2="82" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#FFB0A8" />
-          <stop offset="0.5" stopColor="#FF6B6B" />
-          <stop offset="1" stopColor="#E24545" />
+          <stop stopColor="#FF9DBB" />
+          <stop offset="0.5" stopColor="#E01048" />
+          <stop offset="1" stopColor="#A80B39" />
         </linearGradient>
       </defs>
       <Chao rx={23} o={0.18} />
@@ -260,14 +267,14 @@ function Presente() {
           <stop offset="1" stopColor="#FFD6E0" />
         </linearGradient>
         <linearGradient id="pr-c" x1="30" y1="8" x2="66" y2="30" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#C9B4FF" />
-          <stop offset="1" stopColor="#8B6BF0" />
+          <stop stopColor="#FF9DBB" />
+          <stop offset="1" stopColor="#E01048" />
         </linearGradient>
       </defs>
       <Chao cy={86} rx={27} />
       <rect x="19" y="42" width="58" height="40" rx="10" fill="url(#pr-a)" />
       <rect x="13" y="28" width="70" height="20" rx="9" fill="url(#pr-b)" />
-      <rect x="42" y="28" width="12" height="54" fill="#A78BFA" opacity="0.9" />
+      <rect x="42" y="28" width="12" height="54" fill="#FF3068" opacity="0.9" />
       <path
         d="M48 28c-6-14-22-16-22-6 0 5 9 7 22 6Zm0 0c6-14 22-16 22-6 0 5-9 7-22 6Z"
         fill="url(#pr-c)"
@@ -309,7 +316,7 @@ function Nuvem() {
         </linearGradient>
         <linearGradient id="nv-b" x1="38" y1="34" x2="58" y2="76" gradientUnits="userSpaceOnUse">
           <stop stopColor="#FFA8BE" />
-          <stop offset="1" stopColor="#FF6B6B" />
+          <stop offset="1" stopColor="#E01048" />
         </linearGradient>
       </defs>
       <Chao cy={86} rx={26} />
@@ -337,7 +344,7 @@ function Brilho() {
       <defs>
         <Blur />
         <linearGradient id="br-a" x1="20" y1="18" x2="76" y2="78" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#FFE29A" />
+          <stop stopColor="#FFD9E4" />
           <stop offset="1" stopColor="#FF8FAB" />
         </linearGradient>
       </defs>
@@ -360,8 +367,8 @@ function Foguete() {
           <stop offset="1" stopColor="#FFD6E0" />
         </linearGradient>
         <linearGradient id="fg-b" x1="38" y1="60" x2="58" y2="90" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#FFC46B" />
-          <stop offset="1" stopColor="#FF6B6B" />
+          <stop stopColor="#FFC2D2" />
+          <stop offset="1" stopColor="#E01048" />
         </linearGradient>
       </defs>
       <Chao cy={88} rx={18} o={0.12} />
@@ -373,7 +380,7 @@ function Foguete() {
         stroke="#FF8FAB"
         strokeWidth="2.5"
       />
-      <circle cx="48" cy="36" r="9" fill="#A78BFA" />
+      <circle cx="48" cy="36" r="9" fill="#FF3068" />
       <circle cx="45" cy="33" r="3" fill="#fff" opacity="0.7" />
       <path d="M48 92c-6-6-9-11-9-16h18c0 5-3 10-9 16Z" fill="url(#fg-b)" />
     </>
@@ -393,7 +400,7 @@ function Cadeado() {
       <Chao cy={86} rx={22} />
       <path
         d="M34 44V32a14 14 0 0 1 28 0v12"
-        stroke="#A78BFA"
+        stroke="#C10C3E"
         strokeWidth="9"
         strokeLinecap="round"
         fill="none"
