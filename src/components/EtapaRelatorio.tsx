@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import Icon3D, { type IconName } from "./Icon3D";
 import Confete from "./Confete";
+import { MARCA } from "@/lib/marca";
 import type { AnalysisState } from "@/lib/types";
 
 const iconesValidos: IconName[] = [
@@ -48,7 +49,7 @@ export default function EtapaRelatorio({ estado }: { estado: AnalysisState }) {
       <Confete />
 
       <p className="so-impressao mb-6 border-b border-black/15 pb-2 text-[9pt] tracking-wide uppercase">
-        Entrelinhas · relatório de {data}
+        {MARCA} · relatório de {data}
       </p>
 
       <div className="text-center">

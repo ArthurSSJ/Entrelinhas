@@ -1,4 +1,5 @@
 import type { IconName } from "@/components/Icon3D";
+import { CHAVE_PREFIXO } from "./marca";
 
 /**
  * As perguntas do começo do fluxo.
@@ -79,7 +80,7 @@ export const PERGUNTAS: Pergunta[] = [
 
 export type Respostas = Record<string, string>;
 
-const CHAVE = "entrelinhas:respostas";
+const CHAVE = `${CHAVE_PREFIXO}:respostas`;
 
 export function lerRespostas(): Respostas {
   if (typeof window === "undefined") return {};

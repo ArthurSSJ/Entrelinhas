@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import Icon3D from "@/components/Icon3D";
 import Modal from "@/components/Modal";
 import { Trilha } from "@/components/Enfeites";
+import { CHAVE_ANALISE } from "@/lib/marca";
 import { BASE_CENTS, UPSELL_CENTS, brl, totalCents } from "@/lib/pricing";
 import { checkFile, readableSize } from "@/lib/upload";
 import { detectarParticipantes, type Participantes } from "@/lib/whatsapp";
@@ -90,7 +91,7 @@ export default function Enviar() {
         return;
       }
 
-      window.localStorage.setItem("entrelinhas:analise", dados.id);
+      window.localStorage.setItem(CHAVE_ANALISE, dados.id);
       router.push(`/relatorio/${dados.id}`);
     } catch {
       setErro("Sua conexão caiu no meio do envio. Tente de novo.");

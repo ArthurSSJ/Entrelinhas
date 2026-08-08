@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import Cabecalho from "@/components/Cabecalho";
 import Rodape from "@/components/Rodape";
 import Icon3D from "@/components/Icon3D";
+import { CONTATO, CONTATO_MAILTO, MARCA } from "@/lib/marca";
 
 export const metadata: Metadata = {
-  title: "Termos de uso · Entrelinhas",
+  title: `Termos de uso · ${MARCA}`,
   description: "As regras do serviço, em português claro.",
 };
 
@@ -18,7 +19,7 @@ export default function Termos() {
           <h1 className="t-h1 mt-4">Termos de uso</h1>
           <p className="t-legenda">Última atualização: 5 de agosto de 2026.</p>
 
-          <h2 className="t-h2 mt-8">O que o Entrelinhas faz</h2>
+          <h2 className="t-h2 mt-8">O que o {MARCA} faz</h2>
           <p>
             O serviço lê um histórico de conversa que você envia e devolve um relatório com padrões
             encontrados nesse texto: quem inicia as conversas, como o tom muda ao longo do tempo,
@@ -45,8 +46,8 @@ export default function Termos() {
             A cobrança acontece depois que a leitura termina, antes de o relatório ser liberado. Se
             a leitura falhar, nada é cobrado. Se o relatório for liberado e vier claramente
             quebrado, escreva para{" "}
-            <a href="mailto:oi@entrelinhas.app" className="underline underline-offset-4">
-              oi@entrelinhas.app
+            <a href={CONTATO_MAILTO} className="underline underline-offset-4">
+              {CONTATO}
             </a>{" "}
             em até sete dias e devolvemos o valor.
           </p>

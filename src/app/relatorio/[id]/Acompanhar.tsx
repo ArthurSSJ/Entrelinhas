@@ -6,6 +6,7 @@ import EtapaProcessando from "@/components/EtapaProcessando";
 import EtapaPagamento from "@/components/EtapaPagamento";
 import EtapaRelatorio from "@/components/EtapaRelatorio";
 import EtapaFalhou from "@/components/EtapaFalhou";
+import { CHAVE_ANALISE } from "@/lib/marca";
 import { limparRespostas } from "@/lib/perguntas";
 
 type Etapa = "carregando" | "processando" | "pagamento" | "liberado" | "falhou" | "sumiu";
@@ -71,7 +72,7 @@ export default function Acompanhar({ id }: { id: string }) {
         void abrirCobranca();
       } else if (dados.status === "paid") {
         setEtapa("liberado");
-        window.localStorage.removeItem("entrelinhas:analise");
+        window.localStorage.removeItem(CHAVE_ANALISE);
         limparRespostas();
         window.clearInterval(timer);
       } else if (dados.status === "failed") {
@@ -99,7 +100,7 @@ export default function Acompanhar({ id }: { id: string }) {
       <EtapaFalhou
         mensagem="Esta análise não está mais disponível. Os relatórios ficam abertos por duas horas."
         onRecomecar={() => {
-          window.localStorage.removeItem("entrelinhas:analise");
+          window.localStorage.removeItem(CHAVE_ANALISE);
           window.location.href = "/analise";
         }}
       />
@@ -119,7 +120,7 @@ export default function Acompanhar({ id }: { id: string }) {
 }
 
 function recomecar() {
-  window.localStorage.removeItem("entrelinhas:analise");
+  window.localStorage.removeItem(CHAVE_ANALISE);
   limparRespostas();
   window.location.href = "/analise";
 }

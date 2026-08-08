@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { CONTATO_MAILTO } from "@/lib/marca";
 
 export default function EtapaFalhou({
   mensagem,
@@ -29,7 +30,7 @@ export default function EtapaFalhou({
       </button>
       <p className="t-legenda mt-3">
         Se acontecer de novo,{" "}
-        <a href="mailto:oi@entrelinhas.app" className="underline underline-offset-4">
+        <a href={CONTATO_MAILTO} className="underline underline-offset-4">
           escreva pra gente
         </a>
         .

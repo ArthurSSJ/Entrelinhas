@@ -20,10 +20,10 @@ const JANELA_MS = 60_000;
 type Gasto = { quando: number; tokens: number };
 
 const globalRef = globalThis as unknown as {
-  __entrelinhasFila?: { gastos: Gasto[]; corrente: Promise<unknown>; aguardando: number };
+  __desvendaFila?: { gastos: Gasto[]; corrente: Promise<unknown>; aguardando: number };
 };
 
-const estado = (globalRef.__entrelinhasFila ??= {
+const estado = (globalRef.__desvendaFila ??= {
   gastos: [],
   corrente: Promise.resolve(),
   aguardando: 0,

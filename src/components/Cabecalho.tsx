@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Icon3D from "./Icon3D";
+import { MARCA } from "@/lib/marca";
 
 const ancoras = [
   { href: "#como", texto: "Como funciona" },
@@ -32,7 +33,7 @@ export default function Cabecalho({ modo = "texto" }: { modo?: Modo }) {
         <Link href="/" className="flex flex-none items-center gap-2">
           <Icon3D name="coracao" size={30} />
           <span className="font-[family-name:var(--font-outfit)] text-[1.0625rem] font-bold tracking-tight text-[#F6ECEF]">
-            Entrelinhas
+            {MARCA}
           </span>
         </Link>
 

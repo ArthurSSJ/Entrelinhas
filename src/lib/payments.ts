@@ -41,8 +41,11 @@ export async function createCharge(
   }
 
   const brCode = buildStaticPix({
-    key: process.env.PIX_CHAVE ?? "demo@entrelinhas.app",
-    name: process.env.PIX_NOME ?? "ENTRELINHAS",
+    // Reserva propositalmente inválida: sem PIX_CHAVE configurada o QR não pode
+    // parecer cobrança de verdade. O e-mail de contato não serve aqui, porque
+    // ele não é necessariamente uma chave PIX registrada.
+    key: process.env.PIX_CHAVE ?? "demo@desvenda.ai",
+    name: process.env.PIX_NOME ?? "DESVENDA AI",
     city: process.env.PIX_CIDADE ?? "SAO PAULO",
     amountCents,
     txid: toTxid(analysisId),

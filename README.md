@@ -1,4 +1,4 @@
-# Entrelinhas
+# Desvenda AI
 
 Micro-SaaS que lê um histórico de conversa do WhatsApp e devolve um relatório com os padrões do relacionamento. O front-end fica aqui; a leitura acontece num fluxo do N8n e o pagamento no checkout da Cakto.
 
@@ -57,7 +57,7 @@ Vale a conta: no plano pago a análise custa perto de **R$ 0,04**, contra R$ 19,
 
 Alternativa ao agente acima. Se `N8N_WEBHOOK_URL` estiver preenchida, ela ganha e o Groq é ignorado.
 
-O fluxo pronto está em [`n8n/entrelinhas-analise.json`](n8n/entrelinhas-analise.json). Para usar:
+O fluxo pronto está em [`n8n/desvenda-ai-analise.json`](n8n/desvenda-ai-analise.json). Para usar:
 
 1. No n8n: **Workflows → Import from File** e escolha o arquivo.
 2. No nó **Groq lê a conversa**, troque `COLE_AQUI_SUA_CHAVE_GROQ` pela sua chave. (Melhor ainda: apague o header e use uma credencial *Header Auth*.)
@@ -96,7 +96,7 @@ Quando o fluxo terminar, faça um `POST` no `callbackUrl` com:
 
 Se for mais simples devolver markdown, mande `{ "texto": "## Título\n\nparágrafo…" }` — os títulos `##` viram seções. Deu erro no fluxo? `{ "erro": "mensagem" }` leva a pessoa para a tela de falha, sem cobrança.
 
-Defina `N8N_CALLBACK_TOKEN` e mande o mesmo valor no header `x-entrelinhas-token` para que só o seu fluxo consiga escrever aí.
+Defina `N8N_CALLBACK_TOKEN` e mande o mesmo valor no header `x-desvenda-token` para que só o seu fluxo consiga escrever aí.
 
 ## Conectando a Cakto
 

@@ -18,8 +18,8 @@ const TTL_MS = 1000 * 60 * 60 * 2; // 2 horas
 type Entry = { state: AnalysisState; expiresAt: number };
 
 // Sobrevive ao hot reload do Next em desenvolvimento.
-const globalRef = globalThis as unknown as { __entrelinhas?: Map<string, Entry> };
-const db: Map<string, Entry> = (globalRef.__entrelinhas ??= new Map());
+const globalRef = globalThis as unknown as { __desvenda?: Map<string, Entry> };
+const db: Map<string, Entry> = (globalRef.__desvenda ??= new Map());
 
 function sweep() {
   const now = Date.now();

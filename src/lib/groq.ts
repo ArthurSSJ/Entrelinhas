@@ -181,7 +181,7 @@ function estimarTokens(texto: string) {
    ------------------------------------------------------------------ */
 
 function sistema(comAvancada: boolean) {
-  return `Você escreve relatórios do Entrelinhas: uma leitura de conversas de casal, feita para a pessoa que enviou o histórico.
+  return `Você escreve relatórios do Desvenda AI: uma leitura de conversas de casal, feita para a pessoa que enviou o histórico.
 
 COMO ESCREVER
 - Português brasileiro, segunda pessoa ("você"), tom de amigo próximo que não julga.

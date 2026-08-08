@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Manrope, Outfit } from "next/font/google";
+import { MARCA } from "@/lib/marca";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -19,11 +20,12 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Entrelinhas · o que a conversa de vocês já diz",
+  title: `${MARCA} · o que a conversa de vocês já diz`,
   description:
     "Envie uma conversa do WhatsApp e receba em dois minutos os padrões que se repetem. Sem cadastro, ninguém do outro lado é avisado, e a conversa não fica guardada.",
   openGraph: {
-    title: "Você já sabe. Só não consegue nomear.",
+    siteName: MARCA,
+    title: "Você já sabe. Só falta nomear.",
     description:
       "A leitura da conversa de vocês em dois minutos. Sem cadastro e sem ninguém ficar sabendo.",
     locale: "pt_BR",

@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import Cabecalho from "@/components/Cabecalho";
 import Rodape from "@/components/Rodape";
 import Icon3D from "@/components/Icon3D";
+import { CONTATO, CONTATO_MAILTO, MARCA } from "@/lib/marca";
 
 export const metadata: Metadata = {
-  title: "Privacidade · Entrelinhas",
+  title: `Privacidade · ${MARCA}`,
   description: "O que acontece com a conversa que você envia.",
 };
 
@@ -68,8 +69,8 @@ export default function Privacidade() {
           <p>
             Como não guardamos dados pessoais identificáveis, não há cadastro para consultar ou
             excluir. Se quiser apagar um relatório antes das duas horas, escreva para{" "}
-            <a href="mailto:oi@entrelinhas.app" className="underline underline-offset-4">
-              oi@entrelinhas.app
+            <a href={CONTATO_MAILTO} className="underline underline-offset-4">
+              {CONTATO}
             </a>{" "}
             com o link que você recebeu.
           </p>

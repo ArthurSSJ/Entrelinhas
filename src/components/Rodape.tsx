@@ -1,4 +1,5 @@
 import Icon3D from "./Icon3D";
+import { CONTATO_MAILTO, MARCA } from "@/lib/marca";
 
 /**
  * `largo` acompanha a coluna larga da home. Nas páginas de texto o rodapé
@@ -17,7 +18,7 @@ export default function Rodape({ largo = false }: { largo?: boolean }) {
           <Icon3D name="coracao" size={34} className="flex-none" />
           <div>
             <p className="font-[family-name:var(--font-outfit)] text-[1.0625rem] font-bold text-[#F6ECEF]">
-              Entrelinhas
+              {MARCA}
             </p>
             <p className="mt-2 max-w-[42ch] text-[0.875rem] leading-relaxed text-[#B7A2AA]">
               A conversa que você envia é apagada assim que a leitura termina. Nada fica guardado.
@@ -33,7 +34,7 @@ export default function Rodape({ largo = false }: { largo?: boolean }) {
             Termos de uso
           </a>
           <a
-            href="mailto:oi@entrelinhas.app"
+            href={CONTATO_MAILTO}
             className="text-[#B7A2AA] transition-colors hover:text-[#F6ECEF]"
           >
             Falar com a gente
@@ -43,7 +44,7 @@ export default function Rodape({ largo = false }: { largo?: boolean }) {
 
       <div className={`${largo ? "shell-l" : "shell"} pb-10`}>
         <p className="max-w-[68ch] text-[0.8125rem] leading-relaxed text-[#B7A2AA]/75">
-          Entrelinhas é uma leitura de padrões de conversa, não um diagnóstico e não substitui
+          {MARCA} é uma leitura de padrões de conversa, não um diagnóstico e não substitui
           acompanhamento profissional.
         </p>
       </div>

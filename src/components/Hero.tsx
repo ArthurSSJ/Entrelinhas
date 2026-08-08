@@ -41,8 +41,8 @@ export default function Hero() {
 
           <Reveal delay={140}>
             <p className="t-apoio mt-6 max-w-[46ch] text-[1.0625rem] md:text-[1.125rem]">
-              Está tudo escrito nas entrelinhas da conversa de vocês. Em dois minutos, você lê de
-              uma vez.
+              O que você procura já está escrito na conversa de vocês. Em dois minutos, você
+              desvenda o que se repete.
             </p>
           </Reveal>
 
