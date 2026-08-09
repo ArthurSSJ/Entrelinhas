@@ -3,10 +3,10 @@ import Icon3D from "./Icon3D";
 import { MARCA } from "@/lib/marca";
 
 const ancoras = [
+  { href: "#exemplos", texto: "O que aparece" },
   { href: "#como", texto: "Como funciona" },
   { href: "#relatorio", texto: "O relatório" },
   { href: "#preco", texto: "Preço" },
-  { href: "#perguntas", texto: "Perguntas" },
 ];
 
 type Modo =
@@ -61,7 +61,7 @@ export default function Cabecalho({ modo = "texto" }: { modo?: Modo }) {
             href="/analise"
             className="btn btn-primary flex-none px-4 py-2.5 text-[0.8125rem] whitespace-nowrap md:px-6 md:text-[0.9375rem]"
           >
-            Ler minha conversa
+            Quero descobrir
           </Link>
         )}
       </div>

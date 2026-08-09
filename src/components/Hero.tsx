@@ -1,18 +1,46 @@
 import Image from "next/image";
 import Link from "next/link";
+import Balao from "./Balao";
 import Icon3D from "./Icon3D";
 import Reveal from "./Reveal";
-import { Sublinhado } from "./Enfeites";
+import { BASE_CENTS, brl } from "@/lib/pricing";
 
 /**
- * O herói fala com quem já desconfia de alguma coisa e não consegue dizer o
- * quê. Ele não promete revelação: promete nome. Por isso a frase é a dúvida da
- * pessoa devolvida em voz alta, e não uma descrição do produto.
+ * Duas manchetes escritas para teste.
  *
- * A divisão é assimétrica, não centralizada: de um lado a frase, do outro a
- * prova. A pessoa lê a promessa e vê o exemplo no mesmo relance.
+ * "a" afirma e acalma: a resposta já existe, só falta ler. "b" pergunta e
+ * incomoda: e se ela sempre esteve ali? A primeira converte melhor com quem
+ * chegou decidido; a segunda, com quem chegou pelo anúncio e ainda não
+ * admitiu para si mesmo que está procurando alguma coisa.
+ *
+ * Para rodar a outra, troque VARIANTE. Nada mais na página muda.
+ */
+const MANCHETES = {
+  a: {
+    antes: "A resposta que você procura pode já estar ",
+    destaque: "escrita nas mensagens",
+    depois: ".",
+  },
+  b: {
+    antes: "E se os sinais ",
+    destaque: "sempre estiveram na conversa",
+    depois: "… e você nunca percebeu?",
+  },
+} as const;
+
+const VARIANTE: keyof typeof MANCHETES = "a";
+
+/**
+ * O topo vende a vontade de descobrir, não a tecnologia. Por isso a frase é a
+ * dúvida da pessoa devolvida em voz alta, e o exemplo ao lado mostra o formato
+ * do achado antes de qualquer explicação de como ele é feito.
+ *
+ * A divisão é assimétrica: de um lado a promessa, do outro a prova. No celular
+ * a prova desce para baixo do botão, que é onde a mão está.
  */
 export default function Hero() {
+  const manchete = MANCHETES[VARIANTE];
+
   return (
     <section id="topo" className="relative overflow-hidden">
       <span aria-hidden className="brasa brasa-vinho -top-40 -left-32 h-[34rem] w-[34rem]" />
@@ -22,37 +50,44 @@ export default function Hero() {
         style={{ animationDelay: "-9s" }}
       />
 
-      <div className="shell-l relative grid items-center gap-14 pt-12 pb-16 md:pt-20 md:pb-24 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-16">
+      <div className="shell-l relative grid items-center gap-14 pt-12 pb-16 md:pt-20 md:pb-24 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] lg:gap-16">
         <div>
           <Reveal>
-            <span className="selo">
-              <Icon3D name="escudo" size={26} />
-              Ninguém é avisado. Nada fica guardado.
+            <span className="selo eyebrow-forte">
+              <span aria-hidden>🔒</span>
+              Sua conversa é privada
             </span>
           </Reveal>
 
           <Reveal delay={80}>
-            <h1 className="t-display titulo-luz mt-6">
-              Você já sabe.
-              <br />
-              Só falta <Sublinhado cor="#FF3068">nomear</Sublinhado>.
+            <h1 className="t-manchete titulo-luz mt-6">
+              {manchete.antes}
+              <span className="text-[#FF8FB3]">{manchete.destaque}</span>
+              {manchete.depois}
             </h1>
           </Reveal>
 
           <Reveal delay={140}>
-            <p className="t-apoio mt-6 max-w-[46ch] text-[1.0625rem] md:text-[1.125rem]">
-              O que você procura já está escrito na conversa de vocês. Em dois minutos, você
-              desvenda o que se repete.
+            <p className="t-apoio mt-6 max-w-[50ch] text-[1.0625rem] md:text-[1.125rem]">
+              Envie a conversa do WhatsApp e descubra padrões de comportamento, interesse,
+              manipulação, distanciamento e outros sinais que podem passar despercebidos no dia a
+              dia.
             </p>
           </Reveal>
 
           <Reveal delay={200}>
             <Link
               href="/analise"
-              className="btn btn-neon btn-neon-pulso btn-lg btn-block mt-8 sm:w-auto sm:px-10"
+              className="btn btn-neon btn-neon-pulso btn-lg btn-block mt-8 [text-wrap:balance] sm:w-auto sm:px-10"
             >
-              Ler minha conversa
+              Quero descobrir o que minha conversa revela
             </Link>
+
+            <p className="mt-4 text-[0.9375rem] text-[#B7A2AA] [text-wrap:balance]">
+              Análise completa por{" "}
+              <span className="font-semibold text-[#F6ECEF]">{brl(BASE_CENTS)}</span> · Pagamento
+              único
+            </p>
           </Reveal>
         </div>
 
@@ -66,7 +101,7 @@ export default function Hero() {
 
 /**
  * Assinatura visual: duas mensagens comuns e, no espaço entre elas, o que a
- * leitura enxerga. O nome do produto está desenhado, não escrito.
+ * leitura enxerga.
  *
  * Os horários ficam visíveis de propósito. Quem lê faz a conta sozinho, 23:47 e
  * depois 08:12, e só então o achado confirma o que a pessoa já tinha percebido.
@@ -113,61 +148,5 @@ function FioDeConversa() {
         </Balao>
       </figure>
     </div>
-  );
-}
-
-function Balao({
-  lado,
-  hora,
-  lida,
-  className = "",
-  style,
-  children,
-}: {
-  lado: "esq" | "dir";
-  hora: string;
-  lida?: boolean;
-  className?: string;
-  style?: React.CSSProperties;
-  children: React.ReactNode;
-}) {
-  const minha = lado === "dir";
-  return (
-    <span className={`flex ${minha ? "justify-end" : "justify-start"} ${className}`} style={style}>
-      <span
-        className={[
-          "flex max-w-[86%] items-end gap-2 px-3.5 py-2.5 text-[0.9375rem] leading-snug",
-          minha
-            ? "rounded-[18px] rounded-br-[6px] bg-[#E01048] text-white"
-            : "rounded-[18px] rounded-bl-[6px] border border-white/10 bg-white/7 text-[#F6ECEF]",
-        ].join(" ")}
-      >
-        {children}
-        <span
-          className={`flex flex-none items-center gap-0.5 self-end pb-0.5 ${
-            minha ? "text-white/80" : "text-[#B7A2AA]"
-          }`}
-        >
-          <time className="fio-hora">{hora}</time>
-          {lida && <Vistos />}
-        </span>
-      </span>
-    </span>
-  );
-}
-
-/** Os dois tiques de "lida". Detalhe pequeno que faz o exemplo parecer real. */
-function Vistos() {
-  return (
-    <svg width="15" height="10" viewBox="0 0 15 10" aria-hidden focusable="false">
-      <path
-        d="M1 5.6 3.4 8 8.6 2M6.4 5.6 8.8 8 14 2"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }

@@ -54,7 +54,7 @@ export default function CtaFlutuante() {
           tabIndex={visivel ? undefined : -1}
           className="btn btn-neon flex-none px-5 py-3 text-[0.875rem] whitespace-nowrap"
         >
-          Ler minha conversa
+          Quero descobrir
         </Link>
       </div>
     </div>

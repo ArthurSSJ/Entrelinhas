@@ -31,10 +31,10 @@ export default function ComoFunciona() {
       <div className="shell-l relative grid gap-12 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-20">
         <Reveal>
           <div className="lg:sticky lg:top-28">
-            <h2 className="t-secao">Como funciona</h2>
+            <h2 className="t-secao max-w-[16ch]">Três passos, dois minutos</h2>
             <p className="t-apoio mt-4 max-w-[40ch]">
-              Dois minutos do começo ao relatório aberto. É menos tempo do que você já gastou hoje
-              relendo a conversa.
+              Do primeiro toque ao relatório aberto. É menos tempo do que você já gastou hoje
+              relendo a mesma conversa.
             </p>
           </div>
         </Reveal>

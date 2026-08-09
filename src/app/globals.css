@@ -295,6 +295,19 @@
   line-height: 1.06;
 }
 
+/* Manchete do topo. Menor que .t-display porque a frase virou uma sentença
+   inteira, e não duas palavras: precisa fechar em três linhas no desktop e em
+   quatro no celular. Tamanho mora aqui, e não numa utilitária do Tailwind,
+   porque .t-display não está em layer e venceria a utilitária. */
+.t-manchete {
+  font-family: var(--font-display);
+  font-size: 2.125rem;
+  font-weight: 700;
+  letter-spacing: -0.032em;
+  line-height: 1.09;
+  text-wrap: balance;
+}
+
 .t-secao {
   font-family: var(--font-display);
   font-size: 1.75rem;
@@ -313,6 +326,9 @@
 @media (min-width: 768px) {
   .t-display {
     font-size: 4rem;
+  }
+  .t-manchete {
+    font-size: 3.25rem;
   }
   .t-secao {
     font-size: 2.375rem;

@@ -1,34 +1,40 @@
 import Cabecalho from "@/components/Cabecalho";
 import Hero from "@/components/Hero";
-import FaixaGarantias from "@/components/FaixaGarantias";
-import Reconhecimento from "@/components/Reconhecimento";
-import ComoFunciona from "@/components/ComoFunciona";
-import OQueRecebe from "@/components/OQueRecebe";
-import Avancada from "@/components/Avancada";
-import Objecoes from "@/components/Objecoes";
+import Exemplos from "@/components/Exemplos";
 import Depoimentos from "@/components/Depoimentos";
+import ComoFunciona from "@/components/ComoFunciona";
+import PreviaRelatorio from "@/components/PreviaRelatorio";
+import OQueRecebe from "@/components/OQueRecebe";
 import Confianca from "@/components/Confianca";
-import Preco from "@/components/Preco";
 import Perguntas from "@/components/Perguntas";
 import CtaFinal from "@/components/CtaFinal";
 import CtaFlutuante from "@/components/CtaFlutuante";
 import Rodape from "@/components/Rodape";
 
+/**
+ * A ordem é uma jornada, não um índice do produto:
+ *
+ *   curiosidade   Hero, Exemplos      — o que dá para descobrir
+ *   identificação ComoFunciona        — e como isso chega até mim
+ *   desejo        Prévia, O que vem   — o formato e o conteúdo do achado
+ *   ação          Privacidade, FAQ    — as travas que sobraram
+ *                 CtaFinal            — preço e decisão no mesmo lugar
+ *
+ * `Depoimentos` mora aqui e não renderiza nada: a lista está vazia de
+ * propósito até existir gente de verdade para citar. O lugar já é este.
+ */
 export default function Home() {
   return (
     <>
       <Cabecalho modo="home" />
       <main>
         <Hero />
-        <FaixaGarantias />
-        <Reconhecimento />
-        <ComoFunciona />
-        <OQueRecebe />
-        <Avancada />
-        <Objecoes />
+        <Exemplos />
         <Depoimentos />
+        <ComoFunciona />
+        <PreviaRelatorio />
+        <OQueRecebe />
         <Confianca />
-        <Preco />
         <Perguntas />
         <CtaFinal />
       </main>

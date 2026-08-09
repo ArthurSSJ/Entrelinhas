@@ -1,6 +1,14 @@
 import Icon3D, { type IconName } from "./Icon3D";
 import Reveal from "./Reveal";
 
+/**
+ * Privacidade e segurança, logo antes do preço.
+ *
+ * É aqui que a compra trava: a pessoa quer a leitura e tem medo de entregar a
+ * conversa. A seção junta as três garantias do contrato com o que o produto
+ * não é — dizer o que ele não faz dá mais confiança do que jurar o que ele
+ * faz, e é o que evita o pedido de reembolso na semana seguinte.
+ */
 const garantias: { icon: IconName; titulo: string; texto: string }[] = [
   {
     icon: "cadeado",
@@ -21,13 +29,30 @@ const garantias: { icon: IconName; titulo: string; texto: string }[] = [
   },
 ];
 
-/**
- * Sem cartões: as três garantias moram no mesmo painel, separadas por um fio.
- * São promessas do mesmo contrato, não três produtos.
- */
+const selos = ["Sem cadastro", "Ninguém do outro lado é avisado", "Você vê antes de pagar"];
+
+const limites = [
+  {
+    nao: "Não é detector de mentira",
+    sim: "É a leitura dos padrões que já estão escritos na conversa.",
+  },
+  {
+    nao: "Não prova traição",
+    sim: "Mostra o que mudou e quando. Conversa nenhuma prova fato que aconteceu fora dela.",
+  },
+  {
+    nao: "Não é app de espionagem",
+    sim: "Você envia uma conversa que é sua. Ninguém do outro lado descobre, hoje nem depois.",
+  },
+  {
+    nao: "Não é terapia",
+    sim: "É o material para começar a conversa difícil já sabendo o que dizer.",
+  },
+];
+
 export default function Confianca() {
   return (
-    <section className="faixa faixa-colada">
+    <section id="privacidade" className="faixa faixa-colada">
       <div className="shell-l">
         <Reveal>
           <h2 className="t-secao max-w-[22ch]">Você está prestes a entregar algo íntimo</h2>
@@ -35,6 +60,18 @@ export default function Confianca() {
             Então vale dizer com todas as letras o que acontece do outro lado, antes de você
             clicar.
           </p>
+
+          <ul className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2">
+            {selos.map((item) => (
+              <li
+                key={item}
+                className="flex items-center gap-2 text-[0.9375rem] font-medium text-[#F6ECEF]"
+              >
+                <Tique />
+                {item}
+              </li>
+            ))}
+          </ul>
         </Reveal>
 
         <Reveal delay={80}>
@@ -50,7 +87,70 @@ export default function Confianca() {
             ))}
           </div>
         </Reveal>
+
+        <Reveal delay={110}>
+          <ul className="painel mt-4 divide-y divide-white/8 overflow-hidden">
+            {limites.map((item) => (
+              <li
+                key={item.nao}
+                className="grid gap-2 px-5 py-4 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] md:items-center md:gap-8 md:px-8 md:py-5"
+              >
+                <p className="flex items-start gap-3 text-[0.9375rem] font-semibold text-[#B7A2AA] md:items-center">
+                  <span
+                    aria-hidden
+                    className="mt-0.5 grid h-5 w-5 flex-none place-items-center rounded-full bg-white/8 md:mt-0"
+                  >
+                    <svg width="9" height="9" viewBox="0 0 10 10" focusable="false">
+                      <path
+                        d="M1 1l8 8M9 1L1 9"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </span>
+                  {item.nao}
+                </p>
+
+                <p className="flex items-start gap-3 text-[0.9375rem] text-[#F6ECEF] md:items-center">
+                  <span
+                    aria-hidden
+                    className="mt-0.5 grid h-5 w-5 flex-none place-items-center rounded-full bg-[#FF3068]/18 text-[#FF8FB3] md:mt-0"
+                  >
+                    <Tique cor="currentColor" />
+                  </span>
+                  {item.sim}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </Reveal>
+
+        <Reveal delay={140}>
+          <p className="mt-6 flex max-w-[72ch] items-start gap-4 text-[0.9375rem] leading-relaxed text-[#B7A2AA]">
+            <Icon3D name="coracao" size={38} className="flex-none" />
+            <span>
+              A conversa é de duas pessoas. Envie só conversa da qual você participou, e use o que
+              ler para falar com quem está do outro lado, não pelas costas dele.
+            </span>
+          </p>
+        </Reveal>
       </div>
     </section>
+  );
+}
+
+function Tique({ cor = "#FF8FB3" }: { cor?: string }) {
+  return (
+    <svg width="12" height="12" viewBox="0 0 14 14" aria-hidden focusable="false">
+      <path
+        d="M2 7.5 5.5 11 12 3.5"
+        stroke={cor}
+        strokeWidth="2.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+    </svg>
   );
 }

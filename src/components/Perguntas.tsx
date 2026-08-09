@@ -1,5 +1,10 @@
 import Reveal from "./Reveal";
 
+/**
+ * As perguntas estão na ordem em que travam a compra, não na ordem em que são
+ * interessantes: primeiro o medo de ser descoberta, depois o medo de não ter
+ * nada lá, depois o dinheiro, e só no fim os detalhes de uso.
+ */
 const perguntas = [
   {
     q: "A outra pessoa fica sabendo?",
@@ -7,23 +12,27 @@ const perguntas = [
   },
   {
     q: "E se não tiver nada de errado?",
-    a: "Aí o relatório diz isso, e diz por quê. Descobrir que está tudo bem também é resposta, e é a resposta que a maioria das pessoas vai dormir querendo ter.",
+    a: "Aí o relatório diz isso, e diz por quê. Descobrir que está tudo bem também é resposta — e é a resposta que a maioria das pessoas vai dormir querendo ter.",
   },
   {
-    q: "Preciso enviar a conversa inteira?",
-    a: "Não precisa. Quanto mais histórico, mais padrão aparece, mas três ou quatro meses já bastam para a leitura fazer sentido.",
+    q: "A análise prova que estão me traindo?",
+    a: "Não, e desconfie de quem prometer isso. Nenhuma conversa prova um fato que aconteceu fora dela. O que a leitura mostra é o que mudou dentro da conversa: horário, tom, assunto, tempo de resposta — com a data e o trecho de cada mudança. A conclusão continua sendo sua.",
   },
   {
     q: "Quando eu pago?",
     a: "Depois. Você envia, a leitura acontece, e você lê a primeira conclusão e quantos padrões apareceram antes de qualquer cobrança. Se a leitura falhar, nada é cobrado.",
   },
   {
+    q: "Preciso enviar a conversa inteira?",
+    a: "Não precisa. Quanto mais histórico, mais padrão aparece, mas três ou quatro meses já bastam para a leitura fazer sentido.",
+  },
+  {
     q: "E se a conversa tiver áudio e foto?",
     a: "Exporte escolhendo “Sem mídia”. Só o texto é lido, e é o texto que carrega o padrão.",
   },
   {
-    q: "O que é a análise avançada de traição?",
-    a: "Uma leitura separada, focada em sinais de envolvimento com outra pessoa: mudança de horário, de tom e de assunto. Ela mostra em qual trecho cada conclusão se apoia e não afirma nada além disso. Conversa não prova traição, e quem promete isso está te vendendo mentira.",
+    q: "Serve para conversa que não é de namoro?",
+    a: "Serve. Amizade que esfriou, sócio que some quando o assunto é dinheiro, família que só fala em datas. O que a leitura procura é repetição, e repetição existe em qualquer conversa longa.",
   },
   {
     q: "Isso substitui terapia?",

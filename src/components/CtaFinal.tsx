@@ -1,10 +1,13 @@
-import Image from "next/image";
-import Link from "next/link";
+import Oferta from "./Oferta";
 import Reveal from "./Reveal";
 
 /**
- * O fecho não é outro cartão de oferta: é uma frase grande no escuro, com o
- * brilho subindo do chão. A decisão já foi tomada lá em cima ou não foi.
+ * O fecho. Uma frase grande no escuro com o brilho subindo do chão, e logo
+ * abaixo o preço — a decisão e o valor no mesmo campo de visão, para ninguém
+ * ter que rolar de volta atrás do número.
+ *
+ * O `id="fim"` é lido pela barra flutuante, que se recolhe quando esta seção
+ * entra em cena para não cobrir a própria oferta.
  */
 export default function CtaFinal() {
   return (
@@ -21,16 +24,7 @@ export default function CtaFinal() {
 
       <div className="shell-l relative text-center">
         <Reveal>
-          <Image
-            src="/render/coracao.png"
-            alt=""
-            width={760}
-            height={760}
-            aria-hidden
-            className="animate-float-slow mx-auto w-[120px] drop-shadow-[0_22px_54px_rgba(255,48,104,0.45)] md:w-[150px]"
-          />
-
-          <h2 className="titulo-luz mx-auto mt-7 max-w-[22ch] font-[family-name:var(--font-outfit)] text-[2.125rem] font-bold tracking-[-0.03em] md:text-[3.25rem]">
+          <h2 className="titulo-luz mx-auto max-w-[20ch] font-[family-name:var(--font-outfit)] text-[2.125rem] font-bold tracking-[-0.03em] md:text-[3.25rem]">
             Dá para continuar adivinhando. Ou dá para ler.
           </h2>
 
@@ -38,17 +32,10 @@ export default function CtaFinal() {
             Dois minutos agora, ou mais uma semana montando teoria às três da manhã. As duas coisas
             custam. Só uma responde.
           </p>
+        </Reveal>
 
-          <Link
-            href="/analise"
-            className="btn btn-neon btn-lg btn-block mt-9 sm:mx-auto sm:w-auto sm:px-12"
-          >
-            Ler minha conversa
-          </Link>
-
-          <p className="mt-4 text-[0.875rem] text-[#B7A2AA]">
-            Sua conversa não fica guardada. Você lê a primeira conclusão antes de pagar.
-          </p>
+        <Reveal delay={90}>
+          <Oferta />
         </Reveal>
       </div>
     </section>
