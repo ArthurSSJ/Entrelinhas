@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Icon3D from "@/components/Icon3D";
-import { Trilha } from "@/components/Enfeites";
+import ProgressoFunil from "@/components/ProgressoFunil";
 import {
   PERGUNTAS,
   lerRespostas,
@@ -12,14 +12,19 @@ import {
 } from "@/lib/perguntas";
 
 /**
- * Uma pergunta por tela. Tocar já avança — sem botão "próximo", sem formulário
- * comprido. As respostas ficam no sessionStorage e seguem com o arquivo.
+ * A avaliação rápida do início do fluxo. Uma pergunta por tela, tocar já
+ * avança — sem botão "próximo", sem campo, sem nada que pareça formulário.
+ *
+ * A última pergunta não navega direto: abre uma tela de fechamento que
+ * anuncia o contraste que vem a seguir (percepção x. o que a conversa mostra)
+ * antes de seguir para a exportação. É o gancho que faz a pessoa continuar.
  */
 export default function Perguntas() {
   const router = useRouter();
   const [indice, setIndice] = useState(0);
   const [respostas, setRespostas] = useState<Respostas>({});
   const [saindo, setSaindo] = useState<string | null>(null);
+  const [concluido, setConcluido] = useState(false);
 
   useEffect(() => {
     setRespostas(lerRespostas());
@@ -39,14 +44,39 @@ export default function Perguntas() {
     // Pausa curta para a marcação aparecer antes de trocar a tela.
     window.setTimeout(() => {
       setSaindo(null);
-      if (ultima) router.push("/analise/tutorial");
+      if (ultima) setConcluido(true);
       else setIndice((i) => i + 1);
     }, 260);
   };
 
+  if (concluido) {
+    return (
+      <div>
+        <ProgressoFunil etapa={1} sub={1} />
+
+        <div className="stage text-center">
+          <Icon3D name="lupa" size={64} className="mx-auto animate-float-slow" />
+
+          <h1 className="t-h2 mt-5">Entendido.</h1>
+          <p className="t-apoio mx-auto mt-3 max-w-[38ch] text-[1.0625rem]">
+            Agora vamos comparar a sua percepção com os padrões encontrados na conversa.
+          </p>
+
+          <button
+            type="button"
+            className="btn btn-primary btn-lg btn-block mt-8"
+            onClick={() => router.push("/analise/tutorial")}
+          >
+            Continuar para minha análise
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
-      <Trilha atual={indice + 1} total={PERGUNTAS.length + 2} />
+      <ProgressoFunil etapa={1} sub={indice / PERGUNTAS.length} />
 
       <div key={pergunta.id} className="stage">
         <h1 className="t-h2">{pergunta.titulo}</h1>

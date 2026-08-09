@@ -93,19 +93,3 @@ export function Sublinhado({
     </span>
   );
 }
-
-/** Etapas do fluxo, para a pessoa saber quanto falta. */
-export function Trilha({ atual, total }: { atual: number; total: number }) {
-  return (
-    <div className="mb-7">
-      <div className="trilha" role="img" aria-label={`Etapa ${atual} de ${total}`}>
-        {Array.from({ length: total }, (_, i) => (
-          <span key={i} className="trilha-passo" data-on={i < atual} />
-        ))}
-      </div>
-      <p className="t-legenda mt-2">
-        Etapa {atual} de {total}
-      </p>
-    </div>
-  );
-}

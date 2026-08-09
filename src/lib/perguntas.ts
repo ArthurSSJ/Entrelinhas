@@ -4,9 +4,11 @@ import { CHAVE_PREFIXO } from "./marca";
 /**
  * As perguntas do começo do fluxo.
  *
- * Elas existem por dois motivos: a leitura sai melhor sabendo de quem se trata,
- * e responder quatro toques antes de enviar a conversa é mais fácil do que
- * encarar uma tela de upload de cara.
+ * Não são um cadastro: são uma avaliação rápida do relacionamento, no mesmo
+ * tom de um teste que a pessoa faria sozinha à noite. A leitura sai melhor
+ * sabendo o que ela já percebe, e o relatório final compara essa percepção
+ * com o que o texto mostra — é esse contraste que vira o momento forte do
+ * resultado.
  *
  * As respostas viajam junto com o arquivo para o N8n e ficam no sessionStorage
  * até o envio — nada é gravado no servidor.
@@ -29,51 +31,67 @@ export type Pergunta = {
 
 export const PERGUNTAS: Pergunta[] = [
   {
-    id: "vinculo",
-    titulo: "Quem é essa pessoa pra você?",
+    id: "relacao",
+    titulo: "Como você descreveria sua relação hoje?",
     opcoes: [
-      { id: "namoro", texto: "Namoro", icon: "coracao" },
-      { id: "casamento", texto: "Casamento ou moramos juntos", icon: "coracao" },
-      { id: "conhecendo", texto: "Estamos nos conhecendo", icon: "conversa" },
-      { id: "ex", texto: "É um ex", icon: "celular" },
+      { id: "muito-boa", texto: "Muito boa" },
+      { id: "boa-com-problemas", texto: "Boa, mas existem problemas" },
+      { id: "complicada", texto: "Está complicada" },
+      { id: "afastando", texto: "Estamos nos afastando" },
+      { id: "nao-sei", texto: "Não sei mais o que pensar" },
     ],
   },
   {
-    id: "tempo",
-    titulo: "Há quanto tempo vocês conversam?",
-    ajuda: "Separa o que mudou do que sempre foi assim.",
+    id: "esforco",
+    titulo: "Você sente que o esforço entre vocês é equilibrado?",
+    ajuda: "Não existe resposta perfeita aqui.",
     opcoes: [
-      { id: "curto", texto: "Menos de 3 meses" },
-      { id: "medio", texto: "De 3 meses a 1 ano" },
-      { id: "longo", texto: "De 1 a 3 anos" },
-      { id: "muito", texto: "Mais de 3 anos" },
+      { id: "sim", texto: "Sim" },
+      { id: "mais-ou-menos", texto: "Mais ou menos" },
+      { id: "nao", texto: "Não" },
+      { id: "nao-sei", texto: "Não sei" },
     ],
   },
   {
-    id: "duvida",
-    titulo: "O que você quer entender?",
-    ajuda: "Escolha o que mais pesa. O relatório começa por aí.",
+    id: "mudanca",
+    titulo: "Você sente que alguma coisa mudou recentemente?",
+    ajuda: "Vale até o que você não consegue explicar direito.",
     opcoes: [
-      { id: "interesse", texto: "Se ainda existe interesse do outro lado", icon: "coracao" },
-      { id: "briga", texto: "Por que a gente briga sempre pelo mesmo motivo", icon: "conversa" },
-      { id: "exagero", texto: "Se eu estou exagerando ou tenho razão", icon: "lupa" },
+      { id: "sim", texto: "Sim" },
+      { id: "nao", texto: "Não" },
+      { id: "talvez", texto: "Talvez" },
+      { id: "nao-identifico", texto: "Não consigo identificar" },
+    ],
+  },
+  {
+    id: "incomodo",
+    titulo: "O que mais incomoda você atualmente?",
+    ajuda: "Escolha o que pesa mais hoje.",
+    opcoes: [
+      { id: "atencao", texto: "Falta de atenção", icon: "celular" },
+      { id: "distanciamento", texto: "Distanciamento", icon: "conversa" },
+      { id: "discussoes", texto: "Discussões", icon: "alerta" },
+      { id: "carinho", texto: "Falta de carinho", icon: "coracao" },
+      { id: "inseguranca", texto: "Insegurança" },
+      { id: "confianca", texto: "Confiança", icon: "escudo", sugereAvancada: true },
+      { id: "outro", texto: "Outro" },
+    ],
+  },
+  {
+    id: "descobrir",
+    titulo: "O que você mais gostaria de descobrir?",
+    ajuda: "É o que o relatório vai priorizar.",
+    opcoes: [
+      { id: "interesse", texto: "Se ainda existe interesse", icon: "coracao" },
+      { id: "falhando", texto: "Onde nossa relação está falhando", icon: "lupa" },
+      { id: "comunicacao", texto: "Como melhorar nossa comunicação", icon: "conversa" },
+      { id: "mudou", texto: "O que mudou entre nós", icon: "brilho" },
       {
-        id: "terceiro",
-        texto: "Se tem outra pessoa na história",
+        id: "sinais",
+        texto: "Se existem sinais que merecem atenção",
         icon: "alerta",
         sugereAvancada: true,
       },
-    ],
-  },
-  {
-    id: "sentimento",
-    titulo: "Como você tem se sentido?",
-    ajuda: "Não tem resposta certa. Isso muda o tom do que a gente escreve.",
-    opcoes: [
-      { id: "inseguranca", texto: "Insegurança" },
-      { id: "cansaco", texto: "Cansaço" },
-      { id: "confusao", texto: "Confusão" },
-      { id: "curiosidade", texto: "Curiosidade, nada demais" },
     ],
   },
 ];
@@ -99,7 +117,7 @@ export function limparRespostas() {
   window.sessionStorage.removeItem(CHAVE);
 }
 
-/** A pessoa disse que a dúvida é sobre outra pessoa? A avançada já vem marcada. */
+/** A pessoa apontou desconfiança ou dúvida sobre outra pessoa? A avançada já vem marcada. */
 export function sugereAvancada(respostas: Respostas) {
   return PERGUNTAS.some((p) =>
     p.opcoes.some((o) => o.sugereAvancada && respostas[p.id] === o.id),

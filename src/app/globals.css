@@ -806,23 +806,59 @@
   transform: rotate(0deg) translateY(-4px);
 }
 
-/* Barra de etapas do fluxo. */
-.trilha {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.trilha-passo {
-  height: 5px;
-  flex: 1;
+/* Barra de progresso da avaliação: um preenchimento contínuo, não passos
+   discretos. A pessoa vê a distância percorrida em tempo real a cada toque,
+   inclusive dentro da etapa em que está. */
+.progresso-trilho {
+  position: relative;
+  height: 6px;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.1);
   overflow: hidden;
 }
 
-.trilha-passo[data-on="true"] {
+.progresso-fill {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  border-radius: 9999px;
   background: linear-gradient(90deg, var(--color-rosa-fundo) 0%, var(--color-rosa-claro) 100%);
+  box-shadow: 0 0 14px rgba(255, 48, 104, 0.55);
+  transition: width 0.5s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.progresso-legenda {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 3px 0;
+  margin-top: 11px;
+  font-family: var(--font-display);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--color-nevoa-2);
+}
+
+.progresso-legenda li {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.progresso-legenda li:not(:last-child)::after {
+  content: "→";
+  margin-inline: 6px;
+  font-weight: 400;
+  opacity: 0.4;
+}
+
+.progresso-legenda li[data-status="atual"] {
+  color: var(--color-nevoa);
+}
+
+.progresso-legenda li[data-status="futura"] {
+  opacity: 0.5;
 }
 
 /* Barra de ação fixa no rodapé do celular. */

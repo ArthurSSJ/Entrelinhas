@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import Icon3D from "@/components/Icon3D";
-import { Trilha } from "@/components/Enfeites";
+import ProgressoFunil from "@/components/ProgressoFunil";
 import TelaMock, { type Cena } from "./TelaMock";
 
 type Passo = { titulo: string; texto: string; cena: Cena; dica?: string };
@@ -71,7 +71,7 @@ export default function Tutorial() {
 
   return (
     <div>
-      <Trilha atual={5} total={6} />
+      <ProgressoFunil etapa={2} sub={0.2} />
 
       <h1 className="t-h2">Agora exporte a conversa</h1>
       <p className="mt-2 text-[#B7A2AA]">

@@ -4,7 +4,7 @@ import { MARCA } from "@/lib/marca";
 
 export const metadata: Metadata = {
   title: `Sobre vocês dois · ${MARCA}`,
-  description: "Quatro perguntas rápidas antes da leitura. Nada disso vira cadastro.",
+  description: "Uma avaliação rápida antes da leitura. Nada disso vira cadastro.",
 };
 
 export default function PaginaPerguntas() {

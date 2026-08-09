@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import Icon3D from "@/components/Icon3D";
 import Modal from "@/components/Modal";
-import { Trilha } from "@/components/Enfeites";
+import ProgressoFunil from "@/components/ProgressoFunil";
 import { CHAVE_ANALISE } from "@/lib/marca";
 import { BASE_CENTS, UPSELL_CENTS, brl, totalCents } from "@/lib/pricing";
 import { checkFile, readableSize } from "@/lib/upload";
@@ -105,7 +105,7 @@ export default function Enviar() {
 
   return (
     <div>
-      <Trilha atual={6} total={6} />
+      <ProgressoFunil etapa={2} sub={0.8} />
 
       <h1 className="t-h2">Traga a conversa</h1>
       <p className="mt-2 text-[#B7A2AA]">
