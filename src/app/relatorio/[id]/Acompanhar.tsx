@@ -7,6 +7,8 @@ import EtapaPrevia from "@/components/EtapaPrevia";
 import EtapaPagamento from "@/components/EtapaPagamento";
 import EtapaRelatorio from "@/components/EtapaRelatorio";
 import EtapaFalhou from "@/components/EtapaFalhou";
+import PopupSaida from "@/components/PopupSaida";
+import { useExitIntent } from "@/hooks/useExitIntent";
 import { CHAVE_ANALISE } from "@/lib/marca";
 import { limparRespostas } from "@/lib/perguntas";
 
@@ -103,6 +105,22 @@ export default function Acompanhar({ id }: { id: string }) {
     };
   }, [id, abrirCobranca]);
 
+  // Uma etapa de recuperação por vez: a pessoa já respondeu, já enviou a
+  // conversa, só falta o pagamento. Não arma em "liberado" (já pagou, nada a
+  // recuperar) nem nas telas de erro.
+  const idEtapaSaida =
+    etapa === "processando" ? "processando" : etapa === "pronto" ? (querPagar ? "pagamento" : "previa") : null;
+
+  const { mostrar: mostrarSaida, fechar: fecharSaida } = useExitIntent(
+    idEtapaSaida ?? "",
+    idEtapaSaida !== null,
+  );
+
+  const aoContinuarSaida = () => {
+    if (idEtapaSaida === "previa") setQuerPagar(true);
+    fecharSaida();
+  };
+
   if (etapa === "carregando") {
     return <p className="t-legenda py-16 text-center">Abrindo sua análise…</p>;
   }
@@ -130,6 +148,14 @@ export default function Acompanhar({ id }: { id: string }) {
       )}
       {etapa === "liberado" && estado?.report && <EtapaRelatorio estado={estado} />}
       {etapa === "falhou" && <EtapaFalhou mensagem={erro} onRecomecar={recomecar} />}
+
+      {mostrarSaida && idEtapaSaida && estado && (
+        <PopupSaida
+          precoCents={estado.amountCents}
+          onContinuar={aoContinuarSaida}
+          onSair={fecharSaida}
+        />
+      )}
     </>
   );
 }

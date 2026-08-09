@@ -5,6 +5,13 @@
 export const BASE_CENTS = toCents(process.env.NEXT_PUBLIC_PRECO_BASE, 1990);
 export const UPSELL_CENTS = toCents(process.env.NEXT_PUBLIC_PRECO_AVANCADA, 990);
 
+/**
+ * Desconto de recuperação, mostrado só no popup de saída — e só se alguém
+ * realmente configurar um. Sem a variável de ambiente, a função devolve 0 e o
+ * popup mostra o preço normal, sem fingir uma oferta que não existe.
+ */
+export const DESCONTO_SAIDA_CENTS = toCents(process.env.NEXT_PUBLIC_DESCONTO_SAIDA, 0);
+
 export function totalCents(withAdvanced: boolean) {
   return BASE_CENTS + (withAdvanced ? UPSELL_CENTS : 0);
 }
