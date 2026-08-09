@@ -35,11 +35,27 @@ export type Report = {
   advanced?: AdvancedSection | null;
 };
 
-/** O que o cliente pode ver antes de pagar: títulos, nunca o conteúdo. */
+/** Um recorte real de uma seção, curto o bastante para dar gosto de mais. */
+export type PreviewSection = {
+  title: string;
+  excerpt: string;
+  icon?: string;
+};
+
+/**
+ * O que o cliente pode ver antes de pagar.
+ *
+ * `previewSections` são recortes de verdade — mesmo título e o começo do
+ * mesmo texto que o relatório pago traz, só cortado mais cedo. `sectionTitles`
+ * continua com todos os títulos, incluindo os que ainda não apareceram em
+ * `previewSections`, para a tela de pagamento saber o que ainda listar como
+ * fechado sem repetir o que já foi mostrado.
+ */
 export type ReportPreview = {
   headline: string;
   patternCount: number;
   sectionTitles: string[];
+  previewSections: PreviewSection[];
   hasAdvanced: boolean;
 };
 

@@ -3,13 +3,19 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { AnalysisState } from "@/lib/types";
 import EtapaProcessando from "@/components/EtapaProcessando";
+import EtapaPrevia from "@/components/EtapaPrevia";
 import EtapaPagamento from "@/components/EtapaPagamento";
 import EtapaRelatorio from "@/components/EtapaRelatorio";
 import EtapaFalhou from "@/components/EtapaFalhou";
 import { CHAVE_ANALISE } from "@/lib/marca";
 import { limparRespostas } from "@/lib/perguntas";
 
-type Etapa = "carregando" | "processando" | "pagamento" | "liberado" | "falhou" | "sumiu";
+// "pronto" cobre duas telas: a prévia primeiro, o pagamento depois de a
+// pessoa tocar em "Desbloquear meu relatório". Qual das duas aparece é
+// decidido por `querPagar`, não pelo status vindo do servidor — senão a
+// consulta que roda a cada 2,5s empurraria a pessoa de volta para o
+// pagamento a cada vez que ela ainda estivesse lendo a prévia.
+type Etapa = "carregando" | "processando" | "pronto" | "liberado" | "falhou" | "sumiu";
 
 const INTERVALO_MS = 2500;
 
@@ -22,6 +28,7 @@ export default function Acompanhar({ id }: { id: string }) {
   const [etapa, setEtapa] = useState<Etapa>("carregando");
   const [estado, setEstado] = useState<AnalysisState | null>(null);
   const [erro, setErro] = useState<string | null>(null);
+  const [querPagar, setQuerPagar] = useState(false);
 
   // Evita abrir duas cobranças se duas consultas voltarem juntas.
   const cobrancaPedida = useRef(false);
@@ -47,6 +54,12 @@ export default function Acompanhar({ id }: { id: string }) {
     setEstado((atual) => (atual ? { ...atual, charge: dados.charge } : atual));
   }, [id]);
 
+  // Só busca o checkout depois que a pessoa decide continuar — abrir PIX ou
+  // redirect antes disso cobraria compromisso que ela ainda não deu.
+  useEffect(() => {
+    if (querPagar) void abrirCobranca();
+  }, [querPagar, abrirCobranca]);
+
   useEffect(() => {
     let ativo = true;
     let timer = 0;
@@ -68,8 +81,7 @@ export default function Acompanhar({ id }: { id: string }) {
       if (dados.status === "processing") {
         setEtapa("processando");
       } else if (dados.status === "ready") {
-        setEtapa("pagamento");
-        void abrirCobranca();
+        setEtapa("pronto");
       } else if (dados.status === "paid") {
         setEtapa("liberado");
         window.localStorage.removeItem(CHAVE_ANALISE);
@@ -110,7 +122,10 @@ export default function Acompanhar({ id }: { id: string }) {
   return (
     <>
       {etapa === "processando" && <EtapaProcessando fila={estado?.queuePos ?? 0} />}
-      {etapa === "pagamento" && estado && (
+      {etapa === "pronto" && estado && !querPagar && (
+        <EtapaPrevia estado={estado} onContinuar={() => setQuerPagar(true)} />
+      )}
+      {etapa === "pronto" && estado && querPagar && (
         <EtapaPagamento estado={estado} erro={erro} onRecomecar={recomecar} />
       )}
       {etapa === "liberado" && estado?.report && <EtapaRelatorio estado={estado} />}

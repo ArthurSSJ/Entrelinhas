@@ -59,6 +59,9 @@ export function modoGratis() {
   return process.env.NEXT_PUBLIC_MODO_GRATIS === "true";
 }
 
+/** Quantas seções reais viram prévia, antes do resto ficar trancado. */
+const AMOSTRAS = 3;
+
 /** Chamado pelo callback do N8n quando a IA termina. */
 export function markReady(id: string, report: Report) {
   const entry = db.get(id);
@@ -70,9 +73,28 @@ export function markReady(id: string, report: Report) {
       headline: report.headline,
       patternCount: report.patternCount,
       sectionTitles: report.sections.map((s) => s.title),
+      previewSections: report.sections.slice(0, AMOSTRAS).map((s) => ({
+        title: s.title,
+        excerpt: truncar(s.body),
+        icon: s.icon,
+      })),
       hasAdvanced: Boolean(report.advanced),
     },
   });
+}
+
+/**
+ * Corta o texto real no fim de uma palavra, sem inventar nada além das
+ * reticências. Curto o bastante para ser um gosto do relatório, não o
+ * relatório.
+ */
+function truncar(texto: string, max = 150): string {
+  const limpo = texto.trim();
+  if (limpo.length <= max) return limpo;
+
+  const corte = limpo.slice(0, max);
+  const ultimoEspaco = corte.lastIndexOf(" ");
+  return `${corte.slice(0, ultimoEspaco > max * 0.4 ? ultimoEspaco : max)}…`;
 }
 
 export function markFailed(id: string, error: string) {

@@ -16,6 +16,12 @@ export default function EtapaPagamento({ estado, erro, onRecomecar }: Props) {
   const preview = estado.preview;
   const cobranca = estado.charge;
 
+  // A prévia já mostrou os primeiros títulos com trecho de verdade. Esta
+  // lista só repete os que ainda não apareceram, para não fingir mistério
+  // sobre o que a pessoa já leu.
+  const jaMostrados = preview?.previewSections?.length ?? 0;
+  const aindaFechados = (preview?.sectionTitles ?? []).slice(jaMostrados);
+
   return (
     <div className="stage">
       <div className="text-center">
@@ -31,45 +37,45 @@ export default function EtapaPagamento({ estado, erro, onRecomecar }: Props) {
           <Icon3D name="brilho" size={18} />
           Leitura concluída
         </span>
-        <h2 className="t-h2 mt-3">{preview?.headline ?? "Sua análise está pronta."}</h2>
+        <h2 className="t-h2 mt-3">Só falta desbloquear.</h2>
         <p className="mt-2 text-[#B7A2AA]">
-          Essa é a primeira conclusão. Atrás dela tem mais{" "}
-          <strong className="text-[#F6ECEF]">{preview?.patternCount ?? 0} padrões</strong> na
-          conversa de vocês.
+          O restante do relatório libera assim que o pagamento confirma.
         </p>
       </div>
 
       {/* O que existe do outro lado */}
-      <div className="card mt-6">
-        <h3 className="t-h3">O que ainda está fechado</h3>
-        <ul className="mt-4 space-y-4">
-          {(preview?.sectionTitles ?? []).map((titulo) => (
-            <li key={titulo}>
-              <p className="flex items-start gap-2 text-[0.9375rem] font-medium">
-                <Icon3D name="cadeado" size={20} className="mt-0.5 flex-none" />
-                {titulo}
-              </p>
-              <span className="locked-bar mt-2 block" aria-hidden />
-              <span className="locked-bar mt-1.5 block w-2/3" aria-hidden />
-            </li>
-          ))}
-          {preview?.hasAdvanced && (
-            <li className="rounded-2xl border border-[#FF3068]/35 bg-[#FF3068]/8 p-4">
-              <p className="flex items-start gap-2 text-[0.9375rem] font-medium">
-                <Icon3D name="alerta" size={22} className="mt-0.5 flex-none" />
-                Análise avançada de traição
-              </p>
-              <span className="locked-bar mt-2 block" aria-hidden />
-              <span className="locked-bar mt-1.5 block w-1/2" aria-hidden />
-            </li>
-          )}
-        </ul>
+      {(aindaFechados.length > 0 || preview?.hasAdvanced) && (
+        <div className="card mt-6">
+          <h3 className="t-h3">O que ainda está fechado</h3>
+          <ul className="mt-4 space-y-4">
+            {aindaFechados.map((titulo) => (
+              <li key={titulo}>
+                <p className="flex items-start gap-2 text-[0.9375rem] font-medium">
+                  <Icon3D name="cadeado" size={20} className="mt-0.5 flex-none" />
+                  {titulo}
+                </p>
+                <span className="locked-bar mt-2 block" aria-hidden />
+                <span className="locked-bar mt-1.5 block w-2/3" aria-hidden />
+              </li>
+            ))}
+            {preview?.hasAdvanced && (
+              <li className="rounded-2xl border border-[#FF3068]/35 bg-[#FF3068]/8 p-4">
+                <p className="flex items-start gap-2 text-[0.9375rem] font-medium">
+                  <Icon3D name="alerta" size={22} className="mt-0.5 flex-none" />
+                  Análise avançada de traição
+                </p>
+                <span className="locked-bar mt-2 block" aria-hidden />
+                <span className="locked-bar mt-1.5 block w-1/2" aria-hidden />
+              </li>
+            )}
+          </ul>
 
-        <p className="t-legenda mt-5">
-          Cada uma dessas leituras vem com a data e o trecho da conversa de vocês em que ela se
-          apoia.
-        </p>
-      </div>
+          <p className="t-legenda mt-5">
+            Cada uma dessas leituras vem com a data e o trecho da conversa de vocês em que ela se
+            apoia.
+          </p>
+        </div>
+      )}
 
       {/* Valor */}
       <div className="card mt-4">

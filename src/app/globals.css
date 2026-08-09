@@ -1086,6 +1086,62 @@
   animation: shimmer 2.6s linear infinite;
 }
 
+/* Trecho real de uma seção, na prévia. O texto é verdadeiro; o gradiente no
+   fim é que sugere que ele continua — sem cortar a leitura no meio da frase. */
+.previa-trecho {
+  position: relative;
+  max-height: 4.6em;
+  overflow: hidden;
+}
+
+.previa-trecho::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 1.6em;
+  background: linear-gradient(180deg, transparent, var(--color-noite-2));
+}
+
+/* Categoria do relatório que só existe depois do pagamento: o rótulo é real,
+   o conteúdo embaixo é desfoque puro, sem fingir ser texto de verdade. */
+.card-trancado {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-bloco);
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 16px 14px;
+  text-align: center;
+}
+
+.cadeado-selo {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  place-items: center;
+  height: 26px;
+  width: 26px;
+  border-radius: 9999px;
+  background: rgba(11, 4, 7, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.trancado-linha {
+  height: 7px;
+  border-radius: 9999px;
+  margin-inline: auto;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(255, 48, 104, 0.22) 50%,
+    rgba(255, 255, 255, 0.06) 100%
+  );
+  background-size: 220% 100%;
+  animation: shimmer 2.6s linear infinite;
+}
+
 .pix-code {
   font-family: ui-monospace, "SFMono-Regular", "Cascadia Code", monospace;
   font-size: 0.75rem;
