@@ -1,4 +1,5 @@
-import type { AnalysisState, Charge, Report } from "./types";
+import type { AnalysisState, Charge, FunilFlags, Report, Unlock } from "./types";
+import { BASE_CENTS, OFERTA_RECUPERACAO_ATIVA, UPSELL_CENTS } from "./pricing";
 
 /**
  * Armazenamento temporário das análises.
@@ -29,10 +30,21 @@ function sweep() {
 }
 
 export function create(
-  init: Pick<AnalysisState, "id" | "withAdvanced" | "amountCents" | "demo">,
+  init: Pick<AnalysisState, "id" | "advancedPreSelected" | "demo">,
 ) {
   sweep();
-  const state: AnalysisState = { ...init, status: "processing" };
+  const state: AnalysisState = {
+    ...init,
+    status: "processing",
+    // O order bump começa desmarcado para todo mundo, inclusive para quem o
+    // quiz apontou como interessada. Deixar um adicional pago já marcado
+    // porque uma resposta sugeriu isso é cobrar por dedução — a sugestão vira
+    // uma frase a mais no bump, não um item no carrinho.
+    bumpSelected: false,
+    advancedPaid: false,
+    amountCents: BASE_CENTS,
+    funil: {},
+  };
   db.set(init.id, { state, expiresAt: Date.now() + TTL_MS });
   return state;
 }
@@ -66,8 +78,15 @@ const AMOSTRAS = 3;
 export function markReady(id: string, report: Report) {
   const entry = db.get(id);
   if (!entry) return null;
+
+  const gratis = modoGratis();
+  const jaPago = entry.state.status === "paid";
+
   return patch(id, {
-    status: entry.state.status === "paid" || modoGratis() ? "paid" : "ready",
+    status: jaPago || gratis ? "paid" : "ready",
+    // No modo grátis nada é cobrado, então a avançada também sai liberada:
+    // deixar ela trancada aqui seria vender sem cobrar.
+    advancedPaid: entry.state.advancedPaid || gratis,
     report,
     preview: {
       headline: report.headline,
@@ -78,7 +97,6 @@ export function markReady(id: string, report: Report) {
         excerpt: truncar(s.body),
         icon: s.icon,
       })),
-      hasAdvanced: Boolean(report.advanced),
     },
   });
 }
@@ -106,21 +124,69 @@ export function setQueuePos(id: string, queuePos: number) {
   return patch(id, { queuePos });
 }
 
-export function attachCharge(id: string, charge: Charge) {
-  return patch(id, { charge });
+/** Marca ou desmarca o order bump e recalcula o valor do pedido principal. */
+export function setBump(id: string, bumpSelected: boolean) {
+  const state = get(id);
+  if (!state) return null;
+  // Quem já pagou a avançada não tem bump nenhum a marcar.
+  const marcado = state.advancedPaid ? false : bumpSelected;
+  return patch(id, {
+    bumpSelected: marcado,
+    amountCents: BASE_CENTS + (marcado ? UPSELL_CENTS : 0),
+    // O valor mudou: a cobrança aberta não vale mais.
+    charge: undefined,
+  });
 }
 
-/** Chamado pelo webhook do gateway de pagamento. */
-export function markPaid(id: string) {
-  return patch(id, { status: "paid" });
+export function attachCharge(id: string, charge: Charge, unlock: Unlock) {
+  return patch(id, unlock === "av" ? { chargeAvancada: charge } : { charge });
 }
 
 /**
- * Versão segura para o navegador: o relatório completo só acompanha a resposta
- * depois que o pagamento foi confirmado.
+ * Aplica o que uma cobrança confirmada libera.
+ *
+ * É o único caminho para `status: "paid"` e para `advancedPaid`. Chamado pelo
+ * postback do gateway e pelo atalho de demonstração — nunca pelo navegador.
+ */
+export function aplicarUnlock(id: string, unlock: Unlock) {
+  const state = get(id);
+  if (!state) return null;
+
+  return patch(id, {
+    status: unlock === "av" ? state.status : "paid",
+    advancedPaid: unlock === "rel" ? state.advancedPaid : true,
+  });
+}
+
+/** Guarda por onde a pessoa já passou, para nenhuma oferta se repetir. */
+export function marcarFunil(id: string, flags: FunilFlags) {
+  const state = get(id);
+  if (!state) return null;
+  return patch(id, { funil: { ...state.funil, ...flags } });
+}
+
+/**
+ * Versão segura para o navegador.
+ *
+ * Duas travas, nesta ordem:
+ *  1. o relatório inteiro só acompanha a resposta depois do pagamento;
+ *  2. a seção avançada sai fora enquanto ela não tiver sido paga, mesmo com o
+ *     relatório já liberado.
+ *
+ * As duas moram aqui, e não no componente, porque o navegador é do cliente:
+ * o que sair daqui, ele lê.
  */
 export function forClient(state: AnalysisState): AnalysisState {
-  if (state.status === "paid") return state;
-  const { report: _withheld, ...rest } = state;
-  return rest;
+  // A variante da oferta é lida aqui, no servidor, e desce junto com o estado.
+  const comFlag = { ...state, ofertaRecuperacao: OFERTA_RECUPERACAO_ATIVA };
+
+  if (comFlag.status !== "paid") {
+    const { report: _retido, ...resto } = comFlag;
+    return resto;
+  }
+
+  if (comFlag.advancedPaid || !comFlag.report?.advanced) return comFlag;
+
+  const { advanced: _naoPago, ...relatorioSemAvancada } = comFlag.report;
+  return { ...comFlag, report: relatorioSemAvancada };
 }

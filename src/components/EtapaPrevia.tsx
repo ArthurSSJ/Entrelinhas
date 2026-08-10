@@ -1,12 +1,23 @@
+"use client";
+
+import { useEffect } from "react";
 import Icon3D, { type IconName } from "./Icon3D";
 import type { AnalysisState } from "@/lib/types";
 import { brl } from "@/lib/pricing";
+import { rastrear } from "@/lib/analytics";
 
 type Props = {
   estado: AnalysisState;
   onContinuar: () => void;
 };
 
+/**
+ * As frentes que o relatório completo cobre.
+ *
+ * São rótulos de categoria, não achados: dizem o assunto de cada parte sem
+ * afirmar nada sobre esta conversa. É o que permite mostrá-los sem mentir —
+ * embaixo de cada um existe desfoque, não texto falso.
+ */
 const CATEGORIAS_TRANCADAS: { titulo: string; icon: IconName }[] = [
   { titulo: "Dinâmica emocional", icon: "coracao" },
   { titulo: "Padrões de comunicação", icon: "conversa" },
@@ -32,51 +43,62 @@ const ICONES_VALIDOS: IconName[] = [
 ];
 
 /**
- * A etapa entre a leitura e o checkout. Antes, a análise pronta ia direto para
- * a tela de pagamento — o único gancho era a lista de títulos trancados. Agora
- * a pessoa lê de verdade dois ou três trechos do que a IA encontrou (o mesmo
- * texto do relatório pago, só cortado mais cedo) antes de decidir.
+ * A etapa entre a leitura e o checkout: a pessoa lê de verdade dois ou três
+ * trechos do que a análise encontrou antes de decidir se paga.
  *
- * Nada aqui é inventado: os trechos vêm de `preview.previewSections`, recorte
- * de `report.sections` feito no servidor. Se a análise não encontrou nada para
- * mostrar, a seção de amostras simplesmente não aparece — a página não finge.
+ * Nada aqui é inventado. Os trechos vêm de `preview.previewSections`, recorte
+ * de `report.sections` feito no servidor — mesmo título, mesmo texto, cortado
+ * mais cedo. Se a análise não produziu nada exibível, a seção de amostras não
+ * aparece em vez de a página encenar uma descoberta.
+ *
+ * Cada achado é apresentado pelo título que a própria análise deu a ele. Não
+ * existe rótulo de categoria aqui de propósito: o relatório não classifica as
+ * seções em "comunicação" ou "reciprocidade", e carimbar essas etiquetas por
+ * fora seria afirmar uma leitura que ninguém fez.
  */
 export default function EtapaPrevia({ estado, onContinuar }: Props) {
   const preview = estado.preview;
   const amostras = preview?.previewSections ?? [];
 
-  // Títulos que ainda não apareceram como amostra, para a tela de pagamento
-  // não repetir o que a pessoa já leu aqui.
+  // Títulos que ainda não apareceram como amostra, para não prometer mistério
+  // sobre o que a pessoa já leu.
   const restantes = (preview?.sectionTitles ?? []).slice(amostras.length);
+
+  useEffect(() => {
+    rastrear("preview_viewed", {
+      analise: estado.id,
+      amostras: amostras.length,
+      valor: estado.amountCents / 100,
+    });
+  }, [estado.id, estado.amountCents, amostras.length]);
 
   return (
     <div className="stage">
       <div className="text-center">
-        <span className="eyebrow mt-0">
+        <span className="eyebrow">
           <Icon3D name="lupa" size={18} />
-          Leitura concluída
+          Sua leitura
         </span>
         <h2 className="t-h2 mt-3">Sua análise encontrou alguns pontos interessantes.</h2>
         <p className="mt-2 text-[#B7A2AA]">
           Veja uma pequena prévia do que apareceu no seu relatório.
         </p>
-
-        {typeof preview?.patternCount === "number" && preview.patternCount > 0 && (
-          <p className="mt-3 text-[0.9375rem] text-[#B7A2AA]">
-            Ao todo, <strong className="text-[#F6ECEF]">{preview.patternCount} padrões</strong>{" "}
-            apareceram na conversa de vocês.
-          </p>
-        )}
       </div>
 
       {amostras.length > 0 && (
         <div className="mt-7 space-y-4">
           {amostras.map((secao, i) => (
             <article key={`${secao.title}-${i}`} className="card">
+              <p className="mb-3 flex items-center gap-2.5 text-[0.6875rem] font-semibold tracking-[0.14em] text-[#B7A2AA] uppercase">
+                Achado {i + 1}
+                <span className="linha-fina h-px flex-1" />
+              </p>
+
               <div className="flex items-start gap-3">
                 <Icon3D name={paraIcone(secao.icon, i)} size={44} className="flex-none" />
                 <h3 className="t-h3 pt-1.5">{secao.title}</h3>
               </div>
+
               <p className="previa-trecho mt-3 text-[0.9375rem] leading-relaxed text-[#F6ECEF]/90">
                 {secao.excerpt}
               </p>
@@ -84,6 +106,10 @@ export default function EtapaPrevia({ estado, onContinuar }: Props) {
           ))}
         </div>
       )}
+
+      <p className="t-apoio mt-6 text-center text-[0.9375rem]">
+        Você já descobriu uma parte. O restante está no relatório.
+      </p>
 
       {/* Área trancada */}
       <div className="mt-8">
@@ -110,8 +136,8 @@ export default function EtapaPrevia({ estado, onContinuar }: Props) {
         {restantes.length > 0 && (
           <p className="t-legenda mt-4 text-center">
             Incluindo mais {restantes.length}{" "}
-            {restantes.length === 1 ? "leitura sobre" : "leituras sobre"} a conversa de vocês, com
-            data e trecho.
+            {restantes.length === 1 ? "leitura" : "leituras"} sobre a conversa de vocês, com data e
+            trecho.
           </p>
         )}
       </div>

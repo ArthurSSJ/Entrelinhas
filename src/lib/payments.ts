@@ -1,5 +1,5 @@
 import QRCode from "qrcode";
-import type { Charge } from "./types";
+import type { Charge, Unlock } from "./types";
 
 /**
  * Camada de pagamento.
@@ -19,22 +19,30 @@ import type { Charge } from "./types";
 
 const EXPIRA_MS = 1000 * 60 * 30; // 30 minutos
 
+/**
+ * Monta a cobrança de um pedido.
+ *
+ * `unlock` diz o que este pagamento libera e viaja junto na referência, para
+ * o postback saber o que abrir quando o dinheiro cair. O valor vem de quem
+ * chama — sempre uma rota de servidor, sempre a partir das constantes de
+ * preço, nunca de um número enviado pelo navegador.
+ */
 export async function createCharge(
   analysisId: string,
   amountCents: number,
-  withAdvanced: boolean,
+  unlock: Unlock,
 ): Promise<Charge> {
   const expiresAt = Date.now() + EXPIRA_MS;
+  const referencia = comUnlock(analysisId, unlock);
 
-  const checkout = withAdvanced
-    ? (process.env.CAKTO_CHECKOUT_URL_AVANCADA ?? process.env.CAKTO_CHECKOUT_URL)
-    : process.env.CAKTO_CHECKOUT_URL;
+  const checkout = escolherCheckout(unlock);
 
   if (checkout) {
     return {
       kind: "redirect",
+      unlock,
       provider: "cakto",
-      url: withTracking(checkout, analysisId),
+      url: withTracking(checkout, analysisId, referencia),
       amountCents,
       expiresAt,
     };
@@ -53,6 +61,7 @@ export async function createCharge(
 
   return {
     kind: "pix",
+    unlock,
     brCode,
     qrImage: await toQrImage(brCode),
     amountCents,
@@ -61,17 +70,44 @@ export async function createCharge(
 }
 
 /**
- * Carimba o identificador da análise na URL do checkout.
+ * Produtos separados na Cakto, quando existirem. Cada link cobra um valor
+ * diferente lá dentro, então o unlock escolhe qual abrir. Faltando um link
+ * específico, cai no do relatório — que é o único obrigatório.
+ */
+function escolherCheckout(unlock: Unlock) {
+  const base = process.env.CAKTO_CHECKOUT_URL;
+  if (unlock === "av") return process.env.CAKTO_CHECKOUT_URL_SO_AVANCADA ?? base;
+  if (unlock === "rel_av") return process.env.CAKTO_CHECKOUT_URL_AVANCADA ?? base;
+  return base;
+}
+
+/** `<id>~<unlock>`. O separador não aparece em UUID, então volta inteiro. */
+export function comUnlock(analysisId: string, unlock: Unlock) {
+  return `${analysisId}~${unlock}`;
+}
+
+/**
+ * Desfaz o `comUnlock`. Referência sem sufixo é de uma cobrança antiga, de
+ * antes de existirem os adicionais: naquela época só havia o relatório.
+ */
+export function lerUnlock(referencia: string): { id: string; unlock: Unlock } {
+  const [id, sufixo] = referencia.split("~");
+  const unlock: Unlock = sufixo === "av" || sufixo === "rel_av" ? sufixo : "rel";
+  return { id, unlock };
+}
+
+/**
+ * Carimba a referência do pedido na URL do checkout.
  *
  * O mesmo valor vai em três parâmetros porque cada plataforma devolve um campo
  * diferente no webhook. Confirme qual deles a Cakto repassa na conta de vocês e
  * pode enxugar os outros dois — o webhook aqui aceita qualquer um.
  */
-function withTracking(base: string, analysisId: string) {
+function withTracking(base: string, analysisId: string, referencia: string) {
   const url = new URL(base);
-  url.searchParams.set("ref", analysisId);
-  url.searchParams.set("utm_content", analysisId);
-  url.searchParams.set("src", analysisId);
+  url.searchParams.set("ref", referencia);
+  url.searchParams.set("utm_content", referencia);
+  url.searchParams.set("src", referencia);
 
   const site = process.env.NEXT_PUBLIC_SITE_URL;
   if (site) {

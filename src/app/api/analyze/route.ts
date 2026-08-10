@@ -1,7 +1,6 @@
 import { NextResponse, after } from "next/server";
 import { create, markFailed, markReady, setQueuePos } from "@/lib/store";
 import { mockReport } from "@/lib/mock";
-import { totalCents } from "@/lib/pricing";
 import { checkFile } from "@/lib/upload";
 import { analisarConversa, groqConfigurado } from "@/lib/groq";
 
@@ -21,6 +20,12 @@ export const maxDuration = 120;
  *
  * O texto da conversa existe apenas em memória durante a leitura. Nada é
  * gravado em disco e nada do texto entra no armazenamento.
+ *
+ * A leitura avançada é sempre produzida, mesmo para quem não marcou nada.
+ * Não é generosidade: como a conversa é apagada assim que a leitura termina,
+ * ela não teria como ser escrita depois — e o funil vende essa análise em
+ * três momentos posteriores (order bump, upsell, downsell). Quem paga é quem
+ * vê: `advancedPaid`, no servidor, decide se ela sai daqui.
  */
 export async function POST(req: Request) {
   let form: FormData;
@@ -43,8 +48,11 @@ export async function POST(req: Request) {
   }
 
   const id = crypto.randomUUID();
-  const amountCents = totalCents(withAdvanced);
-  create({ id, withAdvanced, amountCents, demo: !process.env.CAKTO_CHECKOUT_URL });
+  create({
+    id,
+    advancedPreSelected: withAdvanced,
+    demo: !process.env.CAKTO_CHECKOUT_URL,
+  });
 
   const webhook = process.env.N8N_WEBHOOK_URL;
 
@@ -54,7 +62,9 @@ export async function POST(req: Request) {
       const relay = new FormData();
       relay.set("arquivo", file, file.name);
       relay.set("analiseId", id);
-      relay.set("avancada", String(withAdvanced));
+      // Sempre "true": a conversa não existe mais depois daqui, então a
+      // avançada precisa nascer agora para poder ser vendida depois.
+      relay.set("avancada", "true");
       relay.set("callbackUrl", callbackUrl(req, id));
 
       const respostas = form.get("respostas");
@@ -92,7 +102,8 @@ export async function POST(req: Request) {
     after(async () => {
       try {
         const relatorio = await analisarConversa(texto, {
-          withAdvanced,
+          // Sempre: veja o comentário do cabeçalho. A entrega é que é paga.
+          withAdvanced: true,
           respostas,
           remetente: typeof form.get("remetente") === "string" ? String(form.get("remetente")) : null,
           aoAndar: (posicao) => setQueuePos(id, posicao),
@@ -113,7 +124,7 @@ export async function POST(req: Request) {
   }
 
   /* ---------- 3. Demonstração ---------- */
-  setTimeout(() => markReady(id, mockReport(withAdvanced)), 6500);
+  setTimeout(() => markReady(id, mockReport(true)), 6500);
   return NextResponse.json({ id, demo: true });
 }
 

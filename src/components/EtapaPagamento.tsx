@@ -1,131 +1,200 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
+import CobrancaAberta from "./CobrancaAberta";
 import Icon3D from "./Icon3D";
 import type { AnalysisState } from "@/lib/types";
 import { BASE_CENTS, UPSELL_CENTS, brl } from "@/lib/pricing";
+import { rastrear } from "@/lib/analytics";
 
 type Props = {
   estado: AnalysisState;
   erro: string | null;
+  /** Abre a cobrança do pedido principal com o order bump marcado ou não. */
+  onCobrar: (bump: boolean) => void;
   onRecomecar: () => void;
 };
 
-export default function EtapaPagamento({ estado, erro, onRecomecar }: Props) {
-  const preview = estado.preview;
-  const cobranca = estado.charge;
+const INCLUI = [
+  "Análise da comunicação",
+  "Padrões de interesse e reciprocidade",
+  "Pontos de atenção",
+  "Dinâmica da relação",
+  "Recomendações personalizadas",
+];
 
-  // A prévia já mostrou os primeiros títulos com trecho de verdade. Esta
-  // lista só repete os que ainda não apareceram, para não fingir mistério
-  // sobre o que a pessoa já leu.
-  const jaMostrados = preview?.previewSections?.length ?? 0;
-  const aindaFechados = (preview?.sectionTitles ?? []).slice(jaMostrados);
+const BUMP_INCLUI = [
+  "Mudanças de comportamento",
+  "Inconsistências na comunicação",
+  "Distanciamento emocional",
+  "Padrões que merecem atenção",
+  "Possíveis indícios compatíveis com infidelidade",
+];
+
+/**
+ * O checkout. Uma tela só, sem menu e sem link de fuga: a decisão aqui é
+ * pagar ou não, e tudo que competir com isso está fora.
+ *
+ * A cobrança não é aberta ao entrar. Ela nasce quando a pessoa toca no botão,
+ * já com a resposta do order bump — abrir um PIX antes disso cobraria um
+ * valor que ela ainda não escolheu.
+ */
+export default function EtapaPagamento({ estado, erro, onCobrar, onRecomecar }: Props) {
+  // A avançada já paga não é oferecida de novo, em lugar nenhum.
+  const podeOferecerBump = !estado.advancedPaid;
+  const [bump, setBump] = useState(false);
+
+  const cobranca = estado.charge;
+  const total = BASE_CENTS + (bump ? UPSELL_CENTS : 0);
+
+  useEffect(() => {
+    rastrear("checkout_viewed", { analise: estado.id, valor: BASE_CENTS / 100 });
+  }, [estado.id]);
+
+  const alternarBump = () => {
+    const proximo = !bump;
+    setBump(proximo);
+    rastrear(proximo ? "order_bump_selected" : "order_bump_removed", {
+      analise: estado.id,
+      valor: UPSELL_CENTS / 100,
+    });
+  };
+
+  const cobrar = () => {
+    rastrear("checkout_started", {
+      analise: estado.id,
+      valor: total / 100,
+      bump,
+    });
+    onCobrar(bump);
+  };
 
   return (
     <div className="stage">
       <div className="text-center">
-        <Image
-          src="/render/presente.png"
-          alt=""
-          width={760}
-          height={760}
-          aria-hidden
-          className="animate-float-slow mx-auto w-[112px] drop-shadow-[0_18px_44px_rgba(255,48,104,0.42)]"
-        />
-        <span className="eyebrow mt-4">
+        <span className="eyebrow">
           <Icon3D name="brilho" size={18} />
           Leitura concluída
         </span>
-        <h2 className="t-h2 mt-3">Só falta desbloquear.</h2>
-        <p className="mt-2 text-[#B7A2AA]">
-          O restante do relatório libera assim que o pagamento confirma.
+        <h2 className="t-h2 mt-3">Seu relatório está pronto.</h2>
+        <p className="mt-2 text-[#B7A2AA]">Falta apenas desbloquear o resultado completo.</p>
+      </div>
+
+      {/* O que está sendo comprado */}
+      <div className="card mt-6">
+        <p className="text-[0.6875rem] font-semibold tracking-[0.14em] text-[#B7A2AA] uppercase">
+          Desvenda AI — Relatório completo
+        </p>
+
+        <ul className="mt-4 space-y-2.5">
+          {INCLUI.map((item) => (
+            <li key={item} className="flex items-start gap-3 text-[0.9375rem] text-[#F6ECEF]/90">
+              <Tique />
+              {item}
+            </li>
+          ))}
+        </ul>
+
+        <p className="mt-5 flex items-baseline justify-between gap-4 border-t border-white/8 pt-4">
+          <span className="text-[0.9375rem] text-[#B7A2AA]">Relatório</span>
+          <span className="font-[family-name:var(--font-outfit)] text-[1.125rem] font-semibold">
+            {brl(BASE_CENTS)}
+          </span>
         </p>
       </div>
 
-      {/* O que existe do outro lado */}
-      {(aindaFechados.length > 0 || preview?.hasAdvanced) && (
-        <div className="card mt-6">
-          <h3 className="t-h3">O que ainda está fechado</h3>
-          <ul className="mt-4 space-y-4">
-            {aindaFechados.map((titulo) => (
-              <li key={titulo}>
-                <p className="flex items-start gap-2 text-[0.9375rem] font-medium">
-                  <Icon3D name="cadeado" size={20} className="mt-0.5 flex-none" />
-                  {titulo}
-                </p>
-                <span className="locked-bar mt-2 block" aria-hidden />
-                <span className="locked-bar mt-1.5 block w-2/3" aria-hidden />
-              </li>
-            ))}
-            {preview?.hasAdvanced && (
-              <li className="rounded-2xl border border-[#FF3068]/35 bg-[#FF3068]/8 p-4">
-                <p className="flex items-start gap-2 text-[0.9375rem] font-medium">
-                  <Icon3D name="alerta" size={22} className="mt-0.5 flex-none" />
-                  Análise avançada de traição
-                </p>
-                <span className="locked-bar mt-2 block" aria-hidden />
-                <span className="locked-bar mt-1.5 block w-1/2" aria-hidden />
-              </li>
-            )}
-          </ul>
+      {/* Order bump */}
+      {podeOferecerBump && (
+        <button
+          type="button"
+          className="choice choice-upsell mt-4 !items-start"
+          data-on={bump}
+          aria-pressed={bump}
+          onClick={alternarBump}
+        >
+          <Tick />
+          <span className="min-w-0 flex-1">
+            <span className="flex flex-wrap items-center gap-2">
+              <span className="t-h3">Adicionar investigação avançada</span>
+              <span className="badge-preco">+ {brl(UPSELL_CENTS)}</span>
+            </span>
 
-          <p className="t-legenda mt-5">
-            Cada uma dessas leituras vem com a data e o trecho da conversa de vocês em que ela se
-            apoia.
-          </p>
-        </div>
+            <span className="t-legenda mt-1.5 block">
+              {estado.advancedPreSelected
+                ? "Pelo que você respondeu no começo, essa é a sua dúvida. Ela vem separada, e só se você marcar."
+                : "Se você já vai analisar a conversa, pode ir além."}
+            </span>
+
+            <span className="mt-3 block space-y-1.5">
+              {BUMP_INCLUI.map((item) => (
+                <span
+                  key={item}
+                  className="flex items-start gap-2 text-[0.875rem] text-[#F6ECEF]/85"
+                >
+                  <Tique />
+                  {item}
+                </span>
+              ))}
+            </span>
+
+            <span className="t-legenda mt-3 block border-t border-white/8 pt-2.5">
+              A análise identifica padrões e sinais de alerta. Ela não confirma traição como fato.
+            </span>
+          </span>
+        </button>
       )}
 
-      {/* Valor */}
+      {/* Total */}
       <div className="card mt-4">
         <dl className="space-y-2 text-[0.9375rem]">
           <div className="flex items-baseline justify-between gap-4">
-            <dt className="text-[#B7A2AA]">Análise completa</dt>
+            <dt className="text-[#B7A2AA]">Relatório</dt>
             <dd>{brl(BASE_CENTS)}</dd>
           </div>
-          {estado.withAdvanced && (
+          {bump && (
             <div className="flex items-baseline justify-between gap-4">
-              <dt className="text-[#B7A2AA]">Análise avançada de traição</dt>
-              <dd>{brl(UPSELL_CENTS)}</dd>
+              <dt className="text-[#B7A2AA]">Investigação avançada</dt>
+              <dd>+ {brl(UPSELL_CENTS)}</dd>
             </div>
           )}
           <div className="flex items-baseline justify-between gap-4 border-t border-white/8 pt-2.5">
             <dt className="font-[family-name:var(--font-outfit)] font-semibold">Total</dt>
-            <dd className="font-[family-name:var(--font-outfit)] text-[1.375rem] font-bold">
-              {brl(estado.amountCents)}
+            <dd className="font-[family-name:var(--font-outfit)] text-[1.5rem] font-bold">
+              {brl(total)}
             </dd>
           </div>
         </dl>
+        <p className="t-legenda mt-2">Pagamento único. Sem assinatura.</p>
       </div>
 
       {erro && (
-        <p role="alert" className="mt-4 rounded-2xl bg-[#FF5A5A]/12 px-4 py-3 text-[0.875rem] text-[#FFA3A3]">
+        <p
+          role="alert"
+          className="mt-4 rounded-2xl bg-[#FF5A5A]/12 px-4 py-3 text-[0.875rem] text-[#FFA3A3]"
+        >
           {erro}
         </p>
       )}
 
-      {!cobranca && !erro && <Carregando />}
-
-      {cobranca?.kind === "redirect" && (
-        <a href={cobranca.url} className="btn btn-primary btn-lg btn-block btn-pulse mt-5">
-          Abrir meu relatório
-        </a>
+      {/* Enquanto não há cobrança aberta, o botão é o que abre. */}
+      {!cobranca && (
+        <button
+          type="button"
+          className="btn btn-neon btn-neon-pulso btn-lg btn-block mt-5"
+          onClick={cobrar}
+        >
+          Desbloquear meu relatório
+        </button>
       )}
-
-      {cobranca?.kind === "pix" && <BlocoPix brCode={cobranca.brCode} qrImage={cobranca.qrImage} />}
 
       {cobranca && (
-        <p className="t-legenda mt-4 flex items-center justify-center gap-2 text-center">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#4ADE80] opacity-70" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-[#4ADE80]" />
-          </span>
-          Assim que o pagamento cair, esta tela abre sozinha.
-        </p>
+        <CobrancaAberta
+          cobranca={cobranca}
+          rotulo="Ir para o pagamento"
+          demo={estado.demo}
+          analiseId={estado.id}
+        />
       )}
-
-      {estado.demo && <AtalhoDemo id={estado.id} />}
 
       <button
         type="button"
@@ -138,74 +207,41 @@ export default function EtapaPagamento({ estado, erro, onRecomecar }: Props) {
   );
 }
 
-function Carregando() {
+/** Tique pequeno das listas. */
+function Tique() {
   return (
-    <p className="t-legenda mt-5 text-center" aria-live="polite">
-      Abrindo o pagamento…
-    </p>
-  );
-}
-
-function BlocoPix({ brCode, qrImage }: { brCode: string; qrImage?: string }) {
-  const [copiado, setCopiado] = useState(false);
-
-  useEffect(() => {
-    if (!copiado) return;
-    const t = window.setTimeout(() => setCopiado(false), 2200);
-    return () => window.clearTimeout(t);
-  }, [copiado]);
-
-  return (
-    <div className="card mt-5 text-center">
-      <span className="eyebrow">
-        <Icon3D name="pix" size={18} />
-        Pague com PIX
-      </span>
-
-      {qrImage && (
-        /* eslint-disable-next-line @next/next/no-img-element */
-        <img
-          src={qrImage}
-          alt="QR Code do PIX para liberar o relatório"
-          width={200}
-          height={200}
-          className="mx-auto mt-4 h-[200px] w-[200px] rounded-2xl border border-white/12 bg-white p-2"
-        />
-      )}
-
-      <p className="t-legenda mt-3">Abra o app do banco, escolha PIX e aponte a câmera.</p>
-
-      <p className="pix-code mt-4 text-left">{brCode}</p>
-
-      <button
-        type="button"
-        className="btn btn-quiet btn-block mt-3"
-        onClick={async () => {
-          await navigator.clipboard.writeText(brCode);
-          setCopiado(true);
-        }}
-      >
-        {copiado ? "Código copiado" : "Copiar código"}
-      </button>
-    </div>
-  );
-}
-
-/** Aparece só enquanto não há checkout real conectado. */
-function AtalhoDemo({ id }: { id: string }) {
-  return (
-    <button
-      type="button"
-      className="btn btn-quiet btn-block mt-3 !border-dashed"
-      onClick={() =>
-        fetch("/api/checkout/demo", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ id }),
-        })
-      }
+    <span
+      aria-hidden
+      className="mt-0.5 grid h-5 w-5 flex-none place-items-center rounded-full bg-[#FF3068]/18 text-[#FF8FB3]"
     >
-      Simular pagamento aprovado (demonstração)
-    </button>
+      <svg width="11" height="11" viewBox="0 0 14 14" focusable="false">
+        <path
+          d="M2 7.5 5.5 11 12 3.5"
+          stroke="currentColor"
+          strokeWidth="2.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+        />
+      </svg>
+    </span>
+  );
+}
+
+/** Caixa de seleção grande do order bump. */
+function Tick() {
+  return (
+    <span className="tick" aria-hidden>
+      <svg width="14" height="14" viewBox="0 0 14 14" focusable="false">
+        <path
+          d="M2 7.5 5.5 11 12 3.5"
+          stroke="#fff"
+          strokeWidth="2.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+        />
+      </svg>
+    </span>
   );
 }

@@ -7,7 +7,7 @@ import Icon3D from "@/components/Icon3D";
 import Modal from "@/components/Modal";
 import ProgressoFunil from "@/components/ProgressoFunil";
 import { CHAVE_ANALISE } from "@/lib/marca";
-import { BASE_CENTS, UPSELL_CENTS, brl, totalCents } from "@/lib/pricing";
+import { BASE_CENTS, brl } from "@/lib/pricing";
 import { checkFile, readableSize } from "@/lib/upload";
 import { detectarParticipantes, type Participantes } from "@/lib/whatsapp";
 import { lerRespostas, resumirRespostas, sugereAvancada } from "@/lib/perguntas";
@@ -23,21 +23,27 @@ export default function Enviar() {
   const [remetente, setRemetente] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [arrastando, setArrastando] = useState(false);
-  const [avancada, setAvancada] = useState(false);
-  const [sugerida, setSugerida] = useState(false);
   const [aceitou, setAceitou] = useState(false);
   const [verTermos, setVerTermos] = useState(false);
   const [enviando, setEnviando] = useState(false);
 
+  /**
+   * A investigação avançada não é vendida aqui.
+   *
+   * Ela é oferecida uma vez só, como order bump no checkout, depois de a
+   * pessoa já ter lido uma parte do que a leitura encontrou. Vender nas duas
+   * telas seria a mesma oferta duas vezes, e cobrar um adicional antes de
+   * mostrar qualquer resultado é pedir confiança que ainda não foi ganha.
+   *
+   * O que sobe daqui é só o sinal do quiz: quem respondeu que a dúvida é
+   * sobre confiança vê uma linha a mais no bump, e nada marcado.
+   */
+  const sugerida = useRef(false);
+
   const input = useRef<HTMLInputElement>(null);
 
-  // Quem disse que a dúvida é sobre outra pessoa já chega com a avançada marcada.
   useEffect(() => {
-    const respostas = lerRespostas();
-    if (sugereAvancada(respostas)) {
-      setAvancada(true);
-      setSugerida(true);
-    }
+    sugerida.current = sugereAvancada(lerRespostas());
   }, []);
 
   const receber = async (escolhido: File | undefined) => {
@@ -77,7 +83,7 @@ export default function Enviar() {
 
     const corpo = new FormData();
     corpo.set("arquivo", arquivo);
-    corpo.set("avancada", String(avancada));
+    corpo.set("avancada", String(sugerida.current));
     corpo.set("respostas", JSON.stringify(resumirRespostas(lerRespostas())));
     if (remetente) corpo.set("remetente", remetente);
 
@@ -222,29 +228,6 @@ export default function Enviar() {
         </div>
       )}
 
-      {/* Adicional */}
-      <button
-        type="button"
-        className="choice choice-upsell mt-5"
-        data-on={avancada}
-        aria-pressed={avancada}
-        onClick={() => setAvancada((v) => !v)}
-      >
-        <Tick />
-        <span className="min-w-0 flex-1">
-          <span className="flex flex-wrap items-center gap-2">
-            <span className="t-h3">Incluir análise avançada de traição</span>
-            <span className="badge-preco">+ {brl(UPSELL_CENTS)}</span>
-          </span>
-          <span className="t-legenda mt-1 block">
-            {sugerida
-              ? "Você disse que a dúvida é sobre outra pessoa, então já deixamos marcado. Dá para desmarcar."
-              : "Uma leitura separada sobre sinais de envolvimento com outra pessoa: mudança de horário, de tom e de assunto, com o trecho que sustenta cada uma."}
-          </span>
-        </span>
-        <Icon3D name="alerta" size={44} className="flex-none" />
-      </button>
-
       {/* Consentimento */}
       <button
         type="button"
@@ -301,10 +284,7 @@ export default function Enviar() {
         {GRATIS ? (
           <>Fase de testes: a leitura sai liberada, sem cobrança.</>
         ) : (
-          <>
-            Você lê a primeira conclusão antes de pagar. Depois, {brl(totalCents(avancada))}
-            {avancada ? ` (${brl(BASE_CENTS)} + adicional)` : ""}.
-          </>
+          <>Você lê uma parte do resultado antes de pagar. Depois, {brl(BASE_CENTS)}.</>
         )}
       </p>
 

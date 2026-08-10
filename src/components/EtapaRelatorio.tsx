@@ -5,6 +5,7 @@ import { useState } from "react";
 import Icon3D, { type IconName } from "./Icon3D";
 import Confete from "./Confete";
 import { MARCA } from "@/lib/marca";
+import { UPSELL_CENTS, brl } from "@/lib/pricing";
 import type { AnalysisState } from "@/lib/types";
 
 const iconesValidos: IconName[] = [
@@ -33,7 +34,24 @@ const rotuloNivel = {
   alto: { texto: "Vale uma conversa", cor: "#C10C3E" },
 } as const;
 
-export default function EtapaRelatorio({ estado }: { estado: AnalysisState }) {
+/**
+ * O relatório entregue.
+ *
+ * A estrutura segue o que a análise realmente produz: uma visão geral, as
+ * descobertas, o que fazer com elas e — para quem comprou — a investigação
+ * avançada. Não existem aqui as seções "o que está funcionando" e "o que
+ * merece atenção" como blocos separados: o relatório não classifica as
+ * próprias seções assim, e separá-las por fora exigiria adivinhar de que lado
+ * cada uma cai. O que ele diz sobre cada assunto está escrito no texto de cada
+ * seção, que é onde a leitura de verdade mora.
+ */
+export default function EtapaRelatorio({
+  estado,
+  onComprarAvancada,
+}: {
+  estado: AnalysisState;
+  onComprarAvancada?: () => void;
+}) {
   const relatorio = estado.report;
 
   // O componente só monta depois do pagamento, nunca no servidor: a data pode
@@ -44,6 +62,8 @@ export default function EtapaRelatorio({ estado }: { estado: AnalysisState }) {
 
   if (!relatorio) return null;
 
+  const acoes = relatorio.acoes ?? [];
+
   return (
     <div className="stage imprimivel">
       <Confete />
@@ -52,6 +72,7 @@ export default function EtapaRelatorio({ estado }: { estado: AnalysisState }) {
         {MARCA} · relatório de {data}
       </p>
 
+      {/* Visão geral */}
       <div className="text-center">
         <Image
           src="/render/coracao.png"
@@ -65,13 +86,19 @@ export default function EtapaRelatorio({ estado }: { estado: AnalysisState }) {
           <Icon3D name="brilho" size={18} />
           {relatorio.patternCount} padrões encontrados
         </span>
-        <h2 className="t-h2 mt-3">{relatorio.headline}</h2>
+        <h2 className="t-h2 mt-3">Seu diagnóstico está pronto.</h2>
+        <p className="mx-auto mt-3 max-w-[46ch] font-[family-name:var(--font-outfit)] text-[1.125rem] leading-snug font-semibold text-[#F6ECEF]">
+          {relatorio.headline}
+        </p>
         {relatorio.summary && (
           <p className="mx-auto mt-3 max-w-[46ch] text-[#B7A2AA]">{relatorio.summary}</p>
         )}
       </div>
 
-      <div className="mt-7 space-y-4">
+      {/* Principais descobertas */}
+      <TituloBloco numero="01" titulo="Principais descobertas" />
+
+      <div className="mt-4 space-y-4">
         {relatorio.sections.map((secao, i) => (
           <article key={`${secao.title}-${i}`} className="card card-hover">
             <div className="flex items-start gap-3">
@@ -85,10 +112,49 @@ export default function EtapaRelatorio({ estado }: { estado: AnalysisState }) {
             </div>
           </article>
         ))}
+      </div>
 
-        {relatorio.advanced && (
+      {/* Como melhorar */}
+      {acoes.length > 0 && (
+        <>
+          <TituloBloco numero="02" titulo="Como melhorar" />
+
+          <section className="card painel-tinto mt-4">
+            <div className="flex items-start gap-3">
+              <Icon3D name="foguete" size={46} className="flex-none" />
+              <div className="pt-1">
+                <h3 className="t-h3">O que dá para fazer esta semana</h3>
+                <p className="t-legenda mt-0.5">Pequeno e possível. Não precisa fazer os três.</p>
+              </div>
+            </div>
+
+            <ol className="mt-4 space-y-3">
+              {acoes.map((acao, i) => (
+                <li key={`${acao.titulo}-${i}`} className="flex items-start gap-3">
+                  <span
+                    aria-hidden
+                    className="grid h-6 w-6 flex-none place-items-center rounded-full bg-[#FF3068]/18 font-[family-name:var(--font-outfit)] text-[0.8125rem] font-bold text-[#FF8FB3]"
+                  >
+                    {i + 1}
+                  </span>
+                  <p className="text-[0.9375rem] leading-snug">
+                    {acao.titulo && <strong className="font-semibold">{acao.titulo}. </strong>}
+                    <span className="text-[#B7A2AA]">{acao.texto}</span>
+                  </p>
+                </li>
+              ))}
+            </ol>
+          </section>
+        </>
+      )}
+
+      {/* Investigação avançada — só chega aqui se tiver sido paga. */}
+      {relatorio.advanced && (
+        <>
+          <TituloBloco numero="03" titulo="Investigação Avançada" />
+
           <article
-            className="card card-hover painel-tinto"
+            className="card card-hover painel-tinto mt-4"
             style={{ borderColor: `${rotuloNivel[relatorio.advanced.level].cor}88` }}
           >
             <div className="flex items-start gap-3">
@@ -108,38 +174,34 @@ export default function EtapaRelatorio({ estado }: { estado: AnalysisState }) {
                 <p key={j}>{par}</p>
               ))}
             </div>
+            <p className="t-legenda mt-4 border-t border-white/8 pt-3">
+              A análise identifica padrões e sinais de alerta. Ela não confirma traição como fato.
+            </p>
           </article>
-        )}
-      </div>
+        </>
+      )}
 
-      {relatorio.acoes && relatorio.acoes.length > 0 && (
-        <section
-          className="card painel-tinto mt-4">
-          <div className="flex items-start gap-3">
-            <Icon3D name="foguete" size={46} className="flex-none" />
-            <div className="pt-1">
-              <h3 className="t-h3">O que dá para fazer esta semana</h3>
-              <p className="t-legenda mt-0.5">Pequeno e possível. Não precisa fazer os três.</p>
-            </div>
+      {/* Chamada discreta para quem não comprou a avançada. */}
+      {!estado.advancedPaid && onComprarAvancada && (
+        <div className="bloco nao-imprimir mt-6 flex items-start gap-4 p-5">
+          <Icon3D name="alerta" size={40} className="flex-none" />
+          <div className="min-w-0">
+            <h3 className="font-[family-name:var(--font-outfit)] text-[1rem] font-semibold text-[#F6ECEF]">
+              Quer investigar padrões adicionais?
+            </h3>
+            <p className="t-legenda mt-1">
+              Mudanças de comportamento, inconsistências e sinais de alerta, numa leitura
+              separada.
+            </p>
+            <button
+              type="button"
+              onClick={onComprarAvancada}
+              className="btn btn-quiet mt-3 px-5 py-2.5 text-[0.875rem]"
+            >
+              Adicionar Investigação Avançada por {brl(UPSELL_CENTS)}
+            </button>
           </div>
-
-          <ol className="mt-4 space-y-3">
-            {relatorio.acoes.map((acao, i) => (
-              <li key={`${acao.titulo}-${i}`} className="flex items-start gap-3">
-                <span
-                  aria-hidden
-                  className="grid h-6 w-6 flex-none place-items-center rounded-full bg-[#FF3068]/18 font-[family-name:var(--font-outfit)] text-[0.8125rem] font-bold text-[#FF8FB3]"
-                >
-                  {i + 1}
-                </span>
-                <p className="text-[0.9375rem] leading-snug">
-                  {acao.titulo && <strong className="font-semibold">{acao.titulo}. </strong>}
-                  <span className="text-[#B7A2AA]">{acao.texto}</span>
-                </p>
-              </li>
-            ))}
-          </ol>
-        </section>
+        </div>
       )}
 
       <p className="so-impressao mt-8 border-t border-black/15 pt-3 text-[9pt] text-[#444]">
@@ -164,6 +226,21 @@ export default function EtapaRelatorio({ estado }: { estado: AnalysisState }) {
       <a href="/analise" className="btn btn-primary btn-block nao-imprimir mt-4">
         Analisar outra conversa
       </a>
+    </div>
+  );
+}
+
+/** Separador de bloco: numera as partes do relatório sem virar índice. */
+function TituloBloco({ numero, titulo }: { numero: string; titulo: string }) {
+  return (
+    <div className="mt-9 flex items-center gap-3">
+      <span className="marca-passo !text-[1.5rem]" aria-hidden>
+        {numero}
+      </span>
+      <h3 className="font-[family-name:var(--font-outfit)] text-[1.25rem] font-bold tracking-[-0.02em] text-[#F6ECEF]">
+        {titulo}
+      </h3>
+      <span className="linha-fina h-px flex-1" />
     </div>
   );
 }

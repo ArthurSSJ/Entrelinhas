@@ -1056,34 +1056,45 @@
   animation: spin-orbit 14s linear infinite;
 }
 
-.progress-track {
-  height: 8px;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.1);
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  border-radius: 9999px;
-  background: linear-gradient(90deg, var(--color-rosa-fundo) 0%, var(--color-rosa-claro) 100%);
-  transition: width 0.6s cubic-bezier(0.3, 0.8, 0.3, 1);
-}
-
 /* ============================================================
    Relatório trancado (paywall)
    ============================================================ */
-.locked-bar {
-  height: 11px;
+
+/* As frentes da leitura, na tela de processamento. Nenhuma delas fica
+   "concluída": o servidor não diz em qual está, e marcar um passo como feito
+   seria afirmar o que ninguém confirmou. O destaque circula, e só. */
+.frente {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 14px;
+  border-radius: var(--radius-bloco);
+  border: 1px solid transparent;
+  color: var(--color-nevoa-2);
+  transition:
+    color 0.4s ease,
+    background 0.4s ease,
+    border-color 0.4s ease;
+}
+
+.frente[data-ativa="true"] {
+  color: var(--color-nevoa);
+  background: rgba(255, 48, 104, 0.1);
+  border-color: rgba(255, 48, 104, 0.3);
+}
+
+.frente-marca {
+  height: 7px;
+  width: 7px;
+  flex: none;
   border-radius: 9999px;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.07) 0%,
-    rgba(255, 48, 104, 0.34) 50%,
-    rgba(255, 255, 255, 0.07) 100%
-  );
-  background-size: 220% 100%;
-  animation: shimmer 2.6s linear infinite;
+  background: rgba(255, 255, 255, 0.22);
+  transition: background 0.4s ease;
+}
+
+.frente[data-ativa="true"] .frente-marca {
+  background: var(--color-rosa-neon);
+  box-shadow: 0 0 12px rgba(255, 48, 104, 0.8);
 }
 
 /* Trecho real de uma seção, na prévia. O texto é verdadeiro; o gradiente no

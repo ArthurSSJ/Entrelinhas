@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { get, markPaid } from "@/lib/store";
+import { aplicarUnlock, get } from "@/lib/store";
+import { lerUnlock } from "@/lib/payments";
 
 export const dynamic = "force-dynamic";
 
@@ -47,9 +48,11 @@ export async function POST(req: Request) {
   }
 
   const flat = flatten(body);
-  const id = CAMPOS_ID.map((k) => flat[k]).find((v): v is string => typeof v === "string" && !!v);
+  const referencia = CAMPOS_ID.map((k) => flat[k]).find(
+    (v): v is string => typeof v === "string" && !!v,
+  );
 
-  if (!id) {
+  if (!referencia) {
     return NextResponse.json({ error: "Referência da análise ausente." }, { status: 400 });
   }
 
@@ -59,11 +62,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, ignorado: status });
   }
 
+  // A referência carrega o que este pagamento libera: só o relatório, só a
+  // avançada, ou os dois. Quem escreveu isso foi o servidor, ao criar a
+  // cobrança — o gateway só devolve o mesmo texto de volta.
+  const { id, unlock } = lerUnlock(referencia);
+
   if (!get(id)) {
     return NextResponse.json({ error: "Análise não encontrada." }, { status: 404 });
   }
 
-  markPaid(id);
+  // Idempotente: dois postbacks do mesmo pedido chegam ao mesmo estado, sem
+  // liberar nada a mais nem cobrar nada de novo.
+  aplicarUnlock(id, unlock);
   return NextResponse.json({ ok: true });
 }
 

@@ -3,12 +3,22 @@
 import { useEffect, useState } from "react";
 import Icon3D, { type IconName } from "./Icon3D";
 
-const etapas = [
-  "Recebendo a conversa…",
-  "Lendo do primeiro dia até hoje…",
-  "Contando o que se repete…",
-  "Escrevendo em português…",
-  "Fechando o relatório…",
+/**
+ * As frentes da leitura, na ordem em que o relatório é montado.
+ *
+ * Elas descrevem o trabalho de verdade — as seis seções que o agente escreve —
+ * mas o servidor não avisa em qual delas está. Por isso a lista aparece como
+ * roteiro do que está sendo feito, com uma delas em destaque, e nunca como
+ * uma sequência de tarefas concluídas: marcar "Organizando o histórico" como
+ * pronto seria afirmar um passo técnico que ninguém confirmou.
+ */
+const FRENTES = [
+  "Organizando o histórico",
+  "Analisando padrões de comunicação",
+  "Observando reciprocidade",
+  "Identificando pontos de atenção",
+  "Preparando seu relatório",
+  "Finalizando análise",
 ];
 
 /** Ícones em órbita, um por assunto da leitura. */
@@ -20,24 +30,18 @@ const satelites: { icon: IconName; angulo: number }[] = [
 ];
 
 export default function EtapaProcessando({ fila = 0 }: { fila?: number }) {
-  const [passo, setPasso] = useState(0);
-  const [progresso, setProgresso] = useState(6);
+  const [emFoco, setEmFoco] = useState(0);
 
   useEffect(() => {
     const troca = window.setInterval(() => {
-      setPasso((p) => Math.min(p + 1, etapas.length - 1));
-    }, 4200);
-
-    // A barra avança devagar e para em 92%: os últimos 8% são a resposta real.
-    const barra = window.setInterval(() => {
-      setProgresso((p) => (p >= 92 ? 92 : p + Math.max(0.6, (92 - p) * 0.06)));
-    }, 420);
-
-    return () => {
-      window.clearInterval(troca);
-      window.clearInterval(barra);
-    };
+      // Circula e não trava na última: é um sinal de vida, não uma barra que
+      // chega a 92% e finge que falta pouco.
+      setEmFoco((i) => (i + 1) % FRENTES.length);
+    }, 2600);
+    return () => window.clearInterval(troca);
   }, []);
+
+  const naFila = fila > 0;
 
   return (
     <div className="stage text-center">
@@ -58,20 +62,28 @@ export default function EtapaProcessando({ fila = 0 }: { fila?: number }) {
         ))}
       </div>
 
-      <h2 className="t-h2 mt-7" aria-live="polite">
-        {fila > 0 ? "Sua vez está chegando…" : etapas[passo]}
+      <h2 className="t-h2 mt-7">
+        {naFila ? "Sua vez está chegando…" : "Estamos analisando sua conversa…"}
       </h2>
-      <p className="mt-2 text-[#B7A2AA]">
-        {fila > 0
+      <p className="mx-auto mt-2 max-w-[42ch] text-[#B7A2AA]">
+        {naFila
           ? `Tem ${fila === 1 ? "mais uma conversa" : `mais ${fila} conversas`} sendo lida agora. A sua entra em seguida.`
-          : "Costuma levar menos de um minuto. Não feche a aba: é aqui que o relatório abre."}
+          : "Estamos procurando padrões que seriam difíceis de perceber olhando mensagem por mensagem."}
       </p>
 
-      <div className="progress-track mx-auto mt-7 max-w-[320px]">
-        <div className="progress-fill" style={{ width: `${progresso}%` }} />
-      </div>
+      <ul className="mx-auto mt-8 max-w-[340px] space-y-2 text-left" aria-live="polite">
+        {FRENTES.map((frente, i) => {
+          const ativa = !naFila && i === emFoco;
+          return (
+            <li key={frente} className="frente" data-ativa={ativa}>
+              <span className="frente-marca" aria-hidden />
+              <span className="text-[0.9375rem] leading-snug">{frente}</span>
+            </li>
+          );
+        })}
+      </ul>
 
-      <p className="t-legenda mx-auto mt-6 flex max-w-[36ch] items-center justify-center gap-2 rounded-2xl bg-white/6 px-4 py-3">
+      <p className="t-legenda mx-auto mt-7 flex max-w-[36ch] items-center justify-center gap-2 rounded-2xl bg-white/6 px-4 py-3">
         <Icon3D name="cadeado" size={22} className="flex-none" />
         Sua conversa é apagada assim que a leitura acabar.
       </p>
