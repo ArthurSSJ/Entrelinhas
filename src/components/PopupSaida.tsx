@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Icon3D from "./Icon3D";
 import type { AnalysisState } from "@/lib/types";
 import { BASE_CENTS, PACOTE_CENTS, UPSELL_CENTS, brl } from "@/lib/pricing";
-import { rastrear } from "@/lib/analytics";
+import { trackExitIntentConverted, trackExitIntentShown } from "@/lib/analytics";
 
 type Props = {
   estado: AnalysisState;
@@ -82,8 +82,10 @@ export default function PopupSaida({
   }, [onSair]);
 
   useEffect(() => {
-    rastrear("exit_intent_shown", {
-      analise: estado.id,
+    // A variante vai no evento para as duas serem comparáveis no painel:
+    // visualização, clique e receita de cada uma, lado a lado.
+    void trackExitIntentShown("relatorio", {
+      analysis_id: estado.id,
       variante: comOferta ? "pacote" : "padrao",
       valor: (comOferta ? PACOTE_CENTS : estado.amountCents) / 100,
     });
@@ -93,18 +95,16 @@ export default function PopupSaida({
   }, []);
 
   const aproveitar = () => {
-    rastrear("exit_intent_converted", {
-      analise: estado.id,
-      variante: "pacote",
+    void trackExitIntentConverted("pacote", {
+      analysis_id: estado.id,
       valor: PACOTE_CENTS / 100,
     });
     onAproveitarOferta();
   };
 
   const continuar = () => {
-    rastrear("exit_intent_converted", {
-      analise: estado.id,
-      variante: "padrao",
+    void trackExitIntentConverted("padrao", {
+      analysis_id: estado.id,
       valor: estado.amountCents / 100,
     });
     onContinuar();

@@ -5,7 +5,11 @@ import CobrancaAberta from "./CobrancaAberta";
 import Icon3D from "./Icon3D";
 import type { AnalysisState } from "@/lib/types";
 import { BASE_CENTS, UPSELL_CENTS, brl } from "@/lib/pricing";
-import { rastrear } from "@/lib/analytics";
+import {
+  trackCheckoutStarted,
+  trackCheckoutViewed,
+  trackOrderBumpSelected,
+} from "@/lib/analytics";
 
 type Props = {
   estado: AnalysisState;
@@ -48,22 +52,25 @@ export default function EtapaPagamento({ estado, erro, onCobrar, onRecomecar }: 
   const total = BASE_CENTS + (bump ? UPSELL_CENTS : 0);
 
   useEffect(() => {
-    rastrear("checkout_viewed", { analise: estado.id, valor: BASE_CENTS / 100 });
+    void trackCheckoutViewed("relatorio", {
+      analysis_id: estado.id,
+      valor: BASE_CENTS / 100,
+    });
   }, [estado.id]);
 
   const alternarBump = () => {
     const proximo = !bump;
     setBump(proximo);
-    rastrear(proximo ? "order_bump_selected" : "order_bump_removed", {
-      analise: estado.id,
-      valor: UPSELL_CENTS / 100,
+    // O SDK usa o mesmo evento para marcar e desmarcar: `selected` diz qual
+    // dos dois foi, e a receita só entra quando o adicional está marcado.
+    void trackOrderBumpSelected(proximo, UPSELL_CENTS / 100, {
+      analysis_id: estado.id,
     });
   };
 
   const cobrar = () => {
-    rastrear("checkout_started", {
-      analise: estado.id,
-      valor: total / 100,
+    void trackCheckoutStarted(bump ? "relatorio+avancada" : "relatorio", total / 100, {
+      analysis_id: estado.id,
       bump,
     });
     onCobrar(bump);

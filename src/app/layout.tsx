@@ -39,6 +39,8 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
+import AnalyticsProvider from "@/components/AnalyticsProvider";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
@@ -46,7 +48,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       data-scroll-behavior="smooth"
       className={`${outfit.variable} ${manrope.variable}`}
     >
-      <body>{children}</body>
+      <body>
+        <AnalyticsProvider>{children}</AnalyticsProvider>
+      </body>
     </html>
   );
 }

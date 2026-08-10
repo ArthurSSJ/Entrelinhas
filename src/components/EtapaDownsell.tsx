@@ -5,7 +5,11 @@ import CobrancaAberta from "./CobrancaAberta";
 import Icon3D from "./Icon3D";
 import type { AnalysisState } from "@/lib/types";
 import { DOWNSELL_CENTS, UPSELL_CENTS, brl } from "@/lib/pricing";
-import { rastrear } from "@/lib/analytics";
+import {
+  trackDownsellAccepted,
+  trackDownsellDeclined,
+  trackDownsellViewed,
+} from "@/lib/analytics";
 
 /**
  * A última oferta da investigação avançada, e só para quem recusou a primeira.
@@ -31,16 +35,23 @@ export default function EtapaDownsell({
   const cobranca = estado.chargeAvancada;
 
   useEffect(() => {
-    rastrear("downsell_viewed", { analise: estado.id, valor: DOWNSELL_CENTS / 100 });
+    void trackDownsellViewed("investigacao-avancada-desconto", {
+      analysis_id: estado.id,
+      valor: DOWNSELL_CENTS / 100,
+    });
   }, [estado.id]);
 
   const aceitar = () => {
-    rastrear("downsell_accepted", { analise: estado.id, valor: DOWNSELL_CENTS / 100 });
+    void trackDownsellAccepted("investigacao-avancada-desconto", DOWNSELL_CENTS / 100, {
+      analysis_id: estado.id,
+    });
     onAceitar();
   };
 
   const recusar = () => {
-    rastrear("downsell_declined", { analise: estado.id });
+    void trackDownsellDeclined("investigacao-avancada-desconto", {
+      analysis_id: estado.id,
+    });
     onRecusar();
   };
 

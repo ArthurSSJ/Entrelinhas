@@ -6,7 +6,11 @@ import CobrancaAberta from "./CobrancaAberta";
 import Icon3D from "./Icon3D";
 import type { AnalysisState } from "@/lib/types";
 import { UPSELL_CENTS, brl } from "@/lib/pricing";
-import { rastrear } from "@/lib/analytics";
+import {
+  trackUpsellAccepted,
+  trackUpsellDeclined,
+  trackUpsellViewed,
+} from "@/lib/analytics";
 
 const INCLUI = [
   "Análise comportamental aprofundada",
@@ -41,16 +45,21 @@ export default function EtapaUpsell({
   const cobranca = estado.chargeAvancada;
 
   useEffect(() => {
-    rastrear("upsell_viewed", { analise: estado.id, valor: UPSELL_CENTS / 100 });
+    void trackUpsellViewed("investigacao-avancada", {
+      analysis_id: estado.id,
+      valor: UPSELL_CENTS / 100,
+    });
   }, [estado.id]);
 
   const aceitar = () => {
-    rastrear("upsell_accepted", { analise: estado.id, valor: UPSELL_CENTS / 100 });
+    void trackUpsellAccepted("investigacao-avancada", UPSELL_CENTS / 100, {
+      analysis_id: estado.id,
+    });
     onAceitar();
   };
 
   const recusar = () => {
-    rastrear("upsell_declined", { analise: estado.id });
+    void trackUpsellDeclined("investigacao-avancada", { analysis_id: estado.id });
     onRecusar();
   };
 

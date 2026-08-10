@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import Icon3D, { type IconName } from "./Icon3D";
 import type { AnalysisState } from "@/lib/types";
 import { brl } from "@/lib/pricing";
-import { rastrear } from "@/lib/analytics";
+import { trackPreviewViewed } from "@/lib/analytics";
 
 type Props = {
   estado: AnalysisState;
@@ -65,8 +65,7 @@ export default function EtapaPrevia({ estado, onContinuar }: Props) {
   const restantes = (preview?.sectionTitles ?? []).slice(amostras.length);
 
   useEffect(() => {
-    rastrear("preview_viewed", {
-      analise: estado.id,
+    void trackPreviewViewed(estado.id, {
       amostras: amostras.length,
       valor: estado.amountCents / 100,
     });

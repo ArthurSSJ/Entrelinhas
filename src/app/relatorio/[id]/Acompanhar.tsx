@@ -14,7 +14,7 @@ import PopupSaida from "@/components/PopupSaida";
 import { useExitIntent } from "@/hooks/useExitIntent";
 import { CHAVE_ANALISE } from "@/lib/marca";
 import { limparRespostas } from "@/lib/perguntas";
-import { rastrear } from "@/lib/analytics";
+import { trackPurchaseCompleted } from "@/lib/analytics";
 
 /**
  * As telas do funil depois do envio.
@@ -93,12 +93,12 @@ export default function Acompanhar({ id }: { id: string }) {
       }
 
       if (dados.status === "paid") {
+        // As travas existem porque esta consulta roda a cada 2,5s: sem elas,
+        // a mesma compra viraria uma venda nova no painel a cada volta.
         if (!compraRegistrada.current) {
           compraRegistrada.current = true;
-          rastrear("purchase_completed", {
-            analise: id,
+          void trackPurchaseCompleted(id, dados.amountCents / 100, {
             produto: "relatorio",
-            valor: dados.amountCents / 100,
           });
           // A análise acabou: nada mais precisa ficar guardado no aparelho.
           window.localStorage.removeItem(CHAVE_ANALISE);
@@ -107,7 +107,9 @@ export default function Acompanhar({ id }: { id: string }) {
 
         if (dados.advancedPaid && !avancadaRegistrada.current) {
           avancadaRegistrada.current = true;
-          rastrear("purchase_completed", { analise: id, produto: "avancada" });
+          // Compra separada, com receita própria: a do relatório já foi
+          // contada acima e não pode ser somada de novo aqui.
+          void trackPurchaseCompleted(id, undefined, { produto: "avancada" });
         }
 
         // Só para de perguntar quando não há mais nada para confirmar: com a
