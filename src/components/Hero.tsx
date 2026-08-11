@@ -128,7 +128,7 @@ function FioDeConversa() {
         </figcaption>
 
         <Balao lado="dir" hora="23:47" lida className="fio-msg">
-          a gente precisa marcar aquela viagem
+          Saudade de você ❤️
         </Balao>
 
         <span className="fio-liga fio-achado mt-3 block" aria-hidden />
@@ -144,7 +144,7 @@ function FioDeConversa() {
         <span className="fio-liga fio-achado mt-1 block" aria-hidden />
 
         <Balao lado="esq" hora="08:12" className="fio-msg mt-3" style={{ animationDelay: "0.45s" }}>
-          total, depois vejo aqui 🙂
+          Também
         </Balao>
       </figure>
     </div>
