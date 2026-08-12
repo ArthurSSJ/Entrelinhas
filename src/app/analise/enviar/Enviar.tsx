@@ -106,7 +106,7 @@ export default function Enviar() {
 
     try {
       const res = await fetch("/api/analyze", { method: "POST", body: corpo });
-      const dados = (await res.json()) as { id?: string; error?: string };
+      const dados = (await res.json()) as { id?: string; state?: unknown; error?: string };
 
       if (!res.ok || !dados.id) {
         setErro(dados.error ?? "Não conseguimos receber o arquivo. Tente de novo.");
@@ -115,6 +115,11 @@ export default function Enviar() {
       }
 
       window.localStorage.setItem(CHAVE_ANALISE, dados.id);
+      if (dados.state) {
+        try {
+          window.localStorage.setItem("desvenda_state_" + dados.id, JSON.stringify(dados.state));
+        } catch {}
+      }
       router.push(`/relatorio/${dados.id}`);
     } catch {
       setErro("Sua conexão caiu no meio do envio. Tente de novo.");

@@ -1,5 +1,5 @@
 import { NextResponse, after } from "next/server";
-import { create, markFailed, markReady, setQueuePos } from "@/lib/store";
+import { create, get, markFailed, markReady, setQueuePos } from "@/lib/store";
 import { mockReport } from "@/lib/mock";
 import { checkFile } from "@/lib/upload";
 import { analisarConversa, groqConfigurado } from "@/lib/groq";
@@ -54,33 +54,12 @@ export async function POST(req: Request) {
     demo: !process.env.CAKTO_CHECKOUT_URL,
   });
 
-  /* ---------- 1. Agente próprio (OpenAI / Gemini / Groq) ---------- */
-  if (groqConfigurado()) {
-    const texto = await file.text();
-    const respostas = lerRespostas(form.get("respostas"));
-
-    try {
-      const relatorio = await analisarConversa(texto, {
-        withAdvanced: true,
-        respostas,
-        remetente: typeof form.get("remetente") === "string" ? String(form.get("remetente")) : null,
-        aoAndar: (posicao) => setQueuePos(id, posicao),
-      });
-      markReady(id, relatorio);
-    } catch (err) {
-      console.error("[analyze] leitura de IA falhou, aplicando fallback de segurança:", err);
-      // NUNCA falha o funil do usuário: entrega o relatório seguro para avançar pro checkout
-      markReady(id, mockReport(true));
-    }
-
-    return NextResponse.json({ id });
-  }
-
   const webhook = process.env.N8N_WEBHOOK_URL;
 
-  /* ---------- 2. N8n Webhook Fallback ---------- */
+  /* ---------- 1. N8n Webhook ---------- */
   if (webhook) {
     try {
+      console.log("[analyze] Enviando arquivo para o webhook do N8n:", webhook);
       const relay = new FormData();
       relay.set("arquivo", file, file.name);
       relay.set("analiseId", id);
@@ -101,21 +80,39 @@ export async function POST(req: Request) {
           : undefined,
       });
 
-      if (!res.ok) throw new Error(`N8n respondeu ${res.status}`);
+      if (res.ok) {
+        return NextResponse.json({ id, state: get(id) });
+      }
+      console.warn(`[analyze] N8n respondeu HTTP ${res.status}, tentando fallback local...`);
     } catch (err) {
-      console.error("[analyze] falha ao enviar para o N8n:", err);
-      return NextResponse.json(
-        { error: "Não conseguimos iniciar a leitura agora. Tente de novo em instantes." },
-        { status: 502 },
-      );
+      console.error("[analyze] falha ao enviar para o N8n, executando fallback local:", err);
+    }
+  }
+
+  /* ---------- 2. Agente próprio (OpenAI / Gemini / Groq) ---------- */
+  if (groqConfigurado()) {
+    const texto = await file.text();
+    const respostas = lerRespostas(form.get("respostas"));
+
+    try {
+      const relatorio = await analisarConversa(texto, {
+        withAdvanced: true,
+        respostas,
+        remetente: typeof form.get("remetente") === "string" ? String(form.get("remetente")) : null,
+        aoAndar: (posicao) => setQueuePos(id, posicao),
+      });
+      markReady(id, relatorio);
+    } catch (err) {
+      console.error("[analyze] leitura de IA falhou, aplicando fallback de segurança:", err);
+      markReady(id, mockReport(true));
     }
 
-    return NextResponse.json({ id });
+    return NextResponse.json({ id, state: get(id) });
   }
 
   /* ---------- 3. Demonstração ---------- */
   markReady(id, mockReport(true));
-  return NextResponse.json({ id, demo: true });
+  return NextResponse.json({ id, state: get(id), demo: true });
 }
 
 function lerRespostas(bruto: FormDataEntryValue | null) {

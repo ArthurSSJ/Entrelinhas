@@ -73,6 +73,20 @@ export default function Acompanhar({ id }: { id: string }) {
       if (!ativo) return;
 
       if (res.status === 404) {
+        // Tenta recuperar o estado salvo no LocalStorage para não falhar em instâncias serverless
+        try {
+          const cached = window.localStorage.getItem("desvenda_state_" + id);
+          if (cached) {
+            const dadosCache = JSON.parse(cached) as AnalysisState;
+            setEstado((atual) => ({
+              ...dadosCache,
+              charge: dadosCache.charge ?? atual?.charge,
+              chargeAvancada: dadosCache.chargeAvancada ?? atual?.chargeAvancada,
+            }));
+            return;
+          }
+        } catch {}
+
         setSumiu(true);
         window.clearInterval(timer);
         return;
@@ -80,6 +94,10 @@ export default function Acompanhar({ id }: { id: string }) {
       if (!res.ok) return;
 
       const dados = (await res.json()) as AnalysisState;
+      try {
+        window.localStorage.setItem("desvenda_state_" + id, JSON.stringify(dados));
+      } catch {}
+
       setEstado((atual) => ({
         ...dados,
         charge: dados.charge ?? atual?.charge,
