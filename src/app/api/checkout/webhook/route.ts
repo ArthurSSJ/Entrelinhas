@@ -5,12 +5,19 @@ import { lerUnlock } from "@/lib/payments";
 export const dynamic = "force-dynamic";
 
 /**
- * Confirmação de pagamento.
+ * Endpoint de Webhook do Checkout da Cakto.
  *
- * Escrito para o postback da Cakto, mas tolerante: procura o identificador da
- * análise em qualquer campo de rastreio conhecido e aceita os nomes de status
- * mais comuns. Ao conectar a conta real, confira no painel qual campo a Cakto
- * devolve e, se quiser, reduza as listas abaixo ao que de fato chega.
+ * Estrutura enviada pela Cakto:
+ * {
+ *   "secret": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454",
+ *   "event": "purchase_approved",
+ *   "data": {
+ *     "status": "paid",
+ *     "utm_content": "<analysisId>~<unlock>",
+ *     "sck": "<analysisId>~<unlock>",
+ *     ...
+ *   }
+ * }
  */
 
 const CAMPOS_ID = [
@@ -19,6 +26,7 @@ const CAMPOS_ID = [
   "reference",
   "utm_content",
   "src",
+  "sck",
   "external_reference",
   "checkout_id",
   "custom_id",
@@ -26,58 +34,78 @@ const CAMPOS_ID = [
   "analysisId",
 ];
 
+const EVENTOS_APROVADOS = ["purchase_approved", "approved", "paid"];
 const STATUS_PAGO = ["paid", "approved", "aprovado", "pago", "completed", "confirmed"];
 
-export async function POST(req: Request) {
-  const expected = process.env.CAKTO_WEBHOOK_TOKEN;
-  if (expected) {
-    const sent =
-      req.headers.get("x-cakto-token") ??
-      req.headers.get("x-webhook-token") ??
-      new URL(req.url).searchParams.get("token");
-    if (sent !== expected) {
-      return NextResponse.json({ error: "Token inválido." }, { status: 401 });
-    }
-  }
+type CaktoWebhookPayload = {
+  secret?: string;
+  event?: string;
+  data?: Record<string, unknown>;
+  [key: string]: unknown;
+};
 
-  let body: unknown;
+export async function POST(req: Request) {
+  let body: CaktoWebhookPayload;
   try {
-    body = await req.json();
+    body = (await req.json()) as CaktoWebhookPayload;
   } catch {
     return NextResponse.json({ error: "JSON inválido." }, { status: 400 });
   }
 
+  // 1. Validação de segurança do Token / Secret
+  const expected = process.env.CAKTO_WEBHOOK_TOKEN;
+  if (expected) {
+    const sent =
+      body.secret ??
+      req.headers.get("x-cakto-token") ??
+      req.headers.get("x-webhook-token") ??
+      new URL(req.url).searchParams.get("token");
+
+    if (sent !== expected) {
+      console.warn("[cakto-webhook] Token enviado não bate com o configurado.");
+      return NextResponse.json({ error: "Token inválido." }, { status: 401 });
+    }
+  }
+
+  // 2. Achata o payload para encontrar o parâmetro de rastreio da análise
   const flat = flatten(body);
   const referencia = CAMPOS_ID.map((k) => flat[k]).find(
     (v): v is string => typeof v === "string" && !!v,
   );
 
   if (!referencia) {
+    console.error("[cakto-webhook] Nenhuma referência de análise encontrada no payload:", body);
     return NextResponse.json({ error: "Referência da análise ausente." }, { status: 400 });
   }
 
-  const status = String(flat.status ?? flat.event ?? flat.tipo ?? "paid").toLowerCase();
-  if (!STATUS_PAGO.some((s) => status.includes(s))) {
-    // Evento que não é aprovação (pendente, recusado, reembolso). Nada a fazer.
-    return NextResponse.json({ ok: true, ignorado: status });
+  // 3. Validação do evento / status de pagamento
+  const event = String(body.event ?? "").toLowerCase();
+  const status = String(flat.status ?? flat.tipo ?? "").toLowerCase();
+
+  const foiAprovado =
+    EVENTOS_APROVADOS.some((e) => event.includes(e)) ||
+    STATUS_PAGO.some((s) => status.includes(s));
+
+  if (!foiAprovado) {
+    return NextResponse.json({ ok: true, ignorado: event || status });
   }
 
-  // A referência carrega o que este pagamento libera: só o relatório, só a
-  // avançada, ou os dois. Quem escreveu isso foi o servidor, ao criar a
-  // cobrança — o gateway só devolve o mesmo texto de volta.
+  // 4. Extrai a análise ID e a modalidade (relatório / avançada)
   const { id, unlock } = lerUnlock(referencia);
 
   if (!get(id)) {
+    console.warn(`[cakto-webhook] Análise ${id} não encontrada no store.`);
     return NextResponse.json({ error: "Análise não encontrada." }, { status: 404 });
   }
 
-  // Idempotente: dois postbacks do mesmo pedido chegam ao mesmo estado, sem
-  // liberar nada a mais nem cobrar nada de novo.
+  // 5. Aplica a liberação (idempotente)
   aplicarUnlock(id, unlock);
-  return NextResponse.json({ ok: true });
+  console.log(`[cakto-webhook] Sucesso! Análise ${id} desbloqueada (${unlock}).`);
+
+  return NextResponse.json({ ok: true, id, unlock });
 }
 
-/** Achata objetos aninhados para achar o campo de rastreio onde quer que esteja. */
+/** Achata objetos aninhados (ex: body.data.utm_content -> utm_content) */
 function flatten(input: unknown, depth = 0): Record<string, string> {
   const out: Record<string, string> = {};
   if (!input || typeof input !== "object" || depth > 4) return out;
