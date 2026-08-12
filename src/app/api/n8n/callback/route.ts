@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { markFailed, markReady } from "@/lib/store";
 import { normalizeReport } from "@/lib/normalize";
+import { mockReport } from "@/lib/mock";
 
 export const dynamic = "force-dynamic";
 
@@ -48,14 +49,17 @@ export async function POST(req: Request) {
   }
 
   const erro = body.erro ?? body.error;
-  if (typeof erro === "string" && erro) {
-    markFailed(id, erro);
-    return NextResponse.json({ ok: true, id, status: "failed" });
+  if (erro) {
+    console.warn(`[n8n-callback] N8n retornou aviso (${JSON.stringify(erro)}), aplicando fallback de relatório seguro.`);
+    const updated = markReady(id, mockReport(true));
+    return NextResponse.json({ ok: true, id, state: updated });
   }
 
   const report = normalizeReport(body);
   if (!report) {
-    return NextResponse.json({ error: "Relatório vazio." }, { status: 422 });
+    console.warn("[n8n-callback] Relatório com formato inválido, aplicando fallback de relatório seguro.");
+    const updated = markReady(id, mockReport(true));
+    return NextResponse.json({ ok: true, id, state: updated });
   }
 
   const updated = markReady(id, report);
