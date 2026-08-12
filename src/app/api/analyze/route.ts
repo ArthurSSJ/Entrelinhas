@@ -98,33 +98,29 @@ export async function POST(req: Request) {
     const texto = await file.text();
     const respostas = lerRespostas(form.get("respostas"));
 
-    // Roda depois de a resposta sair, para o front já poder mostrar a tela de leitura.
-    after(async () => {
-      try {
-        const relatorio = await analisarConversa(texto, {
-          // Sempre: veja o comentário do cabeçalho. A entrega é que é paga.
-          withAdvanced: true,
-          respostas,
-          remetente: typeof form.get("remetente") === "string" ? String(form.get("remetente")) : null,
-          aoAndar: (posicao) => setQueuePos(id, posicao),
-        });
-        markReady(id, relatorio);
-      } catch (err) {
-        console.error("[analyze] a leitura falhou:", err);
-        markFailed(
-          id,
-          err instanceof Error && err.message.startsWith("Não conseguimos ler")
-            ? err.message
-            : "A leitura não foi concluída.",
-        );
-      }
-    });
+    try {
+      const relatorio = await analisarConversa(texto, {
+        withAdvanced: true,
+        respostas,
+        remetente: typeof form.get("remetente") === "string" ? String(form.get("remetente")) : null,
+        aoAndar: (posicao) => setQueuePos(id, posicao),
+      });
+      markReady(id, relatorio);
+    } catch (err) {
+      console.error("[analyze] a leitura falhou:", err);
+      markFailed(
+        id,
+        err instanceof Error && err.message.startsWith("Não conseguimos ler")
+          ? err.message
+          : "A leitura não foi concluída.",
+      );
+    }
 
     return NextResponse.json({ id });
   }
 
   /* ---------- 3. Demonstração ---------- */
-  setTimeout(() => markReady(id, mockReport(true)), 6500);
+  markReady(id, mockReport(true));
   return NextResponse.json({ id, demo: true });
 }
 

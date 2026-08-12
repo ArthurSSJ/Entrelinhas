@@ -14,13 +14,42 @@ import { BASE_CENTS, OFERTA_RECUPERACAO_ATIVA, UPSELL_CENTS } from "./pricing";
  * abaixo foi mantida pequena justamente para essa troca ser um arquivo só.
  */
 
+import fs from "node:fs";
+import path from "node:path";
+import os from "node:os";
+
 const TTL_MS = 1000 * 60 * 60 * 2; // 2 horas
+const TMP_DIR = path.join(os.tmpdir(), "desvenda_store");
 
 type Entry = { state: AnalysisState; expiresAt: number };
 
 // Sobrevive ao hot reload do Next em desenvolvimento.
 const globalRef = globalThis as unknown as { __desvenda?: Map<string, Entry> };
 const db: Map<string, Entry> = (globalRef.__desvenda ??= new Map());
+
+function saveTmp(id: string, entry: Entry) {
+  try {
+    if (!fs.existsSync(TMP_DIR)) {
+      fs.mkdirSync(TMP_DIR, { recursive: true });
+    }
+    fs.writeFileSync(path.join(TMP_DIR, `${id}.json`), JSON.stringify(entry), "utf-8");
+  } catch {}
+}
+
+function readTmp(id: string): Entry | null {
+  try {
+    const filePath = path.join(TMP_DIR, `${id}.json`);
+    if (fs.existsSync(filePath)) {
+      const raw = fs.readFileSync(filePath, "utf-8");
+      const entry = JSON.parse(raw) as Entry;
+      if (entry.expiresAt > Date.now()) {
+        db.set(id, entry);
+        return entry;
+      }
+    }
+  } catch {}
+  return null;
+}
 
 function sweep() {
   const now = Date.now();
@@ -36,28 +65,29 @@ export function create(
   const state: AnalysisState = {
     ...init,
     status: "processing",
-    // O order bump começa desmarcado para todo mundo, inclusive para quem o
-    // quiz apontou como interessada. Deixar um adicional pago já marcado
-    // porque uma resposta sugeriu isso é cobrar por dedução — a sugestão vira
-    // uma frase a mais no bump, não um item no carrinho.
     bumpSelected: false,
     advancedPaid: false,
     amountCents: BASE_CENTS,
     funil: {},
   };
-  db.set(init.id, { state, expiresAt: Date.now() + TTL_MS });
+  const entry: Entry = { state, expiresAt: Date.now() + TTL_MS };
+  db.set(init.id, entry);
+  saveTmp(init.id, entry);
   return state;
 }
 
 export function get(id: string): AnalysisState | null {
   sweep();
-  return db.get(id)?.state ?? null;
+  const found = db.get(id) ?? readTmp(id);
+  return found?.state ?? null;
 }
 
 function patch(id: string, next: Partial<AnalysisState>) {
-  const entry = db.get(id);
+  let entry = db.get(id) ?? readTmp(id);
   if (!entry) return null;
   entry.state = { ...entry.state, ...next };
+  db.set(id, entry);
+  saveTmp(id, entry);
   return entry.state;
 }
 
