@@ -107,7 +107,7 @@ export default function EtapaRelatorio({
             </div>
             <div className="report-body mt-3">
               {secao.body.split(/\n{2,}/).map((par, j) => (
-                <p key={j}>{par}</p>
+                <p key={j}>{formatarCitacoesTexto(par)}</p>
               ))}
             </div>
           </article>
@@ -249,4 +249,42 @@ function paraIcone(nome: string | undefined, indice: number): IconName {
   if (nome && (iconesValidos as string[]).includes(nome)) return nome as IconName;
   const rodizio: IconName[] = ["conversa", "coracao", "lupa", "celular", "presente", "foguete"];
   return rodizio[indice % rodizio.length];
+}
+
+/**
+ * Destaca visualmente trechos entre aspas no corpo do relatório,
+ * transformando falas reais da conversa em pílulas de citação com estética premium.
+ */
+function formatarCitacoesTexto(texto: string) {
+  const regex = /("([^"]+)"|“([^”]+)”)/g;
+  const partes = [];
+  let ultimoIndice = 0;
+  let match;
+
+  while ((match = regex.exec(texto)) !== null) {
+    if (match.index > ultimoIndice) {
+      partes.push(texto.slice(ultimoIndice, match.index));
+    }
+
+    const citacao = match[2] || match[3] || match[0].replace(/["“”]/g, "");
+
+    partes.push(
+      <span
+        key={match.index}
+        className="mx-1 inline-flex items-center gap-1 rounded-md border border-[#FF3068]/35 bg-[#FF3068]/12 px-2 py-0.5 font-medium italic text-[#FF8FB3]"
+      >
+        <span className="not-italic opacity-70 text-[0.75rem]">“</span>
+        <span>{citacao}</span>
+        <span className="not-italic opacity-70 text-[0.75rem]">”</span>
+      </span>,
+    );
+
+    ultimoIndice = regex.lastIndex;
+  }
+
+  if (ultimoIndice < texto.length) {
+    partes.push(texto.slice(ultimoIndice));
+  }
+
+  return partes.length > 0 ? partes : texto;
 }

@@ -31,25 +31,6 @@ const garantias: { icon: IconName; titulo: string; texto: string }[] = [
 
 const selos = ["Sem cadastro", "Ninguém do outro lado é avisado", "Você vê antes de pagar"];
 
-const limites = [
-  {
-    nao: "Não é detector de mentira",
-    sim: "É a leitura dos padrões que já estão escritos na conversa.",
-  },
-  {
-    nao: "Não prova traição",
-    sim: "Mostra o que mudou e quando. Conversa nenhuma prova fato que aconteceu fora dela.",
-  },
-  {
-    nao: "Não é app de espionagem",
-    sim: "Você envia uma conversa que é sua. Ninguém do outro lado descobre, hoje nem depois.",
-  },
-  {
-    nao: "Não é terapia",
-    sim: "É o material para começar a conversa difícil já sabendo o que dizer.",
-  },
-];
-
 export default function Confianca() {
   return (
     <section id="privacidade" className="faixa faixa-colada">
@@ -86,44 +67,6 @@ export default function Confianca() {
               </div>
             ))}
           </div>
-        </Reveal>
-
-        <Reveal delay={110}>
-          <ul className="painel mt-4 divide-y divide-white/8 overflow-hidden">
-            {limites.map((item) => (
-              <li
-                key={item.nao}
-                className="grid gap-2 px-5 py-4 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] md:items-center md:gap-8 md:px-8 md:py-5"
-              >
-                <p className="flex items-start gap-3 text-[0.9375rem] font-semibold text-[#B7A2AA] md:items-center">
-                  <span
-                    aria-hidden
-                    className="mt-0.5 grid h-5 w-5 flex-none place-items-center rounded-full bg-white/8 md:mt-0"
-                  >
-                    <svg width="9" height="9" viewBox="0 0 10 10" focusable="false">
-                      <path
-                        d="M1 1l8 8M9 1L1 9"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                  </span>
-                  {item.nao}
-                </p>
-
-                <p className="flex items-start gap-3 text-[0.9375rem] text-[#F6ECEF] md:items-center">
-                  <span
-                    aria-hidden
-                    className="mt-0.5 grid h-5 w-5 flex-none place-items-center rounded-full bg-[#FF3068]/18 text-[#FF8FB3] md:mt-0"
-                  >
-                    <Tique cor="currentColor" />
-                  </span>
-                  {item.sim}
-                </p>
-              </li>
-            ))}
-          </ul>
         </Reveal>
 
         <Reveal delay={140}>

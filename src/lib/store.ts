@@ -102,17 +102,17 @@ export function markReady(id: string, report: Report) {
 }
 
 /**
- * Corta o texto real no fim de uma palavra, sem inventar nada além das
- * reticências. Curto o bastante para ser um gosto do relatório, não o
- * relatório.
+ * Corta o texto real da análise no fim de uma palavra, interrompendo a conclusão
+ * com "..." para criar curiosidade sobre o restante do contexto no relatório.
  */
-function truncar(texto: string, max = 150): string {
+function truncar(texto: string, max = 135): string {
   const limpo = texto.trim();
-  if (limpo.length <= max) return limpo;
+  const pontoCorte = limpo.length > max ? max : Math.max(40, Math.floor(limpo.length * 0.75));
+  const sub = limpo.slice(0, pontoCorte);
+  const ultimoEspaco = sub.lastIndexOf(" ");
+  const trecho = sub.slice(0, ultimoEspaco > 20 ? ultimoEspaco : sub.length).replace(/[\.\,\;\:\!\?\s]+$/, "");
 
-  const corte = limpo.slice(0, max);
-  const ultimoEspaco = corte.lastIndexOf(" ");
-  return `${corte.slice(0, ultimoEspaco > max * 0.4 ? ultimoEspaco : max)}…`;
+  return `${trecho} ...`;
 }
 
 export function markFailed(id: string, error: string) {

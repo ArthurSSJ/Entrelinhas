@@ -14,18 +14,18 @@ export function mockReport(withAdvanced: boolean): Report {
     sections: [
       {
         icon: "conversa",
-        title: "Quem começa as conversas",
-        body: "Em 68% dos dias, a primeira mensagem é sua. Isso não significa desinteresse do outro lado: as respostas chegam rápido e longas. Significa que o papel de iniciar ficou só com você, e esse tipo de papel cansa em silêncio.",
+        title: "Você está buscando mais a conversa do que percebe",
+        body: 'Em 68% dos dias analisados, a primeira mensagem partiu de você (como quando você mandou "tudo bem por aí?"). As respostas chegam rápido e com atenção, mas o papel de puxar o assunto acabou ficando concentrado de um lado só.',
       },
       {
         icon: "coracao",
-        title: "O tom mudou em março",
-        body: "Até fevereiro, apelidos e áudios apareciam quase todo dia. Depois disso, a conversa ficou mais funcional: horários, contas, combinados. O afeto não sumiu, mas migrou para os encontros presenciais e saiu do texto.",
+        title: "A dinâmica de vocês mudou ao longo do tempo",
+        body: 'No primeiro período analisado, apelidos carinhosos e declarações como "te amo, meu bem" apareciam quase diariamente. Com o tempo, a conversa assumiu um tom mais funcional sobre rotina e combinados.',
       },
       {
         icon: "lupa",
-        title: "Assuntos que ninguém termina",
-        body: "Três temas aparecem, esquentam e somem sem conclusão: dinheiro, a viagem de julho e a família dele. Em todos, alguém muda de assunto com uma piada. É um mecanismo de proteção, e está funcionando bem demais.",
+        title: "Tem uma coisa que vocês costumam evitar",
+        body: 'Três assuntos específicos surgem na conversa, esquentam e terminam em frases como "deixa pra lá, depois a gente vê". Um desses temas se repete mais do que os outros.',
       },
       {
         icon: "celular",

@@ -1,4 +1,3 @@
-import Avancada from "./Avancada";
 import Icon3D, { type IconName } from "./Icon3D";
 import Reveal from "./Reveal";
 
@@ -51,7 +50,7 @@ const itens: { icon: IconName; titulo: string; texto: string }[] = [
 
 export default function OQueRecebe() {
   return (
-    <section id="analisado" className="faixa faixa-colada">
+    <section id="analisado" className="faixa">
       <div className="shell-l">
         <Reveal>
           <h2 className="t-secao max-w-[22ch]">O que a leitura vai procurar</h2>
@@ -80,10 +79,6 @@ export default function OQueRecebe() {
             </Reveal>
           ))}
         </div>
-
-        <Reveal delay={120} className="mt-4">
-          <Avancada />
-        </Reveal>
       </div>
     </section>
   );

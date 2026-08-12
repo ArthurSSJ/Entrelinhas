@@ -14,10 +14,6 @@ import {
 /**
  * A avaliação rápida do início do fluxo. Uma pergunta por tela, tocar já
  * avança — sem botão "próximo", sem campo, sem nada que pareça formulário.
- *
- * A última pergunta não navega direto: abre uma tela de fechamento que
- * anuncia o contraste que vem a seguir (percepção x. o que a conversa mostra)
- * antes de seguir para a exportação. É o gancho que faz a pessoa continuar.
  */
 export default function Perguntas() {
   const router = useRouter();
@@ -79,6 +75,9 @@ export default function Perguntas() {
       <ProgressoFunil etapa={1} sub={indice / PERGUNTAS.length} />
 
       <div key={pergunta.id} className="stage">
+        <span className="eyebrow mb-3 text-[0.75rem] font-semibold text-[#FF8FB3]">
+          Pergunta {indice + 1} de {PERGUNTAS.length}
+        </span>
         <h1 className="t-h2">{pergunta.titulo}</h1>
         {pergunta.ajuda && <p className="t-legenda mt-2">{pergunta.ajuda}</p>}
 
@@ -93,12 +92,12 @@ export default function Perguntas() {
                 data-on={marcada}
                 onClick={() => responder(opcao.id)}
               >
-                {opcao.icon ? (
-                  <Icon3D name={opcao.icon} size={38} className="flex-none" />
-                ) : (
-                  <span className="flex-none" style={{ width: 38 }} aria-hidden />
+                {opcao.icon && (
+                  <Icon3D name={opcao.icon} size={32} className="flex-none" />
                 )}
-                <span className="flex-1 text-[1rem] leading-snug font-medium">{opcao.texto}</span>
+                <span className="flex-1 text-[1rem] leading-snug font-medium text-left">
+                  {opcao.texto}
+                </span>
                 <span className="flex-none text-[#FF8FB3]" aria-hidden>
                   <svg width="18" height="18" viewBox="0 0 18 18" focusable="false">
                     <path

@@ -27,6 +27,8 @@ const EXPIRA_MS = 1000 * 60 * 30; // 30 minutos
  * chama — sempre uma rota de servidor, sempre a partir das constantes de
  * preço, nunca de um número enviado pelo navegador.
  */
+import { createCaktoPixCharge } from "./cakto";
+
 export async function createCharge(
   analysisId: string,
   amountCents: number,
@@ -35,8 +37,34 @@ export async function createCharge(
   const expiresAt = Date.now() + EXPIRA_MS;
   const referencia = comUnlock(analysisId, unlock);
 
-  const checkout = escolherCheckout(unlock);
+  // 1. Se houver ID de oferta da Cakto configurado, gera Pix Transparente via API oficial da Cakto
+  const offerId = escolherOfertaCakto(unlock);
+  if (offerId && process.env.CAKTO_CLIENT_ID && process.env.CAKTO_CLIENT_SECRET) {
+    try {
+      const res = await createCaktoPixCharge({
+        offerId,
+        analysisId,
+        referencia,
+        amountCents,
+      });
 
+      if (res.pix?.qrCode) {
+        return {
+          kind: "pix",
+          unlock,
+          brCode: res.pix.qrCode,
+          qrImage: res.pix.qrCodeBase64 || (await toQrImage(res.pix.qrCode)),
+          amountCents,
+          expiresAt: res.pix.expiresAt ? new Date(res.pix.expiresAt).getTime() : expiresAt,
+        };
+      }
+    } catch (err) {
+      console.error("[payments] Erro na API Cakto, caindo para fallback:", err);
+    }
+  }
+
+  // 2. Se houver URL de Checkout redirecionável configurada
+  const checkout = escolherCheckout(unlock);
   if (checkout) {
     return {
       kind: "redirect",
@@ -48,10 +76,8 @@ export async function createCharge(
     };
   }
 
+  // 3. Fallback estático / demonstração
   const brCode = buildStaticPix({
-    // Reserva propositalmente inválida: sem PIX_CHAVE configurada o QR não pode
-    // parecer cobrança de verdade. O e-mail de contato não serve aqui, porque
-    // ele não é necessariamente uma chave PIX registrada.
     key: process.env.PIX_CHAVE ?? "demo@desvenda.ai",
     name: process.env.PIX_NOME ?? "DESVENDA AI",
     city: process.env.PIX_CIDADE ?? "SAO PAULO",
@@ -67,6 +93,13 @@ export async function createCharge(
     amountCents,
     expiresAt,
   };
+}
+
+function escolherOfertaCakto(unlock: Unlock) {
+  const base = process.env.CAKTO_OFFER_ID;
+  if (unlock === "av") return process.env.CAKTO_OFFER_ID_SO_AVANCADA ?? base;
+  if (unlock === "rel_av") return process.env.CAKTO_OFFER_ID_AVANCADA ?? base;
+  return base;
 }
 
 /**

@@ -781,6 +781,14 @@
   letter-spacing: 0.02em;
 }
 
+/* Fundo característico do WhatsApp no modo escuro */
+.whatsapp-wallpaper {
+  background-color: #0b141a;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' opacity='0.05'%3E%3Cpath d='M25 20 C20 15, 10 20, 15 30 L25 40 L35 30 C40 20, 30 15, 25 20 Z'/%3E%3Cpath d='M120 25 h30 a8 8 0 0 1 8 8 v16 a8 8 0 0 1 -8 8 h-10 l-8 8 v-8 h-12 a8 8 0 0 1 -8 -8 v-16 a8 8 0 0 1 8 -8 Z'/%3E%3Cpath d='M30 120 h24 v16 h-24 z M36 120 v-4 h12 v4 M42 128 a4 4 0 1 0 0 0.1'/%3E%3Ccircle cx='150' cy='130' r='12'/%3E%3Cpath d='M150 123 v7 h5'/%3E%3Cpath d='M80 70 v20 a6 6 0 1 1 -4 -5.5 V65 l16 -4 v22 a6 6 0 1 1 -4 -5.5 V61 Z'/%3E%3Cpolygon points='160,60 163,68 171,68 165,73 167,81 160,76 153,81 155,73 149,68 157,68'/%3E%3Cpath d='M80 150 h20 v12 a8 8 0 0 1 -8 8 h-4 a8 8 0 0 1 -8 -8 Z M100 154 h4 a3 3 0 0 1 0 6 h-4'/%3E%3Ccircle cx='35' cy='75' r='10'/%3E%3Cpath d='M30 78 q5 5 10 0'/%3E%3Cpath d='M110 95 l4 4 l8 -8'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+
+
 /* ============================================================
    Acabamentos
    ============================================================ */

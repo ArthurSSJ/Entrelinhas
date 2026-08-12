@@ -13,11 +13,11 @@ import {
 } from "@/lib/analytics";
 
 const INCLUI = [
-  "Análise comportamental aprofundada",
-  "Mudanças ao longo do histórico",
-  "Padrões de comunicação",
+  "Mudanças de comportamento ao longo do tempo",
+  "Horários e frequência das conversas",
+  "Mudanças no tom de escrita",
+  "Distanciamento emocional",
   "Sinais de alerta",
-  "Possíveis indícios compatíveis com infidelidade",
 ];
 
 /**
@@ -89,11 +89,16 @@ export default function EtapaUpsell({
             className="animate-float-slow mx-auto w-[110px] drop-shadow-[0_18px_44px_rgba(255,48,104,0.45)]"
           />
 
-          <h3 className="t-h2 mt-4 text-center">Quer olhar mais fundo?</h3>
+          <p className="text-[0.6875rem] font-semibold tracking-[0.14em] text-[#FF8FB3] uppercase text-center mt-3">
+            ANÁLISE AVANÇADA DE INFIDELIDADE — +{brl(UPSELL_CENTS)}
+          </p>
 
-          <p className="t-apoio mx-auto mt-3 max-w-[44ch] text-center text-[0.9375rem]">
-            A Investigação Avançada procura padrões relacionados a mudanças de comportamento,
-            inconsistências, distanciamento e sinais de alerta na conversa.
+          <h3 className="t-h2 mt-2 text-center text-[1.25rem] sm:text-[1.5rem]">
+            Quer saber se existem sinais de infidelidade na conversa?
+          </h3>
+
+          <p className="t-apoio mx-auto mt-3 max-w-[44ch] text-center text-[0.9375rem] leading-relaxed">
+            Procura padrões como mudanças de comportamento, horários, frequência das conversas, alterações no tom, distanciamento emocional e outros sinais de alerta.
           </p>
 
           <ul className="mt-5 space-y-2.5">
@@ -105,8 +110,8 @@ export default function EtapaUpsell({
             ))}
           </ul>
 
-          <p className="t-legenda mt-4 border-t border-white/8 pt-3">
-            A análise identifica padrões e sinais de alerta. Ela não confirma traição como fato.
+          <p className="t-legenda mt-4 border-t border-white/8 pt-3 text-center text-[0.8125rem]">
+            A análise identifica padrões e sinais de alerta, mas não pode afirmar que uma traição aconteceu.
           </p>
 
           <p className="mt-5 text-center font-[family-name:var(--font-outfit)] text-[2rem] font-bold text-[#F6ECEF]">

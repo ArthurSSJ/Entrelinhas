@@ -29,10 +29,10 @@ const INCLUI = [
 
 const BUMP_INCLUI = [
   "Mudanças de comportamento",
-  "Inconsistências na comunicação",
+  "Horários e frequência das conversas",
+  "Mudanças no tom de escrita",
   "Distanciamento emocional",
-  "Padrões que merecem atenção",
-  "Possíveis indícios compatíveis com infidelidade",
+  "Sinais de alerta",
 ];
 
 /**
@@ -120,16 +120,20 @@ export default function EtapaPagamento({ estado, erro, onCobrar, onRecomecar }: 
           onClick={alternarBump}
         >
           <Tick />
-          <span className="min-w-0 flex-1">
-            <span className="flex flex-wrap items-center gap-2">
-              <span className="t-h3">Adicionar investigação avançada</span>
+          <span className="min-w-0 flex-1 text-left">
+            <span className="flex flex-wrap items-center justify-between gap-2">
+              <span className="t-h3 text-[0.9375rem] font-bold tracking-tight text-[#FF8FB3] uppercase">
+                ANÁLISE AVANÇADA DE INFIDELIDADE
+              </span>
               <span className="badge-preco">+ {brl(UPSELL_CENTS)}</span>
             </span>
 
-            <span className="t-legenda mt-1.5 block">
-              {estado.advancedPreSelected
-                ? "Pelo que você respondeu no começo, essa é a sua dúvida. Ela vem separada, e só se você marcar."
-                : "Se você já vai analisar a conversa, pode ir além."}
+            <span className="mt-2 block font-[family-name:var(--font-outfit)] text-[1.0625rem] font-semibold text-[#F6ECEF]">
+              Quer saber se existem sinais de infidelidade na conversa?
+            </span>
+
+            <span className="t-legenda mt-1.5 block text-[0.875rem] leading-relaxed text-[#B7A2AA]">
+              Procura padrões como mudanças de comportamento, horários, frequência das conversas, alterações no tom, distanciamento emocional e outros sinais de alerta.
             </span>
 
             <span className="mt-3 block space-y-1.5">
@@ -144,8 +148,8 @@ export default function EtapaPagamento({ estado, erro, onCobrar, onRecomecar }: 
               ))}
             </span>
 
-            <span className="t-legenda mt-3 block border-t border-white/8 pt-2.5">
-              A análise identifica padrões e sinais de alerta. Ela não confirma traição como fato.
+            <span className="t-legenda mt-3 block border-t border-white/8 pt-2.5 text-[0.8125rem] text-[#B7A2AA]">
+              A análise identifica padrões e sinais de alerta, mas não pode afirmar que uma traição aconteceu.
             </span>
           </span>
         </button>

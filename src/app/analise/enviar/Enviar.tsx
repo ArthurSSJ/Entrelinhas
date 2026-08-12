@@ -12,6 +12,8 @@ import { checkFile, readableSize } from "@/lib/upload";
 import { detectarParticipantes, type Participantes } from "@/lib/whatsapp";
 import { lerRespostas, resumirRespostas, sugereAvancada } from "@/lib/perguntas";
 
+import { extractTxtFromZip } from "@/lib/zip";
+
 /** Fase de testes: sem paywall. Ligado por NEXT_PUBLIC_MODO_GRATIS. */
 const GRATIS = process.env.NEXT_PUBLIC_MODO_GRATIS === "true";
 
@@ -59,21 +61,36 @@ export default function Enviar() {
     }
 
     setErro(null);
-    setArquivo(escolhido);
+    let arquivoTxt = escolhido;
 
-    // Os nomes são lidos aqui no navegador — o arquivo já está na mão, não
-    // precisa subir nada para saber quem conversa com quem.
-    const encontrados = detectarParticipantes(await escolhido.text());
+    try {
+      let texto: string;
+      if (escolhido.name.toLowerCase().endsWith(".zip")) {
+        const extraido = await extractTxtFromZip(escolhido);
+        texto = extraido.text;
+        arquivoTxt = new File([extraido.text], extraido.name, { type: "text/plain" });
+      } else {
+        texto = await escolhido.text();
+      }
 
-    if (encontrados.autores.length === 0) {
+      setArquivo(arquivoTxt);
+
+      const encontrados = detectarParticipantes(texto);
+
+      if (encontrados.autores.length === 0) {
+        setArquivo(null);
+        setParticipantes(null);
+        setErro("Não reconhecemos esse arquivo. Ele precisa ser o .txt ou .zip exportado do WhatsApp.");
+        return;
+      }
+
+      setParticipantes(encontrados);
+      setRemetente(encontrados.provavel ?? (encontrados.autores.length === 1 ? encontrados.autores[0] : null));
+    } catch (err) {
       setArquivo(null);
       setParticipantes(null);
-      setErro("Não reconhecemos esse arquivo. Ele precisa ser o .txt exportado do WhatsApp.");
-      return;
+      setErro(err instanceof Error ? err.message : "Não conseguimos ler esse arquivo.");
     }
-
-    setParticipantes(encontrados);
-    setRemetente(encontrados.provavel ?? (encontrados.autores.length === 1 ? encontrados.autores[0] : null));
   };
 
   const enviar = async () => {
@@ -115,7 +132,7 @@ export default function Enviar() {
 
       <h1 className="t-h2">Traga a conversa</h1>
       <p className="mt-2 text-[#B7A2AA]">
-        Solte o arquivo .txt que você acabou de exportar. Ele é lido uma vez e apagado assim que o
+        Solte o arquivo .txt ou .zip que você acabou de exportar. Ele é lido uma vez e apagado assim que o
         relatório fica pronto.
       </p>
 
@@ -157,7 +174,7 @@ export default function Enviar() {
             <p className="t-h3">Solte o arquivo aqui</p>
             <p className="t-legenda">ou toque para escolher no seu celular</p>
             <span className="t-legenda mt-1 rounded-full bg-white/6 px-3 py-1">
-              Aceita apenas .txt
+              Aceita .txt ou .zip do WhatsApp
             </span>
           </>
         )}
@@ -165,7 +182,7 @@ export default function Enviar() {
         <input
           ref={input}
           type="file"
-          accept=".txt,text/plain"
+          accept=".txt,.zip,text/plain,application/zip,application/x-zip-compressed"
           className="sr-only"
           onChange={(e) => receber(e.target.files?.[0])}
         />
@@ -183,9 +200,21 @@ export default function Enviar() {
 
       <Link
         href="/analise/tutorial"
-        className="t-legenda mt-3 inline-block underline underline-offset-4"
+        className="mt-4 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-[0.9375rem] font-medium text-[#F6ECEF] transition-colors hover:border-[#FF8FB3]/40 hover:bg-white/8 group"
       >
-        Não achou o arquivo? Ver o passo a passo de novo
+        <Icon3D name="celular" size={28} className="flex-none" />
+        <span className="flex-1">
+          Não achou o arquivo?{" "}
+          <span className="font-semibold text-[#FF8FB3] underline underline-offset-4 group-hover:text-[#FF5A8D]">
+            Ver o passo a passo de novo
+          </span>
+        </span>
+        <span
+          className="text-[#FF8FB3] text-[1.125rem] transition-transform group-hover:translate-x-1"
+          aria-hidden
+        >
+          →
+        </span>
       </Link>
 
       {/* Quem é quem. O arquivo não marca isso, e errar aqui estraga o relatório. */}
@@ -280,13 +309,7 @@ export default function Enviar() {
                 : "Ler minha conversa"}
       </button>
 
-      <p className="t-legenda mt-3 text-center">
-        {GRATIS ? (
-          <>Fase de testes: a leitura sai liberada, sem cobrança.</>
-        ) : (
-          <>Você lê uma parte do resultado antes de pagar. Depois, {brl(BASE_CENTS)}.</>
-        )}
-      </p>
+
 
       {verTermos && (
         <Modal titulo="O que acontece com a sua conversa" onFechar={() => setVerTermos(false)}>

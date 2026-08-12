@@ -4,14 +4,8 @@ import { CHAVE_PREFIXO } from "./marca";
 /**
  * As perguntas do começo do fluxo.
  *
- * Não são um cadastro: são uma avaliação rápida do relacionamento, no mesmo
- * tom de um teste que a pessoa faria sozinha à noite. A leitura sai melhor
- * sabendo o que ela já percebe, e o relatório final compara essa percepção
- * com o que o texto mostra — é esse contraste que vira o momento forte do
- * resultado.
- *
- * As respostas viajam junto com o arquivo para o N8n e ficam no sessionStorage
- * até o envio — nada é gravado no servidor.
+ * Avaliação rápida do relacionamento. As respostas viajam junto com o arquivo
+ * para o N8n/Groq e são usadas como CONTEXTO para orientar o foco da análise.
  */
 
 export type Opcao = {
@@ -32,66 +26,52 @@ export type Pergunta = {
 export const PERGUNTAS: Pergunta[] = [
   {
     id: "relacao",
-    titulo: "Como você descreveria sua relação hoje?",
+    titulo: "Qual é a sua relação com essa pessoa hoje?",
     opcoes: [
-      { id: "muito-boa", texto: "Muito boa" },
-      { id: "boa-com-problemas", texto: "Boa, mas existem problemas" },
-      { id: "complicada", texto: "Está complicada" },
-      { id: "afastando", texto: "Estamos nos afastando" },
-      { id: "nao-sei", texto: "Não sei mais o que pensar" },
+      { id: "namorado", texto: "Namorado(a)" },
+      { id: "ficante", texto: "Ficante" },
+      { id: "amigo", texto: "Amigo(a)" },
+      { id: "conhecendo", texto: "Pessoa que estou conhecendo" },
+      { id: "ex", texto: "Ex" },
+      { id: "casado", texto: "Marido / esposa" },
+      { id: "outra", texto: "Outra" },
     ],
   },
   {
-    id: "esforco",
-    titulo: "Você sente que o esforço entre vocês é equilibrado?",
-    ajuda: "Não existe resposta perfeita aqui.",
+    id: "tempo",
+    titulo: "Há quanto tempo vocês se conhecem ou estão envolvidos?",
     opcoes: [
-      { id: "sim", texto: "Sim" },
-      { id: "mais-ou-menos", texto: "Mais ou menos" },
-      { id: "nao", texto: "Não" },
-      { id: "nao-sei", texto: "Não sei" },
+      { id: "menos-3-meses", texto: "Menos de 3 meses" },
+      { id: "3-a-6-meses", texto: "3 a 6 meses" },
+      { id: "6-meses-a-1-ano", texto: "6 meses a 1 ano" },
+      { id: "1-a-3-anos", texto: "1 a 3 anos" },
+      { id: "mais-3-anos", texto: "Mais de 3 anos" },
+      { id: "vai-e-volta", texto: "É uma relação que vai e volta" },
     ],
   },
   {
-    id: "mudanca",
-    titulo: "Você sente que alguma coisa mudou recentemente?",
-    ajuda: "Vale até o que você não consegue explicar direito.",
+    id: "sentimento",
+    titulo: "O que você sente na relação atualmente?",
     opcoes: [
-      { id: "sim", texto: "Sim" },
-      { id: "nao", texto: "Não" },
-      { id: "talvez", texto: "Talvez" },
-      { id: "nao-identifico", texto: "Não consigo identificar" },
-    ],
-  },
-  {
-    id: "incomodo",
-    titulo: "O que mais incomoda você atualmente?",
-    ajuda: "Escolha o que pesa mais hoje.",
-    opcoes: [
-      { id: "atencao", texto: "Falta de atenção", icon: "celular" },
-      { id: "distanciamento", texto: "Distanciamento", icon: "conversa" },
-      { id: "discussoes", texto: "Discussões", icon: "alerta" },
-      { id: "carinho", texto: "Falta de carinho", icon: "coracao" },
-      { id: "inseguranca", texto: "Insegurança" },
-      { id: "confianca", texto: "Confiança", icon: "escudo", sugereAvancada: true },
-      { id: "outro", texto: "Outro" },
+      { id: "distante", texto: "Senti a pessoa mais distante" },
+      { id: "desconfiar", texto: "Comecei a desconfiar de alguma coisa", sugereAvancada: true },
+      { id: "brigando", texto: "Estamos brigando muito" },
+      { id: "esforcando", texto: "Sinto que estou me esforçando mais" },
+      { id: "especifico", texto: "Aconteceu alguma coisa específica" },
+      { id: "entender", texto: "Só quero entender melhor a relação" },
     ],
   },
   {
     id: "descobrir",
     titulo: "O que você mais gostaria de descobrir?",
-    ajuda: "É o que o relatório vai priorizar.",
     opcoes: [
-      { id: "interesse", texto: "Se ainda existe interesse", icon: "coracao" },
-      { id: "falhando", texto: "Onde nossa relação está falhando", icon: "lupa" },
-      { id: "comunicacao", texto: "Como melhorar nossa comunicação", icon: "conversa" },
-      { id: "mudou", texto: "O que mudou entre nós", icon: "brilho" },
-      {
-        id: "sinais",
-        texto: "Se existem sinais que merecem atenção",
-        icon: "alerta",
-        sugereAvancada: true,
-      },
+      { id: "interesse", texto: "Se ainda existe interesse entre nós" },
+      { id: "mudou", texto: "O que mudou na nossa relação" },
+      { id: "falhando", texto: "Onde nossa relação está falhando" },
+      { id: "afastando", texto: "Se estamos nos afastando" },
+      { id: "comunicacao", texto: "Como melhorar nossa comunicação" },
+      { id: "sinais", texto: "Se existem sinais que merecem atenção", sugereAvancada: true },
+      { id: "visao-geral", texto: "Quero uma visão geral de tudo" },
     ],
   },
 ];
@@ -124,7 +104,7 @@ export function sugereAvancada(respostas: Respostas) {
   );
 }
 
-/** Texto curto das respostas, do jeito que vai para o N8n. */
+/** Texto curto das respostas, do jeito que vai para o N8n/Groq. */
 export function resumirRespostas(respostas: Respostas) {
   return PERGUNTAS.filter((p) => respostas[p.id]).map((p) => ({
     pergunta: p.titulo,

@@ -5,10 +5,14 @@ export type FileCheck = { ok: true } | { ok: false; message: string };
 
 /** Validação de arquivo. Mesmas regras no navegador e no servidor. */
 export function checkFile(file: { name: string; size: number }): FileCheck {
-  if (!file.name.toLowerCase().endsWith(".txt")) {
+  const lower = file.name.toLowerCase();
+  const isTxt = lower.endsWith(".txt");
+  const isZip = lower.endsWith(".zip");
+
+  if (!isTxt && !isZip) {
     return {
       ok: false,
-      message: "Esse arquivo não é .txt. Exporte a conversa de novo e escolha “Sem mídia”.",
+      message: "Formato não aceito. Envie o arquivo .txt ou .zip exportado do WhatsApp.",
     };
   }
   if (file.size > MAX_BYTES) {

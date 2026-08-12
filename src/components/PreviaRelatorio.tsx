@@ -1,3 +1,5 @@
+import Image from "next/image";
+import Link from "next/link";
 import Icon3D, { type IconName } from "./Icon3D";
 import Reveal from "./Reveal";
 
@@ -43,14 +45,47 @@ export default function PreviaRelatorio() {
                 </li>
               ))}
             </ul>
+
+            <div className="mt-8 hidden lg:block">
+              <CtaButton />
+            </div>
           </div>
         </Reveal>
 
         <Reveal delay={110} dir="dir">
           <Previa />
+          <div className="mt-8 text-center lg:hidden">
+            <CtaButton />
+          </div>
         </Reveal>
       </div>
     </section>
+  );
+}
+
+function CtaButton({ className = "" }: { className?: string }) {
+  return (
+    <Link
+      href="/analise"
+      className={`btn btn-neon btn-lg btn-block inline-flex items-center justify-center gap-2.5 [text-wrap:balance] sm:w-auto sm:px-10 group ${className}`}
+    >
+      <span>Quero descobrir o que minha conversa revela</span>
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="transition-transform group-hover:translate-x-1 flex-none"
+        aria-hidden="true"
+      >
+        <line x1="5" y1="12" x2="19" y2="12" />
+        <polyline points="12 5 19 12 12 19" />
+      </svg>
+    </Link>
   );
 }
 
@@ -87,15 +122,14 @@ function Previa() {
         </div>
       </div>
 
-      {/* Um achado saltando para fora da tela. Some no celular: lá ele cobriria
-          o próprio relatório que veio mostrar. */}
-      <p className="painel painel-neon absolute -right-2 bottom-16 hidden w-[210px] items-start gap-2.5 p-3.5 md:flex">
+      {/* Um achado flutuando no canto inferior esquerdo do celular, exatamente como no mockup */}
+      <p className="painel painel-neon absolute -left-2 bottom-16 sm:-left-3 z-10 flex w-[205px] items-start gap-2.5 p-3.5 text-left">
         <Icon3D name="lupa" size={26} className="mt-px flex-none" />
         <span className="text-[0.75rem] leading-snug">
-          <span className="font-[family-name:var(--font-outfit)] font-semibold text-[#FF8FB3]">
-            23 conversas
+          <span className="font-[family-name:var(--font-outfit)] font-bold text-[#FF8FB3]">
+            A conversa era até tarde.
           </span>
-          <span className="text-[#F6ECEF]/80"> terminaram sem resposta. Todas depois das 22h.</span>
+          <span className="text-[#F6ECEF]/80"> Agora, depois de certo horário, ela simplesmente para.</span>
         </span>
       </p>
     </div>
