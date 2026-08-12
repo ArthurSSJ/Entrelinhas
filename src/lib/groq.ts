@@ -187,34 +187,47 @@ async function chamarGemini(instrucoes: string, pedido: string): Promise<string>
 }
 
 async function chamarGroq(instrucoes: string, pedido: string): Promise<string> {
-  const modelo = process.env.GROQ_MODEL ?? MODELO_PADRAO;
-  const resposta = await fetch(ENDPOINT, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: modelo,
-      temperature: 0.65,
-      max_completion_tokens: TETO_RESPOSTA,
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: instrucoes },
-        { role: "user", content: pedido },
-      ],
-    }),
-  });
+  const modelos = [
+    process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile",
+    process.env.GROQ_MODEL_RESERVA ?? "llama-3.1-8b-instant",
+    "mixtral-8x7b-32768",
+    "gemma2-9b-it",
+  ];
 
-  if (!resposta.ok) {
-    const detalhe = await resposta.text().catch(() => "");
-    throw new Error(`Groq HTTP ${resposta.status}: ${detalhe.slice(0, 200)}`);
+  for (const modelo of modelos) {
+    try {
+      const resposta = await fetch(ENDPOINT, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: modelo,
+          temperature: 0.65,
+          max_completion_tokens: TETO_RESPOSTA,
+          response_format: { type: "json_object" },
+          messages: [
+            { role: "system", content: instrucoes },
+            { role: "user", content: pedido },
+          ],
+        }),
+      });
+
+      if (resposta.ok) {
+        const dados = (await resposta.json()) as { choices?: { message?: { content?: string } }[] };
+        const conteudo = dados.choices?.[0]?.message?.content;
+        if (conteudo) return conteudo;
+      } else {
+        const detalhe = await resposta.text().catch(() => "");
+        console.warn(`[groq] Modelo ${modelo} retornou HTTP ${resposta.status}: ${detalhe.slice(0, 100)}`);
+      }
+    } catch (e) {
+      console.warn(`[groq] Erro ao chamar modelo ${modelo}:`, e);
+    }
   }
 
-  const dados = (await resposta.json()) as { choices?: { message?: { content?: string } }[] };
-  const conteudo = dados.choices?.[0]?.message?.content;
-  if (!conteudo) throw new Error("Groq devolveu conteúdo vazio.");
-  return conteudo;
+  throw new Error("Todos os modelos Groq retornaram erro ou limite de cota.");
 }
 
 /** Chute suficiente para reservar espaço na janela. Português: ~3,3 caracteres por token. */
