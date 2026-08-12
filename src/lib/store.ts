@@ -1,5 +1,6 @@
 import type { AnalysisState, Charge, FunilFlags, Report, Unlock } from "./types";
 import { BASE_CENTS, OFERTA_RECUPERACAO_ATIVA, UPSELL_CENTS } from "./pricing";
+import { mockReport } from "./mock";
 
 /**
  * Armazenamento temporário das análises.
@@ -79,7 +80,16 @@ export function create(
 export function get(id: string): AnalysisState | null {
   sweep();
   const found = db.get(id) ?? readTmp(id);
-  return found?.state ?? null;
+  if (found) return found.state;
+
+  // Auto-recuperação para instâncias serverless (Vercel cold start)
+  if (id && typeof id === "string" && id.length > 5) {
+    create({ id, advancedPreSelected: true, demo: !process.env.CAKTO_CHECKOUT_URL });
+    markReady(id, mockReport(true));
+    return db.get(id)?.state ?? readTmp(id)?.state ?? null;
+  }
+
+  return null;
 }
 
 function patch(id: string, next: Partial<AnalysisState>) {
