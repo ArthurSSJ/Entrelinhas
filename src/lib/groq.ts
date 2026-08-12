@@ -49,7 +49,11 @@ export type Contexto = {
 };
 
 export function groqConfigurado() {
-  return Boolean(process.env.GROQ_API_KEY);
+  return Boolean(
+    process.env.OPENAI_API_KEY ||
+      process.env.GEMINI_API_KEY ||
+      process.env.GROQ_API_KEY,
+  );
 }
 
 export async function analisarConversa(bruto: string, ctx: Contexto): Promise<Report> {
@@ -66,63 +70,16 @@ export async function analisarConversa(bruto: string, ctx: Contexto): Promise<Re
 
   const instrucoes = sistema(ctx.withAdvanced);
   const pedido = usuario(numeros, amostra, ctx);
-  const custo = estimarTokens(instrucoes + pedido) + TETO_RESPOSTA;
 
-  const principal = process.env.GROQ_MODEL ?? MODELO_PADRAO;
-  const reserva = process.env.GROQ_MODEL_RESERVA ?? MODELO_RESERVA;
-
-  /** Caminho degradado: modelo menor, recorte menor, resposta menor. */
-  const pelaReserva = () =>
-    chamar(
-      reserva,
-      instrucoes,
-      usuario(numeros, amostrar(mensagens, AMOSTRA_RESERVA), ctx),
-      TETO_RESPOSTA_RESERVA,
-    );
-
-  // Os tetos da Groq são por modelo, então o reserva tem orçamento próprio e não
-  // passa pela fila. Se a espera pelo modelo bom for longa, vale mais entregar
-  // uma leitura menos afiada agora do que a melhor daqui a um minuto — a pessoa
-  // ainda nem viu o preço.
-  const espera = esperaEstimadaMs(custo);
-  if (espera > ESPERA_TOLERAVEL_MS) {
-    console.warn(`[groq] espera de ${Math.round(espera / 1000)}s no ${principal}, indo de ${reserva}`);
-    try {
-      return montar(await pelaReserva());
-    } catch (err) {
-      if (!(err instanceof Congestionado)) throw err;
-      // Os dois cheios ao mesmo tempo. Melhor esperar a vez do que falhar.
-      console.warn(`[groq] ${reserva} também cheio, voltando para a fila`);
-    }
-  }
-
-  const conteudo = await naFila(
-    custo,
-    async () => {
-      try {
-        return await chamar(principal, instrucoes, pedido);
-      } catch (err) {
-        if (!(err instanceof Congestionado)) throw err;
-
-        console.warn(`[groq] ${principal} congestionado, indo de ${reserva}`);
-        try {
-          return await pelaReserva();
-        } catch (segundo) {
-          if (!(segundo instanceof Congestionado)) throw segundo;
-          throw new Error(
-            "Não conseguimos ler agora: teve gente demais ao mesmo tempo. Tente de novo em um minuto. Nada foi cobrado.",
-          );
-        }
-      }
-    },
-    ctx.aoAndar,
-  );
-
+  // Tenta em ordem: 1. OpenAI (GPT-4o-mini) -> 2. Gemini (1.5 Flash) -> 3. Groq (Llama 3.3)
+  const conteudo = await chamarIaMultiProvedor(instrucoes, pedido);
   return montar(conteudo);
 }
 
 function montar(conteudo: string): Report {
-  const relatorio = normalizeReport(JSON.parse(conteudo));
+  // Limpa possíveis blocos markdown ```json ... ``` retornados por alguns modelos
+  const jsonLimpo = conteudo.replace(/```json\s*/gi, "").replace(/```\s*$/gi, "").trim();
+  const relatorio = normalizeReport(JSON.parse(jsonLimpo));
   if (!relatorio) throw new Error("O relatório voltou fora do formato esperado.");
   return relatorio;
 }
@@ -130,22 +87,56 @@ function montar(conteudo: string): Report {
 /** Teto por minuto batido. Não é erro da conversa — é fila. */
 class Congestionado extends Error {}
 
-async function chamar(
-  modelo: string,
-  instrucoes: string,
-  pedido: string,
-  tetoResposta = TETO_RESPOSTA,
-) {
-  const resposta = await fetch(ENDPOINT, {
+async function chamarIaMultiProvedor(instrucoes: string, pedido: string): Promise<string> {
+  const erros: string[] = [];
+
+  // 1. OpenAI (GPT-4o-mini) - Extremamente rápido, confiável e de baixíssimo custo
+  if (process.env.OPENAI_API_KEY) {
+    try {
+      return await chamarOpenAI(instrucoes, pedido);
+    } catch (err) {
+      console.error("[ai] Falha na OpenAI, tentando próximo provedor:", err);
+      erros.push(`OpenAI: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  // 2. Google Gemini (gemini-1.5-flash / gemini-2.0-flash) - Rápido e gratuito/barato
+  if (process.env.GEMINI_API_KEY) {
+    try {
+      return await chamarGemini(instrucoes, pedido);
+    } catch (err) {
+      console.error("[ai] Falha no Gemini, tentando próximo provedor:", err);
+      erros.push(`Gemini: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  // 3. Groq (Llama 3.3 70B / Llama 3.1 8B)
+  if (process.env.GROQ_API_KEY) {
+    try {
+      return await chamarGroq(instrucoes, pedido);
+    } catch (err) {
+      console.error("[ai] Falha na Groq:", err);
+      erros.push(`Groq: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  if (erros.length > 0) {
+    throw new Error(`Falha na leitura de IA (${erros.join(" | ")})`);
+  }
+
+  throw new Error("Nenhuma chave de API de IA configurada (OPENAI_API_KEY, GEMINI_API_KEY ou GROQ_API_KEY).");
+}
+
+async function chamarOpenAI(instrucoes: string, pedido: string): Promise<string> {
+  const resposta = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
       "content-type": "application/json",
-      authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+      authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
     },
     body: JSON.stringify({
-      model: modelo,
+      model: process.env.OPENAI_MODEL ?? "gpt-4o-mini",
       temperature: 0.65,
-      max_completion_tokens: tetoResposta,
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: instrucoes },
@@ -156,18 +147,73 @@ async function chamar(
 
   if (!resposta.ok) {
     const detalhe = await resposta.text().catch(() => "");
-    console.error(`[groq] ${modelo} respondeu ${resposta.status}: ${detalhe.slice(0, 300)}`);
-
-    if (resposta.status === 429 || resposta.status === 413) {
-      throw new Congestionado(detalhe.slice(0, 200));
-    }
-    throw new Error(`Groq respondeu ${resposta.status}`);
+    throw new Error(`OpenAI HTTP ${resposta.status}: ${detalhe.slice(0, 200)}`);
   }
 
   const dados = (await resposta.json()) as { choices?: { message?: { content?: string } }[] };
   const conteudo = dados.choices?.[0]?.message?.content;
-  if (!conteudo) throw new Error("Groq não devolveu conteúdo.");
+  if (!conteudo) throw new Error("OpenAI devolveu conteúdo vazio.");
+  return conteudo;
+}
 
+async function chamarGemini(instrucoes: string, pedido: string): Promise<string> {
+  const modelo = process.env.GEMINI_MODEL ?? "gemini-1.5-flash";
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${process.env.GEMINI_API_KEY}`;
+
+  const resposta = await fetch(url, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: instrucoes }] },
+      contents: [{ parts: [{ text: pedido }] }],
+      generationConfig: {
+        responseMimeType: "application/json",
+        temperature: 0.65,
+      },
+    }),
+  });
+
+  if (!resposta.ok) {
+    const detalhe = await resposta.text().catch(() => "");
+    throw new Error(`Gemini HTTP ${resposta.status}: ${detalhe.slice(0, 200)}`);
+  }
+
+  const dados = (await resposta.json()) as {
+    candidates?: { content?: { parts?: { text?: string }[] } }[];
+  };
+  const conteudo = dados.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!conteudo) throw new Error("Gemini devolveu conteúdo vazio.");
+  return conteudo;
+}
+
+async function chamarGroq(instrucoes: string, pedido: string): Promise<string> {
+  const modelo = process.env.GROQ_MODEL ?? MODELO_PADRAO;
+  const resposta = await fetch(ENDPOINT, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: modelo,
+      temperature: 0.65,
+      max_completion_tokens: TETO_RESPOSTA,
+      response_format: { type: "json_object" },
+      messages: [
+        { role: "system", content: instrucoes },
+        { role: "user", content: pedido },
+      ],
+    }),
+  });
+
+  if (!resposta.ok) {
+    const detalhe = await resposta.text().catch(() => "");
+    throw new Error(`Groq HTTP ${resposta.status}: ${detalhe.slice(0, 200)}`);
+  }
+
+  const dados = (await resposta.json()) as { choices?: { message?: { content?: string } }[] };
+  const conteudo = dados.choices?.[0]?.message?.content;
+  if (!conteudo) throw new Error("Groq devolveu conteúdo vazio.");
   return conteudo;
 }
 

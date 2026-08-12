@@ -54,16 +54,40 @@ export async function POST(req: Request) {
     demo: !process.env.CAKTO_CHECKOUT_URL,
   });
 
+  /* ---------- 1. Agente próprio (OpenAI / Gemini / Groq) ---------- */
+  if (groqConfigurado()) {
+    const texto = await file.text();
+    const respostas = lerRespostas(form.get("respostas"));
+
+    try {
+      const relatorio = await analisarConversa(texto, {
+        withAdvanced: true,
+        respostas,
+        remetente: typeof form.get("remetente") === "string" ? String(form.get("remetente")) : null,
+        aoAndar: (posicao) => setQueuePos(id, posicao),
+      });
+      markReady(id, relatorio);
+    } catch (err) {
+      console.error("[analyze] a leitura de IA falhou:", err);
+      markFailed(
+        id,
+        err instanceof Error && err.message.startsWith("Não conseguimos ler")
+          ? err.message
+          : "A leitura não foi concluída.",
+      );
+    }
+
+    return NextResponse.json({ id });
+  }
+
   const webhook = process.env.N8N_WEBHOOK_URL;
 
-  /* ---------- 1. N8n ---------- */
+  /* ---------- 2. N8n Webhook Fallback ---------- */
   if (webhook) {
     try {
       const relay = new FormData();
       relay.set("arquivo", file, file.name);
       relay.set("analiseId", id);
-      // Sempre "true": a conversa não existe mais depois daqui, então a
-      // avançada precisa nascer agora para poder ser vendida depois.
       relay.set("avancada", "true");
       relay.set("callbackUrl", callbackUrl(req, id));
 
@@ -87,32 +111,6 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { error: "Não conseguimos iniciar a leitura agora. Tente de novo em instantes." },
         { status: 502 },
-      );
-    }
-
-    return NextResponse.json({ id });
-  }
-
-  /* ---------- 2. Agente próprio, no Groq ---------- */
-  if (groqConfigurado()) {
-    const texto = await file.text();
-    const respostas = lerRespostas(form.get("respostas"));
-
-    try {
-      const relatorio = await analisarConversa(texto, {
-        withAdvanced: true,
-        respostas,
-        remetente: typeof form.get("remetente") === "string" ? String(form.get("remetente")) : null,
-        aoAndar: (posicao) => setQueuePos(id, posicao),
-      });
-      markReady(id, relatorio);
-    } catch (err) {
-      console.error("[analyze] a leitura falhou:", err);
-      markFailed(
-        id,
-        err instanceof Error && err.message.startsWith("Não conseguimos ler")
-          ? err.message
-          : "A leitura não foi concluída.",
       );
     }
 
