@@ -106,8 +106,11 @@ const AMOSTRAS = 3;
 
 /** Chamado pelo callback do N8n quando a IA termina. */
 export function markReady(id: string, report: Report) {
-  const entry = db.get(id);
-  if (!entry) return null;
+  let entry = db.get(id) ?? readTmp(id);
+  if (!entry) {
+    create({ id, advancedPreSelected: true, demo: false });
+    entry = db.get(id)!;
+  }
 
   const gratis = modoGratis();
   const jaPago = entry.state.status === "paid";
@@ -146,6 +149,10 @@ function truncar(texto: string, max = 135): string {
 }
 
 export function markFailed(id: string, error: string) {
+  let entry = db.get(id) ?? readTmp(id);
+  if (!entry) {
+    create({ id, advancedPreSelected: true, demo: false });
+  }
   return patch(id, { status: "failed", error });
 }
 

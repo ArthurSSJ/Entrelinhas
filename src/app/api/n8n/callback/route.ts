@@ -49,9 +49,8 @@ export async function POST(req: Request) {
 
   const erro = body.erro ?? body.error;
   if (typeof erro === "string" && erro) {
-    return markFailed(id, erro)
-      ? NextResponse.json({ ok: true })
-      : NextResponse.json({ error: "Análise não encontrada." }, { status: 404 });
+    markFailed(id, erro);
+    return NextResponse.json({ ok: true, id, status: "failed" });
   }
 
   const report = normalizeReport(body);
@@ -60,9 +59,5 @@ export async function POST(req: Request) {
   }
 
   const updated = markReady(id, report);
-  if (!updated) {
-    return NextResponse.json({ error: "Análise não encontrada." }, { status: 404 });
-  }
-
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, id, state: updated });
 }
