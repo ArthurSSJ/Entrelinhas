@@ -57,6 +57,7 @@ export default function Acompanhar({ id }: { id: string }) {
   const [viuConcluida, setViuConcluida] = useState(false);
   const [querPagar, setQuerPagar] = useState(false);
   const [pediuAvancada, setPediuAvancada] = useState(false);
+  const [animacaoConcluida, setAnimacaoConcluida] = useState(false);
 
   const cobrancaPedida = useRef(false);
   const compraRegistrada = useRef(false);
@@ -228,7 +229,7 @@ export default function Acompanhar({ id }: { id: string }) {
 
   /* ---------------- qual tela ---------------- */
 
-  const tela = decidirTela(estado, sumiu, { viuConcluida, querPagar, pediuAvancada });
+  const tela = decidirTela(estado, sumiu, { viuConcluida, querPagar, pediuAvancada, animacaoConcluida });
 
   // O popup de recuperação só faz sentido antes da compra: depois dela não há
   // venda a recuperar. Uma etapa por vez, e cada uma aparece no máximo uma vez.
@@ -264,7 +265,13 @@ export default function Acompanhar({ id }: { id: string }) {
 
   return (
     <>
-      {tela === "processando" && <EtapaProcessando fila={estado?.queuePos ?? 0} />}
+      {tela === "processando" && (
+        <EtapaProcessando
+          fila={estado?.queuePos ?? 0}
+          isReady={estado?.status === "ready" || estado?.status === "paid"}
+          onConcluido={() => setAnimacaoConcluida(true)}
+        />
+      )}
 
       {tela === "concluida" && <EtapaConcluida onVerPrevia={() => setViuConcluida(true)} />}
 
@@ -339,12 +346,12 @@ export default function Acompanhar({ id }: { id: string }) {
 function decidirTela(
   estado: AnalysisState | null,
   sumiu: boolean,
-  local: { viuConcluida: boolean; querPagar: boolean; pediuAvancada: boolean },
+  local: { viuConcluida: boolean; querPagar: boolean; pediuAvancada: boolean; animacaoConcluida: boolean },
 ): Tela {
   if (sumiu) return "sumiu";
   if (!estado) return "carregando";
   if (estado.status === "failed") return "falhou";
-  if (estado.status === "processing") return "processando";
+  if (estado.status === "processing" || !local.animacaoConcluida) return "processando";
 
   if (estado.status === "ready") {
     if (local.querPagar) return "pagamento";
