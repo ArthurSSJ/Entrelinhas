@@ -68,7 +68,7 @@ export default function Oferta() {
       </ul>
 
       <Link href="/analise" className="btn btn-neon btn-lg btn-block mt-8 [text-wrap:balance]">
-        Quero descobrir o que minha conversa revela
+        Quero descobrir o que está acontecendo
       </Link>
       <p className="mt-4 text-[0.875rem] text-[#B7A2AA]">
         Você lê a primeira conclusão antes de pagar. Se a leitura falhar, nada é cobrado.

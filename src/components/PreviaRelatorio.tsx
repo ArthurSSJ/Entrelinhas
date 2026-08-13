@@ -93,9 +93,9 @@ function Previa() {
         <Icon3D name="lupa" size={26} className="mt-px flex-none" />
         <span className="text-[0.75rem] leading-snug">
           <span className="font-[family-name:var(--font-outfit)] font-semibold text-[#FF8FB3]">
-            23 conversas
+            Semana passada a conversa era até tarde.
           </span>
-          <span className="text-[#F6ECEF]/80"> terminaram sem resposta. Todas depois das 22h.</span>
+          <span className="text-[#F6ECEF]/80"> Agora, depois de certo horário, ela simplesmente para.</span>
         </span>
       </p>
     </div>

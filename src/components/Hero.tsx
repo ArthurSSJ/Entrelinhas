@@ -80,7 +80,7 @@ export default function Hero() {
               href="/analise"
               className="btn btn-neon btn-neon-pulso btn-lg btn-block mt-8 [text-wrap:balance] sm:w-auto sm:px-10"
             >
-              Quero descobrir o que minha conversa revela
+              Quero descobrir o que está acontecendo
             </Link>
 
             <p className="mt-4 text-[0.9375rem] text-[#B7A2AA] [text-wrap:balance]">
@@ -136,7 +136,7 @@ function FioDeConversa() {
         <p className="fio-achado mt-1 flex items-center gap-3 rounded-[18px] border border-[#FF3068]/35 bg-[#FF3068]/12 px-3.5 py-3">
           <Icon3D name="lupa" size={32} className="flex-none" />
           <span className="font-[family-name:var(--font-outfit)] text-[0.875rem] leading-snug font-semibold text-[#FF8FB3]">
-            8 horas para responder.
+            Você demonstrou mais emoção do que recebeu de volta..
             <span className="font-medium text-[#F6ECEF]/80"> A 14ª vez só desde março.</span>
           </span>
         </p>

@@ -280,13 +280,6 @@ export default function Enviar() {
                 : "Ler minha conversa"}
       </button>
 
-      <p className="t-legenda mt-3 text-center">
-        {GRATIS ? (
-          <>Fase de testes: a leitura sai liberada, sem cobrança.</>
-        ) : (
-          <>Você lê uma parte do resultado antes de pagar. Depois, {brl(BASE_CENTS)}.</>
-        )}
-      </p>
 
       {verTermos && (
         <Modal titulo="O que acontece com a sua conversa" onFechar={() => setVerTermos(false)}>
