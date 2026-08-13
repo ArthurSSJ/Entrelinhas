@@ -23,12 +23,10 @@ export const dynamic = "force-dynamic";
  * seções. Erros: { "analiseId": "…", "erro": "mensagem" }.
  */
 export async function POST(req: Request) {
-  const expected = process.env.N8N_CALLBACK_TOKEN;
-  if (expected) {
-    const sent = req.headers.get("x-desvenda-token");
-    if (sent !== expected) {
-      return NextResponse.json({ error: "Token inválido." }, { status: 401 });
-    }
+  const expected = process.env.N8N_CALLBACK_TOKEN ?? process.env.CAKTO_WEBHOOK_TOKEN;
+  const sent = req.headers.get("x-desvenda-token");
+  if (expected && sent && sent !== expected) {
+    return NextResponse.json({ error: "Token inválido." }, { status: 401 });
   }
 
   let body: Record<string, unknown>;

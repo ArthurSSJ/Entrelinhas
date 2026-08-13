@@ -66,6 +66,13 @@ export async function POST(req: Request) {
       relay.set("avancada", "true");
       relay.set("callbackUrl", callbackUrl(req, id));
 
+      const callbackToken = process.env.N8N_CALLBACK_TOKEN ?? process.env.CAKTO_WEBHOOK_TOKEN;
+      if (callbackToken) relay.set("callbackToken", callbackToken);
+
+      if (process.env.GROQ_API_KEY) relay.set("groqApiKey", process.env.GROQ_API_KEY);
+      if (process.env.OPENAI_API_KEY) relay.set("openaiApiKey", process.env.OPENAI_API_KEY);
+      if (process.env.GEMINI_API_KEY) relay.set("geminiApiKey", process.env.GEMINI_API_KEY);
+
       const respostas = form.get("respostas");
       if (typeof respostas === "string" && respostas) relay.set("respostas", respostas);
 
