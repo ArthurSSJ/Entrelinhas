@@ -83,10 +83,9 @@ export function get(id: string): AnalysisState | null {
   if (found) return found.state;
 
   // Auto-recuperação para instâncias serverless (Vercel cold start)
+  // Mantém em estado 'processing' até que o N8n (ou agente de IA) efetue o callback real com o relatório.
   if (id && typeof id === "string" && id.length > 5) {
-    create({ id, advancedPreSelected: true, demo: !process.env.CAKTO_CHECKOUT_URL });
-    markReady(id, mockReport(true));
-    return db.get(id)?.state ?? readTmp(id)?.state ?? null;
+    return create({ id, advancedPreSelected: true, demo: !process.env.CAKTO_CHECKOUT_URL });
   }
 
   return null;
