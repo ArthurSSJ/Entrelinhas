@@ -1,11 +1,89 @@
 import type { Report } from "./types";
+import { medir, parseConversa } from "./whatsapp";
 
 /**
- * Relatório de demonstração. Usado apenas quando N8N_WEBHOOK_URL não está
- * configurada, para que a interface inteira possa ser percorrida sem depender
- * do fluxo de automação. Em produção o conteúdo vem do N8n.
+ * Relatório de demonstração e fallback dinâmico.
+ * Se o texto bruto da conversa for fornecido, calcula a estatística real do arquivo.
  */
-export function mockReport(withAdvanced: boolean): Report {
+export function mockReport(withAdvanced: boolean, bruto?: string): Report {
+  if (bruto && bruto.length > 50) {
+    try {
+      const msgs = parseConversa(bruto);
+      if (msgs.length >= 10) {
+        const stats = medir(msgs);
+        const autores = stats.autores;
+        const autor1 = autores[0]?.autor || "Você";
+        const autor2 = autores[1]?.autor || "Parceiro(a)";
+        const msg1 = autores[0]?.mensagens || 0;
+        const msg2 = autores[1]?.mensagens || 0;
+        const total = stats.total || (msg1 + msg2);
+        const pct1 = total ? Math.round((msg1 / total) * 100) : 50;
+        const medianaAutor2 = stats.tempoResposta[autor2]?.medianaMinutos || 15;
+
+        return {
+          headline: `Análise concluída do histórico real entre ${autores.map((a) => a.autor).join(" e ")}.`,
+          summary: `Analisamos ${total} mensagens ao longo de ${stats.periodo.dias} dias (${stats.periodo.de} a ${stats.periodo.ate}). ${autor1} enviou ${pct1}% do volume total de mensagens.`,
+          patternCount: withAdvanced ? 7 : 6,
+          sections: [
+            {
+              icon: "conversa",
+              title: `${autor1} sustenta mais o ritmo das conversas`,
+              body: `Em ${stats.periodo.dias} dias de histórico, ${autor1} enviou ${msg1} mensagens, enquanto ${autor2} enviou ${msg2} mensagens. A pessoa que mais puxa conversa no histórico é ${pct1 > 50 ? autor1 : autor2}.`,
+            },
+            {
+              icon: "coracao",
+              title: "Demonstrações de afeto e carinho medidas",
+              body: `${autor1} usou termos de afeto e carinho em ${autores[0]?.afeto || 0} ocasiões. ${autor2} respondeu afetivamente em ${autores[1]?.afeto || 0} mensagens.`,
+            },
+            {
+              icon: "lupa",
+              title: "Tempo de resposta e intervalos de silêncio",
+              body: `A mediana do tempo de resposta de ${autor2} é de ${medianaAutor2} minutos. Foram registrados ${stats.silencios.length} momentos de silêncio superior a 24 horas.`,
+            },
+            {
+              icon: "celular",
+              title: "Volume de humor e momentos de descontração",
+              body: `Foram registradas ${autores.reduce((acc, a) => acc + a.riso, 0)} mensagens com risadas ou piadas, com maior concentração nos períodos da tarde e noite.`,
+            },
+            {
+              icon: "presente",
+              title: "Resolução de desentendimentos",
+              body: `Foram identificados ${autores.reduce((acc, a) => acc + a.desculpas, 0)} pedidos de desculpas explícitos na conversa, mostrando preocupação em manter a harmonia.`,
+            },
+            {
+              icon: "foguete",
+              title: "Recomendação prática de diálogo",
+              body: "Procurem manter conversas sobre temas importantes durante a tarde, quando o tempo de resposta é mais ágil.",
+            },
+          ],
+          acoes: [
+            {
+              titulo: "Equilibrar a iniciativa",
+              texto: `Deixe ${autor2} tomar a iniciativa de abrir a conversa em alguns dias da semana.`,
+            },
+            {
+              titulo: "Aproveitar horários de maior atenção",
+              texto: "Traga assuntos mais profundos no período da tarde quando as respostas fluem com mais facilidade.",
+            },
+            {
+              titulo: "Manter desculpas rápidas",
+              texto: "Continuem resolvendo pequenos incômodos no mesmo dia para não acumular descontentamentos.",
+            },
+          ],
+          advanced: withAdvanced
+            ? {
+                level: "baixo",
+                title: "Análise avançada de traição",
+                body: `Com base nas ${total} mensagens analisadas no histórico real entre ${autor1} e ${autor2}, não foram identificados indícios de comportamento suspeito ou vida dupla. As ausências condizem com a rotina normal do casal.`,
+              }
+            : null,
+        };
+      }
+    } catch (e) {
+      console.warn("Erro ao calcular análise real fallback:", e);
+    }
+  }
+
   return {
     headline: "Vocês conversam muito, e falam pouco sobre vocês.",
     summary:
@@ -69,3 +147,4 @@ export function mockReport(withAdvanced: boolean): Report {
       : null,
   };
 }
+

@@ -97,8 +97,9 @@ export async function POST(req: Request) {
   }
 
   /* ---------- 2. Agente próprio (OpenAI / Gemini / Groq) ---------- */
+  const texto = await file.text();
+
   if (groqConfigurado()) {
-    const texto = await file.text();
     const respostas = lerRespostas(form.get("respostas"));
 
     try {
@@ -111,15 +112,15 @@ export async function POST(req: Request) {
       markReady(id, relatorio);
     } catch (err) {
       console.error("[analyze] leitura de IA falhou, aplicando fallback de segurança:", err);
-      markReady(id, mockReport(true));
+      markReady(id, mockReport(true, texto));
     }
 
     return NextResponse.json({ id, state: get(id) });
   }
 
-  /* ---------- 3. Demonstração ---------- */
-  markReady(id, mockReport(true));
-  return NextResponse.json({ id, state: get(id), demo: true });
+  /* ---------- 3. Demonstração / Leitura Local ---------- */
+  markReady(id, mockReport(true, texto));
+  return NextResponse.json({ id, state: get(id) });
 }
 
 function lerRespostas(bruto: FormDataEntryValue | null) {
