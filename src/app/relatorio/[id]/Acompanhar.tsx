@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { AnalysisState, OrigemAvancada } from "@/lib/types";
+import type { ClienteDados } from "@/lib/cliente";
 import EtapaProcessando from "@/components/EtapaProcessando";
 import EtapaConcluida from "@/components/EtapaConcluida";
 import EtapaPrevia from "@/components/EtapaPrevia";
@@ -61,6 +62,15 @@ export default function Acompanhar({ id }: { id: string }) {
   const cobrancaPedida = useRef(false);
   const compraRegistrada = useRef(false);
   const avancadaRegistrada = useRef(false);
+
+  // Feedback visual enquanto a cobrança está sendo criada no servidor: sem
+  // isso, o botão fica alguns segundos sem responder e parece travado.
+  const [carregandoCobranca, setCarregandoCobranca] = useState(false);
+
+  // Só preenchido quando o PIX é gerado direto na API da Cakto: ela exige
+  // nome, e-mail, telefone e CPF antes de qualquer cobrança. Pedido uma vez,
+  // reaproveitado se a pessoa comprar a avançada na sequência.
+  const [cliente, setCliente] = useState<ClienteDados | null>(null);
 
   /* ---------------- consulta ---------------- */
 
@@ -134,27 +144,31 @@ export default function Acompanhar({ id }: { id: string }) {
       if (cobrancaPedida.current) return;
       cobrancaPedida.current = true;
       setErro(null);
+      setCarregandoCobranca(true);
 
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ id, bump }),
-      });
+      try {
+        const res = await fetch("/api/checkout", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ id, bump, cliente }),
+        });
 
-      cobrancaPedida.current = false;
+        if (!res.ok) {
+          const { error } = (await res.json().catch(() => ({}))) as { error?: string };
+          setErro(error ?? "Não conseguimos abrir o pagamento agora.");
+          return;
+        }
 
-      if (!res.ok) {
-        const { error } = (await res.json().catch(() => ({}))) as { error?: string };
-        setErro(error ?? "Não conseguimos abrir o pagamento agora.");
-        return;
+        const dados = (await res.json()) as Pick<AnalysisState, "charge" | "amountCents">;
+        setEstado((atual) =>
+          atual ? { ...atual, charge: dados.charge, amountCents: dados.amountCents } : atual,
+        );
+      } finally {
+        cobrancaPedida.current = false;
+        setCarregandoCobranca(false);
       }
-
-      const dados = (await res.json()) as Pick<AnalysisState, "charge" | "amountCents">;
-      setEstado((atual) =>
-        atual ? { ...atual, charge: dados.charge, amountCents: dados.amountCents } : atual,
-      );
     },
-    [id],
+    [id, cliente],
   );
 
   const abrirCobrancaAvancada = useCallback(
@@ -162,34 +176,38 @@ export default function Acompanhar({ id }: { id: string }) {
       if (cobrancaPedida.current) return;
       cobrancaPedida.current = true;
       setErro(null);
+      setCarregandoCobranca(true);
 
-      const res = await fetch("/api/checkout/avancada", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ id, origem }),
-      });
+      try {
+        const res = await fetch("/api/checkout/avancada", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ id, origem, cliente }),
+        });
 
-      cobrancaPedida.current = false;
+        if (!res.ok) {
+          const { error } = (await res.json().catch(() => ({}))) as { error?: string };
+          setErro(error ?? "Não conseguimos abrir o pagamento agora.");
+          return;
+        }
 
-      if (!res.ok) {
-        const { error } = (await res.json().catch(() => ({}))) as { error?: string };
-        setErro(error ?? "Não conseguimos abrir o pagamento agora.");
-        return;
+        const dados = (await res.json()) as { charge: AnalysisState["charge"] };
+        // A oferta de recuperação paga o relatório junto, então ela vira a
+        // cobrança principal e a tela de pagamento assume daqui.
+        setEstado((atual) =>
+          atual
+            ? origem === "recuperacao"
+              ? { ...atual, charge: dados.charge }
+              : { ...atual, chargeAvancada: dados.charge }
+            : atual,
+        );
+        if (origem === "recuperacao") setQuerPagar(true);
+      } finally {
+        cobrancaPedida.current = false;
+        setCarregandoCobranca(false);
       }
-
-      const dados = (await res.json()) as { charge: AnalysisState["charge"] };
-      // A oferta de recuperação paga o relatório junto, então ela vira a
-      // cobrança principal e a tela de pagamento assume daqui.
-      setEstado((atual) =>
-        atual
-          ? origem === "recuperacao"
-            ? { ...atual, charge: dados.charge }
-            : { ...atual, chargeAvancada: dados.charge }
-          : atual,
-      );
-      if (origem === "recuperacao") setQuerPagar(true);
     },
-    [id],
+    [id, cliente],
   );
 
   /** Registra uma recusa no servidor antes de seguir para a próxima tela. */
@@ -258,6 +276,9 @@ export default function Acompanhar({ id }: { id: string }) {
         <EtapaPagamento
           estado={estado}
           erro={erro}
+          carregando={carregandoCobranca}
+          precisaDadosCliente={Boolean(estado.precisaDadosCliente) && !cliente}
+          onClienteEnviado={setCliente}
           onCobrar={abrirCobranca}
           onRecomecar={recomecar}
         />
@@ -267,6 +288,9 @@ export default function Acompanhar({ id }: { id: string }) {
         <EtapaUpsell
           estado={estado}
           erro={erro}
+          carregando={carregandoCobranca}
+          precisaDadosCliente={Boolean(estado.precisaDadosCliente) && !cliente}
+          onClienteEnviado={setCliente}
           onAceitar={() => void abrirCobrancaAvancada("upsell")}
           onRecusar={() => {
             setPediuAvancada(false);
@@ -279,6 +303,9 @@ export default function Acompanhar({ id }: { id: string }) {
         <EtapaDownsell
           estado={estado}
           erro={erro}
+          carregando={carregandoCobranca}
+          precisaDadosCliente={Boolean(estado.precisaDadosCliente) && !cliente}
+          onClienteEnviado={setCliente}
           onAceitar={() => void abrirCobrancaAvancada("downsell")}
           onRecusar={() => void marcarFunil("downsellDeclined")}
         />
@@ -303,6 +330,14 @@ export default function Acompanhar({ id }: { id: string }) {
           }}
           onAproveitarOferta={() => {
             fecharSaida();
+            if (estado.precisaDadosCliente && !cliente) {
+              // O PIX nativo da Cakto exige os dados do cliente antes de
+              // qualquer cobrança, e o popup não tem espaço para esse
+              // formulário: manda para o fluxo normal, onde ele aparece.
+              setViuConcluida(true);
+              setQuerPagar(true);
+              return;
+            }
             void abrirCobrancaAvancada("recuperacao");
           }}
           onSair={fecharSaida}

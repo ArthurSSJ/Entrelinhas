@@ -1,20 +1,24 @@
+import crypto from "node:crypto";
 import QRCode from "qrcode";
+import { criarPixCakto, pixNativoConfigurado } from "./cakto";
+import type { ClienteDados } from "./cliente";
+import { registrarPagamentoCakto } from "./store";
 import type { Charge, Unlock } from "./types";
 
 /**
  * Camada de pagamento.
  *
- * Caminho principal: checkout externo da Cakto. A pessoa sai do site, paga lá,
- * e a Cakto avisa o /api/checkout/webhook. O identificador da análise viaja
- * junto na URL para que o webhook saiba qual relatório liberar.
- *
  * Modos, na ordem em que são escolhidos:
  *
- *  1. CAKTO_CHECKOUT_URL (e CAKTO_CHECKOUT_URL_AVANCADA, se houver um produto
- *     separado com o adicional) — redirect para o checkout da Cakto.
- *  2. PIX_CHAVE — monta um BR Code estático aqui mesmo, assinado com CRC16.
- *     Alternativa para cobrar sem gateway nenhum.
- *  3. Nada definido — cobrança de demonstração, só para percorrer a interface.
+ *  1. CAKTO_CLIENT_ID/CAKTO_CLIENT_SECRET/CAKTO_OFERTA — PIX gerado direto pela
+ *     API da Cakto, mostrado aqui mesmo (ver ./cakto.ts). Exige dados do
+ *     cliente (nome, e-mail, telefone, CPF): a API da Cakto recusa sem isso.
+ *  2. CAKTO_CHECKOUT_URL (e CAKTO_CHECKOUT_URL_AVANCADA, se houver um produto
+ *     separado com o adicional) — redirect para o checkout hospedado da Cakto.
+ *  3. PIX_CHAVE — monta um BR Code estático aqui mesmo, assinado com CRC16.
+ *     Sem gateway nenhum: ninguém confirma o pagamento sozinho, é preciso
+ *     conferir manualmente e liberar pelo atalho de demonstração.
+ *  4. Nada definido — cobrança de demonstração, só para percorrer a interface.
  */
 
 const EXPIRA_MS = 1000 * 60 * 30; // 30 minutos
@@ -26,14 +30,43 @@ const EXPIRA_MS = 1000 * 60 * 30; // 30 minutos
  * o postback saber o que abrir quando o dinheiro cair. O valor vem de quem
  * chama — sempre uma rota de servidor, sempre a partir das constantes de
  * preço, nunca de um número enviado pelo navegador.
+ *
+ * `cliente` só importa quando o PIX nativo da Cakto está configurado (ver
+ * `pixNativoConfigurado`). Nos outros modos é ignorado.
  */
 export async function createCharge(
   analysisId: string,
   amountCents: number,
   unlock: Unlock,
+  cliente?: ClienteDados,
 ): Promise<Charge> {
   const expiresAt = Date.now() + EXPIRA_MS;
   const referencia = comUnlock(analysisId, unlock);
+
+  if (pixNativoConfigurado()) {
+    if (!cliente) throw new DadosClienteAusentesError();
+
+    const pix = await criarPixCakto({
+      unlock,
+      amountCents,
+      referencia,
+      cliente,
+      idempotencyKey: crypto.randomUUID(),
+    });
+
+    // O webhook só traz o `id` que a Cakto gerou agora — sem isto, ele não
+    // teria como saber qual análise/unlock este pagamento libera.
+    registrarPagamentoCakto(pix.id, referencia);
+
+    return {
+      kind: "pix",
+      unlock,
+      brCode: pix.brCode,
+      qrImage: pix.qrImage,
+      amountCents,
+      expiresAt: pix.expiresAt || expiresAt,
+    };
+  }
 
   const checkout = escolherCheckout(unlock);
 
@@ -50,8 +83,10 @@ export async function createCharge(
 
   const brCode = buildStaticPix({
     // Reserva propositalmente inválida: sem PIX_CHAVE configurada o QR não pode
-    // parecer cobrança de verdade. O e-mail de contato não serve aqui, porque
-    // ele não é necessariamente uma chave PIX registrada.
+    // parecer cobrança de verdade. Só é alcançado quando nada mais está
+    // configurado — o mesmo cenário em que `estado.demo` fica ligado e o
+    // atalho "Simular pagamento aprovado" aparece do lado, deixando claro que
+    // isto não é uma cobrança real.
     key: process.env.PIX_CHAVE ?? "demo@desvenda.ai",
     name: process.env.PIX_NOME ?? "DESVENDA AI",
     city: process.env.PIX_CIDADE ?? "SAO PAULO",
@@ -67,6 +102,14 @@ export async function createCharge(
     amountCents,
     expiresAt,
   };
+}
+
+/** Sinaliza para a rota que a tela precisa coletar os dados antes de tentar de novo. */
+export class DadosClienteAusentesError extends Error {
+  constructor() {
+    super("Nome, e-mail, telefone e CPF são obrigatórios para gerar o PIX.");
+    this.name = "DadosClienteAusentesError";
+  }
 }
 
 /**

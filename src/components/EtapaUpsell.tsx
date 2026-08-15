@@ -3,8 +3,10 @@
 import Image from "next/image";
 import { useEffect } from "react";
 import CobrancaAberta from "./CobrancaAberta";
+import FormularioCliente from "./FormularioCliente";
 import Icon3D from "./Icon3D";
 import type { AnalysisState } from "@/lib/types";
+import type { ClienteDados } from "@/lib/cliente";
 import { UPSELL_CENTS, brl } from "@/lib/pricing";
 import {
   trackUpsellAccepted,
@@ -34,11 +36,19 @@ const INCLUI = [
 export default function EtapaUpsell({
   estado,
   erro,
+  carregando,
+  precisaDadosCliente,
+  onClienteEnviado,
   onAceitar,
   onRecusar,
 }: {
   estado: AnalysisState;
   erro: string | null;
+  /** A cobrança está sendo criada no servidor: botão trava, mostra progresso. */
+  carregando: boolean;
+  /** O PIX nativo da Cakto exige nome/e-mail/telefone/CPF antes da cobrança. */
+  precisaDadosCliente: boolean;
+  onClienteEnviado: (cliente: ClienteDados) => void;
   onAceitar: () => void;
   onRecusar: () => void;
 }) {
@@ -132,9 +142,23 @@ export default function EtapaUpsell({
           demo={estado.demo}
           analiseId={estado.id}
         />
+      ) : precisaDadosCliente ? (
+        <FormularioCliente onEnviar={onClienteEnviado} />
       ) : (
-        <button type="button" className="btn btn-neon btn-lg btn-block mt-6" onClick={aceitar}>
-          Sim, quero a Investigação Avançada
+        <button
+          type="button"
+          className="btn btn-neon btn-lg btn-block mt-6"
+          onClick={aceitar}
+          disabled={carregando}
+          aria-busy={carregando}
+        >
+          {carregando ? (
+            <>
+              <Spinner /> Abrindo pagamento…
+            </>
+          ) : (
+            "Sim, quero a Investigação Avançada"
+          )}
         </button>
       )}
 
@@ -146,6 +170,20 @@ export default function EtapaUpsell({
         Não, quero apenas meu relatório
       </button>
     </div>
+  );
+}
+
+/** Spinner pequeno para dentro de botão, enquanto uma cobrança é criada. */
+function Spinner() {
+  return (
+    <svg className="h-4 w-4 flex-none animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden>
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      />
+    </svg>
   );
 }
 

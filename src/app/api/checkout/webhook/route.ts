@@ -1,19 +1,24 @@
+import crypto from "node:crypto";
 import { NextResponse } from "next/server";
-import { aplicarUnlock, get } from "@/lib/store";
+import { aplicarUnlock, get, referenciaPorPagamentoCakto } from "@/lib/store";
 import { lerUnlock } from "@/lib/payments";
 
 export const dynamic = "force-dynamic";
 
 /**
- * Confirmação de pagamento.
+ * Confirmação de pagamento (postback da Cakto).
  *
- * Escrito para o postback da Cakto, mas tolerante: procura o identificador da
- * análise em qualquer campo de rastreio conhecido e aceita os nomes de status
- * mais comuns. Ao conectar a conta real, confira no painel qual campo a Cakto
- * devolve e, se quiser, reduza as listas abaixo ao que de fato chega.
+ * A Cakto não assina o payload com HMAC nem manda header de assinatura: o
+ * segredo configurado no painel deles (Integrações > Webhooks) viaja dentro
+ * do próprio body, no campo `secret`. É por isso que a checagem abaixo lê o
+ * body antes de validar — checar um header aqui sempre daria 401, mesmo com
+ * o token certo em CAKTO_WEBHOOK_TOKEN.
+ *
+ * https://docs.cakto.com.br/conceitos/webhooks
  */
 
 const CAMPOS_ID = [
+  "refId",
   "ref",
   "referencia",
   "reference",
@@ -26,20 +31,12 @@ const CAMPOS_ID = [
   "analysisId",
 ];
 
-const STATUS_PAGO = ["paid", "approved", "aprovado", "pago", "completed", "confirmed"];
+// Únicos eventos que a Cakto manda para "dinheiro confirmado". Os demais
+// (gerado, abandono, recusado, reembolso, chargeback, assinatura) não
+// liberam nada — é o padrão de segurança: só libera quem está na lista.
+const EVENTOS_PAGO = ["purchase_approved"];
 
 export async function POST(req: Request) {
-  const expected = process.env.CAKTO_WEBHOOK_TOKEN;
-  if (expected) {
-    const sent =
-      req.headers.get("x-cakto-token") ??
-      req.headers.get("x-webhook-token") ??
-      new URL(req.url).searchParams.get("token");
-    if (sent !== expected) {
-      return NextResponse.json({ error: "Token inválido." }, { status: 401 });
-    }
-  }
-
   let body: unknown;
   try {
     body = await req.json();
@@ -48,18 +45,38 @@ export async function POST(req: Request) {
   }
 
   const flat = flatten(body);
-  const referencia = CAMPOS_ID.map((k) => flat[k]).find(
-    (v): v is string => typeof v === "string" && !!v,
-  );
+
+  const expected = process.env.CAKTO_WEBHOOK_TOKEN;
+  if (expected) {
+    const recebido =
+      flat.secret ??
+      req.headers.get("x-cakto-token") ??
+      req.headers.get("x-webhook-token") ??
+      new URL(req.url).searchParams.get("token") ??
+      undefined;
+    if (!segredoValido(recebido, expected)) {
+      return NextResponse.json({ error: "Token inválido." }, { status: 401 });
+    }
+  }
+
+  const evento = String(flat.event ?? "").toLowerCase();
+  if (evento && !EVENTOS_PAGO.includes(evento)) {
+    // Evento que não é aprovação (gerado, pendente, recusado, reembolso,
+    // chargeback, assinatura). Nada a fazer.
+    return NextResponse.json({ ok: true, ignorado: evento });
+  }
+
+  // 1ª tentativa: o PIX nativo guarda o id que a Cakto devolveu na criação —
+  // é a única correlação confiável para esse fluxo (a API não aceita
+  // referência externa na criação do pagamento).
+  // 2ª tentativa: link de checkout hospedado, que carrega a referência na
+  // própria URL (ref/utm_content/src) e a Cakto ecoa de volta.
+  const referencia =
+    (flat.id && referenciaPorPagamentoCakto(flat.id)) ??
+    CAMPOS_ID.map((k) => flat[k]).find((v): v is string => typeof v === "string" && !!v);
 
   if (!referencia) {
     return NextResponse.json({ error: "Referência da análise ausente." }, { status: 400 });
-  }
-
-  const status = String(flat.status ?? flat.event ?? flat.tipo ?? "paid").toLowerCase();
-  if (!STATUS_PAGO.some((s) => status.includes(s))) {
-    // Evento que não é aprovação (pendente, recusado, reembolso). Nada a fazer.
-    return NextResponse.json({ ok: true, ignorado: status });
   }
 
   // A referência carrega o que este pagamento libera: só o relatório, só a
@@ -75,6 +92,14 @@ export async function POST(req: Request) {
   // liberar nada a mais nem cobrar nada de novo.
   aplicarUnlock(id, unlock);
   return NextResponse.json({ ok: true });
+}
+
+/** Compara com tempo constante — evita vazar o segredo por diferença de tempo. */
+function segredoValido(recebido: string | undefined, esperado: string) {
+  if (!recebido) return false;
+  const a = Buffer.from(recebido);
+  const b = Buffer.from(esperado);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
 }
 
 /** Achata objetos aninhados para achar o campo de rastreio onde quer que esteja. */

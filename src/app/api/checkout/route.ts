@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { attachCharge, get, setBump } from "@/lib/store";
-import { createCharge } from "@/lib/payments";
+import { createCharge, DadosClienteAusentesError } from "@/lib/payments";
+import type { ClienteDados } from "@/lib/cliente";
 
 export const dynamic = "force-dynamic";
 
@@ -10,11 +11,18 @@ export const dynamic = "force-dynamic";
  * O corpo diz apenas se o order bump está marcado. O valor sai do servidor:
  * `setBump` recalcula `amountCents` a partir das constantes de preço, e é esse
  * número que vira cobrança. Preço que chega do navegador é ignorado.
+ *
+ * `cliente` só é usado quando o PIX nativo da Cakto está configurado
+ * (`AnalysisState.precisaDadosCliente`).
  */
 export async function POST(req: Request) {
-  let body: { id?: string; bump?: boolean };
+  let body: {
+    id?: string;
+    bump?: boolean;
+    cliente?: ClienteDados;
+  };
   try {
-    body = (await req.json()) as { id?: string; bump?: boolean };
+    body = (await req.json()) as typeof body;
   } catch {
     return NextResponse.json({ error: "JSON inválido." }, { status: 400 });
   }
@@ -52,10 +60,13 @@ export async function POST(req: Request) {
   const unlock = state.bumpSelected ? "rel_av" : "rel";
 
   try {
-    const charge = await createCharge(id, state.amountCents, unlock);
+    const charge = await createCharge(id, state.amountCents, unlock, body.cliente);
     attachCharge(id, charge, unlock);
     return NextResponse.json({ charge, amountCents: state.amountCents });
   } catch (err) {
+    if (err instanceof DadosClienteAusentesError) {
+      return NextResponse.json({ error: err.message }, { status: 422 });
+    }
     console.error("[checkout] falha ao criar a cobrança:", err);
     return NextResponse.json(
       { error: "Não conseguimos abrir o pagamento agora. Tente de novo." },

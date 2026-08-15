@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import CobrancaAberta from "./CobrancaAberta";
+import FormularioCliente from "./FormularioCliente";
 import Icon3D from "./Icon3D";
 import type { AnalysisState } from "@/lib/types";
+import type { ClienteDados } from "@/lib/cliente";
 import { BASE_CENTS, UPSELL_CENTS, brl } from "@/lib/pricing";
 import {
   trackCheckoutStarted,
@@ -14,6 +16,11 @@ import {
 type Props = {
   estado: AnalysisState;
   erro: string | null;
+  /** A cobrança está sendo criada no servidor: botão trava, mostra progresso. */
+  carregando: boolean;
+  /** O PIX nativo da Cakto exige nome/e-mail/telefone/CPF antes da cobrança. */
+  precisaDadosCliente: boolean;
+  onClienteEnviado: (cliente: ClienteDados) => void;
   /** Abre a cobrança do pedido principal com o order bump marcado ou não. */
   onCobrar: (bump: boolean) => void;
   onRecomecar: () => void;
@@ -43,7 +50,15 @@ const BUMP_INCLUI = [
  * já com a resposta do order bump — abrir um PIX antes disso cobraria um
  * valor que ela ainda não escolheu.
  */
-export default function EtapaPagamento({ estado, erro, onCobrar, onRecomecar }: Props) {
+export default function EtapaPagamento({
+  estado,
+  erro,
+  carregando,
+  precisaDadosCliente,
+  onClienteEnviado,
+  onCobrar,
+  onRecomecar,
+}: Props) {
   // A avançada já paga não é oferecida de novo, em lugar nenhum.
   const podeOferecerBump = !estado.advancedPaid;
   const [bump, setBump] = useState(false);
@@ -183,14 +198,25 @@ export default function EtapaPagamento({ estado, erro, onCobrar, onRecomecar }: 
         </p>
       )}
 
-      {/* Enquanto não há cobrança aberta, o botão é o que abre. */}
-      {!cobranca && (
+      {/* A Cakto exige os dados antes de qualquer cobrança pelo PIX nativo. */}
+      {!cobranca && precisaDadosCliente && <FormularioCliente onEnviar={onClienteEnviado} />}
+
+      {/* Enquanto não há cobrança aberta (e já há o que a Cakto pede), o botão é o que abre. */}
+      {!cobranca && !precisaDadosCliente && (
         <button
           type="button"
           className="btn btn-neon btn-neon-pulso btn-lg btn-block mt-5"
           onClick={cobrar}
+          disabled={carregando}
+          aria-busy={carregando}
         >
-          Desbloquear meu relatório
+          {carregando ? (
+            <>
+              <Spinner /> Abrindo pagamento…
+            </>
+          ) : (
+            "Desbloquear meu relatório"
+          )}
         </button>
       )}
 
@@ -211,6 +237,20 @@ export default function EtapaPagamento({ estado, erro, onCobrar, onRecomecar }: 
         Começar de novo com outra conversa
       </button>
     </div>
+  );
+}
+
+/** Spinner pequeno para dentro de botão, enquanto uma cobrança é criada. */
+function Spinner() {
+  return (
+    <svg className="h-4 w-4 flex-none animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden>
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      />
+    </svg>
   );
 }
 

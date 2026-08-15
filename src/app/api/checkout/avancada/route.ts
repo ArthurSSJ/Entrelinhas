@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { attachCharge, get, marcarFunil } from "@/lib/store";
-import { createCharge } from "@/lib/payments";
+import { createCharge, DadosClienteAusentesError } from "@/lib/payments";
 import {
   DOWNSELL_CENTS,
   OFERTA_RECUPERACAO_ATIVA,
@@ -8,6 +8,7 @@ import {
   UPSELL_CENTS,
 } from "@/lib/pricing";
 import type { OrigemAvancada, Unlock } from "@/lib/types";
+import type { ClienteDados } from "@/lib/cliente";
 
 export const dynamic = "force-dynamic";
 
@@ -21,9 +22,13 @@ export const dynamic = "force-dynamic";
  * passado pelo upsell.
  */
 export async function POST(req: Request) {
-  let body: { id?: string; origem?: OrigemAvancada };
+  let body: {
+    id?: string;
+    origem?: OrigemAvancada;
+    cliente?: ClienteDados;
+  };
   try {
-    body = (await req.json()) as { id?: string; origem?: OrigemAvancada };
+    body = (await req.json()) as typeof body;
   } catch {
     return NextResponse.json({ error: "JSON inválido." }, { status: 400 });
   }
@@ -92,13 +97,16 @@ export async function POST(req: Request) {
   }
 
   try {
-    const charge = await createCharge(id, amountCents, unlock);
+    const charge = await createCharge(id, amountCents, unlock, body.cliente);
     // O pacote paga o pedido principal também, então ele vira a cobrança
     // principal — é ela que a tela de pagamento mostra.
     attachCharge(id, charge, unlock);
     if (origem === "recuperacao") marcarFunil(id, { recuperacaoOffered: true });
     return NextResponse.json({ charge, amountCents });
   } catch (err) {
+    if (err instanceof DadosClienteAusentesError) {
+      return NextResponse.json({ error: err.message }, { status: 422 });
+    }
     console.error("[checkout/avancada] falha ao criar a cobrança:", err);
     return NextResponse.json(
       { error: "Não conseguimos abrir o pagamento agora. Tente de novo." },
