@@ -2,8 +2,10 @@
 
 import { useEffect } from "react";
 import CobrancaAberta from "./CobrancaAberta";
+import FormularioCliente from "./FormularioCliente";
 import Icon3D from "./Icon3D";
 import type { AnalysisState } from "@/lib/types";
+import type { ClienteDados } from "@/lib/cliente";
 import { DOWNSELL_CENTS, UPSELL_CENTS, brl } from "@/lib/pricing";
 import {
   trackDownsellAccepted,
@@ -24,11 +26,19 @@ import {
 export default function EtapaDownsell({
   estado,
   erro,
+  carregando,
+  precisaDadosCliente,
+  onClienteEnviado,
   onAceitar,
   onRecusar,
 }: {
   estado: AnalysisState;
   erro: string | null;
+  /** A cobrança está sendo criada no servidor: botão trava, mostra progresso. */
+  carregando: boolean;
+  /** O PIX nativo da Cakto exige nome/e-mail/telefone/CPF antes da cobrança. */
+  precisaDadosCliente: boolean;
+  onClienteEnviado: (cliente: ClienteDados) => void;
   onAceitar: () => void;
   onRecusar: () => void;
 }) {
@@ -99,9 +109,23 @@ export default function EtapaDownsell({
           demo={estado.demo}
           analiseId={estado.id}
         />
+      ) : precisaDadosCliente ? (
+        <FormularioCliente onEnviar={onClienteEnviado} />
       ) : (
-        <button type="button" className="btn btn-neon btn-lg btn-block mt-6" onClick={aceitar}>
-          Adicionar por {brl(DOWNSELL_CENTS)}
+        <button
+          type="button"
+          className="btn btn-neon btn-lg btn-block mt-6"
+          onClick={aceitar}
+          disabled={carregando}
+          aria-busy={carregando}
+        >
+          {carregando ? (
+            <>
+              <Spinner /> Abrindo pagamento…
+            </>
+          ) : (
+            `Adicionar por ${brl(DOWNSELL_CENTS)}`
+          )}
         </button>
       )}
 
@@ -113,5 +137,19 @@ export default function EtapaDownsell({
         Continuar sem ela
       </button>
     </div>
+  );
+}
+
+/** Spinner pequeno para dentro de botão, enquanto uma cobrança é criada. */
+function Spinner() {
+  return (
+    <svg className="h-4 w-4 flex-none animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden>
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      />
+    </svg>
   );
 }

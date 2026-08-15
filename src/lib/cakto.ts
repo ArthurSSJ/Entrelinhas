@@ -1,140 +1,147 @@
-import { randomUUID } from "node:crypto";
+import type { ClienteDados } from "./cliente";
+import { apenasDigitos, telefoneParaE164 } from "./cliente";
 
 /**
- * Cliente para a API pública da Cakto.
- * Documentação: https://docs.cakto.com.br/api-reference/payments/create-pix
+ * Cliente da API da Cakto (pagamentos), separado do link de checkout deles.
+ *
+ * https://docs.cakto.com.br/api-reference/payments/create-pix
+ *
+ * Exige uma API key própria (Integrações > Cakto API, escopo "payments"),
+ * diferente do link de checkout que já existia. Sem CAKTO_CLIENT_ID e
+ * CAKTO_CLIENT_SECRET configurados, `pixNativoConfigurado()` volta falso e o
+ * resto do arquivo de pagamentos cai para o link de checkout ou o PIX
+ * estático, como já fazia.
  */
 
-const BASE_URL = "https://api.cakto.com.br";
+const TOKEN_URL = "https://api.cakto.com.br/public_api/token/";
+const PAYMENTS_URL = "https://api.cakto.com.br/public_api/payments/";
 
-type TokenResponse = {
-  access_token: string;
-  expires_in: number;
-  token_type: string;
-  scope?: string;
-};
+export function pixNativoConfigurado() {
+  return Boolean(
+    process.env.CAKTO_CLIENT_ID && process.env.CAKTO_CLIENT_SECRET && ofertaParaUnlock("rel"),
+  );
+}
 
-type CreatePixInput = {
-  offerId: string;
-  analysisId: string;
-  referencia: string;
-  amountCents: number;
-  customer?: {
-    name?: string;
-    email?: string;
-    phone?: string;
-    docNumber?: string;
-  };
-};
-
-export type CaktoPixResponse = {
-  id: string;
-  refId: string;
-  status: string;
-  paymentMethod: string;
-  amount: string;
-  checkoutUrl: string;
-  pix?: {
-    qrCode: string;
-    qrCodeBase64: string;
-    expiresAt?: string;
-  };
-};
-
-/** Cache em memória do token OAuth2 */
-let tokenCache: { token: string; expiresAt: number } | null = null;
+/** Qual oferta cobrar na Cakto, por tipo de desbloqueio. */
+export function ofertaParaUnlock(unlock: "rel" | "av" | "rel_av") {
+  if (unlock === "av") {
+    return process.env.CAKTO_OFFER_ID_SO_AVANCADA || process.env.CAKTO_OFFER_ID;
+  }
+  if (unlock === "rel_av") {
+    return process.env.CAKTO_OFFER_ID_AVANCADA || process.env.CAKTO_OFFER_ID;
+  }
+  return process.env.CAKTO_OFFER_ID;
+}
 
 /**
- * Obtém ou renova o Token de Acesso OAuth2 da Cakto (POST /public_api/token/)
+ * Token de acesso, em cache em memória até perto de expirar.
+ *
+ * Sobrevive entre chamadas dentro da mesma instância de servidor — não é
+ * persistido, então uma instância nova pede um token novo. A API não tem
+ * endpoint de refresh: quando expira, é só pedir outro.
  */
-export async function getCaktoAccessToken(): Promise<string> {
+let tokenCache: { valor: string; expiraEm: number } | null = null;
+
+async function obterToken(): Promise<string> {
+  if (tokenCache && tokenCache.expiraEm > Date.now()) return tokenCache.valor;
+
   const clientId = process.env.CAKTO_CLIENT_ID;
   const clientSecret = process.env.CAKTO_CLIENT_SECRET;
-
   if (!clientId || !clientSecret) {
-    throw new Error("CAKTO_CLIENT_ID ou CAKTO_CLIENT_SECRET não configurados no .env.local");
+    throw new Error("CAKTO_CLIENT_ID/CAKTO_CLIENT_SECRET não configurados.");
   }
 
-  // Reaproveita token válido
-  if (tokenCache && tokenCache.expiresAt > Date.now() + 60_000) {
-    return tokenCache.token;
+  const res = await fetch(TOKEN_URL, {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ client_id: clientId, client_secret: clientSecret }),
+  });
+
+  if (!res.ok) {
+    const detalhe = await res.text().catch(() => "");
+    throw new Error(`Cakto (token) respondeu ${res.status}: ${detalhe.slice(0, 300)}`);
   }
 
-  const res = await fetch(`${BASE_URL}/public_api/token/`, {
+  const dados = (await res.json()) as { access_token: string; expires_in: number };
+
+  // Renova 60s antes do prazo real, para nunca usar um token na borda da expiração.
+  tokenCache = {
+    valor: dados.access_token,
+    expiraEm: Date.now() + Math.max(0, dados.expires_in - 60) * 1000,
+  };
+  return tokenCache.valor;
+}
+
+export type PixCakto = {
+  id: string;
+  status: string;
+  brCode: string;
+  qrImage: string;
+  expiresAt: number;
+};
+
+/**
+ * Cria uma cobrança PIX de verdade na Cakto e devolve o QR pronto para
+ * mostrar. `referencia` viaja em `metadata.utm_content`: é o mesmo campo que
+ * o link de checkout já usa, e o webhook em /api/checkout/webhook já sabe
+ * ler dali.
+ */
+export async function criarPixCakto(params: {
+  unlock: "rel" | "av" | "rel_av";
+  amountCents: number;
+  referencia: string;
+  cliente: ClienteDados;
+  idempotencyKey: string;
+}): Promise<PixCakto> {
+  const offerId = ofertaParaUnlock(params.unlock);
+  if (!offerId) throw new Error(`Nenhuma oferta da Cakto configurada para "${params.unlock}".`);
+
+  const token = await obterToken();
+
+  const res = await fetch(PAYMENTS_URL, {
     method: "POST",
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
+      authorization: `Bearer ${token}`,
+      "content-type": "application/json",
+      "x-idempotency-key": params.idempotencyKey,
     },
-    body: new URLSearchParams({
-      client_id: clientId,
-      client_secret: clientSecret,
+    // A documentação geral da Cakto lista "antifraudProfilingAttemptReference"
+    // como obrigatório, mas esta conta usa o "contrato público" da API, que
+    // recusa esse campo (testado: 400 "Campo não suportado pelo contrato
+    // público"). Por isso ele não entra aqui — se a conta um dia mudar de
+    // contrato e passar a exigi-lo, é só voltar a incluir.
+    body: JSON.stringify({
+      paymentMethod: "pix",
+      customer: {
+        name: params.cliente.nome.trim(),
+        email: params.cliente.email.trim(),
+        phone: telefoneParaE164(params.cliente.telefone),
+        fingerprint: params.idempotencyKey,
+        docType: "cpf",
+        docNumber: apenasDigitos(params.cliente.cpf),
+      },
+      items: [{ offerId, quantity: 1, offerType: "main" }],
+      pixExpiresIn: 1800,
+      metadata: { utm_content: params.referencia },
     }),
   });
 
   if (!res.ok) {
-    const errorText = await res.text().catch(() => "");
-    throw new Error(`Falha na autenticação Cakto (${res.status}): ${errorText}`);
+    const detalhe = await res.text().catch(() => "");
+    throw new Error(`Cakto (pix) respondeu ${res.status}: ${detalhe.slice(0, 400)}`);
   }
 
-  const data = (await res.json()) as TokenResponse;
-
-  tokenCache = {
-    token: data.access_token,
-    expiresAt: Date.now() + (data.expires_in ?? 3600) * 1000,
+  const dados = (await res.json()) as {
+    id: string;
+    status: string;
+    pix: { qrCode: string; qrCodeBase64: string; expiresAt: string };
   };
 
-  return tokenCache.token;
-}
-
-/**
- * Cria uma cobrança Pix dinâmica diretamente na API da Cakto (POST /public_api/payments/)
- */
-export async function createCaktoPixCharge(input: CreatePixInput): Promise<CaktoPixResponse> {
-  const token = await getCaktoAccessToken();
-  const idempotencyKey = randomUUID();
-
-  const payload = {
-    paymentMethod: "pix",
-    customer: {
-      name: input.customer?.name || "Cliente Entrelinhas",
-      email: input.customer?.email || "cliente@entrelinhas.app",
-      phone: input.customer?.phone || "5511999999999",
-      fingerprint: input.analysisId,
-      docType: "cpf",
-      docNumber: input.customer?.docNumber || "00000000000",
-    },
-    items: [
-      {
-        offerId: input.offerId,
-        quantity: 1,
-        offerType: "main",
-      },
-    ],
-    pixExpiresIn: 3600,
-    antifraudProfilingAttemptReference: randomUUID(),
-    metadata: {
-      ref: input.referencia,
-      utm_content: input.referencia,
-      src: input.referencia,
-      analysisId: input.analysisId,
-    },
+  return {
+    id: dados.id,
+    status: dados.status,
+    brCode: dados.pix.qrCode,
+    qrImage: dados.pix.qrCodeBase64,
+    expiresAt: new Date(dados.pix.expiresAt).getTime(),
   };
-
-  const res = await fetch(`${BASE_URL}/public_api/payments/`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-      "X-Idempotency-Key": idempotencyKey,
-    },
-    body: JSON.stringify(payload),
-  });
-
-  if (!res.ok) {
-    const errorText = await res.text().catch(() => "");
-    console.error("[cakto] Erro ao criar cobrança Pix:", res.status, errorText);
-    throw new Error(`Cakto API erro ${res.status}: ${errorText}`);
-  }
-
-  return (await res.json()) as CaktoPixResponse;
 }

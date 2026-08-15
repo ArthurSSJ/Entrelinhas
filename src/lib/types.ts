@@ -149,6 +149,12 @@ export type AnalysisState = {
   ofertaRecuperacao?: boolean;
   /** Etapas do funil já vividas. Ficam no servidor para sobreviver ao refresh. */
   funil?: FunilFlags;
+  /**
+   * O PIX é gerado direto na API da Cakto, o que exige nome, e-mail, telefone
+   * e CPF antes de abrir qualquer cobrança. Decidido no servidor, a partir de
+   * quais variáveis de ambiente estão configuradas — o navegador só lê.
+   */
+  precisaDadosCliente?: boolean;
 };
 
 /**

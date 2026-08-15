@@ -126,8 +126,8 @@ function Previa() {
       <p className="painel painel-neon absolute -left-2 bottom-16 sm:-left-3 z-10 flex w-[205px] items-start gap-2.5 p-3.5 text-left">
         <Icon3D name="lupa" size={26} className="mt-px flex-none" />
         <span className="text-[0.75rem] leading-snug">
-          <span className="font-[family-name:var(--font-outfit)] font-bold text-[#FF8FB3]">
-            A conversa era até tarde.
+          <span className="font-[family-name:var(--font-outfit)] font-semibold text-[#FF8FB3]">
+            Semana passada a conversa era até tarde.
           </span>
           <span className="text-[#F6ECEF]/80"> Agora, depois de certo horário, ela simplesmente para.</span>
         </span>

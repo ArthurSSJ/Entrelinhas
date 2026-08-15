@@ -1,6 +1,6 @@
 import type { AnalysisState, Charge, FunilFlags, Report, Unlock } from "./types";
 import { BASE_CENTS, OFERTA_RECUPERACAO_ATIVA, UPSELL_CENTS } from "./pricing";
-import { mockReport } from "./mock";
+import { pixNativoConfigurado } from "./cakto";
 
 /**
  * Armazenamento temporário das análises.
@@ -25,7 +25,10 @@ const TMP_DIR = path.join(os.tmpdir(), "desvenda_store");
 type Entry = { state: AnalysisState; expiresAt: number };
 
 // Sobrevive ao hot reload do Next em desenvolvimento.
-const globalRef = globalThis as unknown as { __desvenda?: Map<string, Entry> };
+const globalRef = globalThis as unknown as {
+  __desvenda?: Map<string, Entry>;
+  __desvendaPix?: Map<string, { referencia: string; expiresAt: number }>;
+};
 const db: Map<string, Entry> = (globalRef.__desvenda ??= new Map());
 
 function saveTmp(id: string, entry: Entry) {
@@ -57,6 +60,36 @@ function sweep() {
   for (const [id, entry] of db) {
     if (entry.expiresAt <= now) db.delete(id);
   }
+}
+
+/**
+ * Correlaciona o id de um pagamento PIX criado na API da Cakto com a
+ * referência do pedido (`<análise>~<unlock>`).
+ *
+ * O link de checkout carrega a referência na própria URL (utm_content), mas o
+ * PIX criado direto pela API não devolve nada disso no webhook — só o `id`
+ * gerado pela Cakto (confirmado na documentação: nenhum campo de referência
+ * externa é aceito na criação, a correlação é sempre pelo `id` da resposta).
+ * Por isso este mapa separado, guardado no momento em que o PIX é criado.
+ */
+const pixPorPagamentoCakto: Map<string, { referencia: string; expiresAt: number }> =
+  (globalRef.__desvendaPix ??= new Map());
+
+function sweepPix() {
+  const now = Date.now();
+  for (const [id, entry] of pixPorPagamentoCakto) {
+    if (entry.expiresAt <= now) pixPorPagamentoCakto.delete(id);
+  }
+}
+
+export function registrarPagamentoCakto(paymentId: string, referencia: string) {
+  sweepPix();
+  pixPorPagamentoCakto.set(paymentId, { referencia, expiresAt: Date.now() + TTL_MS });
+}
+
+export function referenciaPorPagamentoCakto(paymentId: string): string | null {
+  sweepPix();
+  return pixPorPagamentoCakto.get(paymentId)?.referencia ?? null;
 }
 
 export function create(
@@ -224,7 +257,11 @@ export function marcarFunil(id: string, flags: FunilFlags) {
  */
 export function forClient(state: AnalysisState): AnalysisState {
   // A variante da oferta é lida aqui, no servidor, e desce junto com o estado.
-  const comFlag = { ...state, ofertaRecuperacao: OFERTA_RECUPERACAO_ATIVA };
+  const comFlag = {
+    ...state,
+    ofertaRecuperacao: OFERTA_RECUPERACAO_ATIVA,
+    precisaDadosCliente: pixNativoConfigurado(),
+  };
 
   if (comFlag.status !== "paid") {
     const { report: _retido, ...resto } = comFlag;
