@@ -84,12 +84,46 @@ function sweepPix() {
 
 export function registrarPagamentoCakto(paymentId: string, referencia: string) {
   sweepPix();
-  pixPorPagamentoCakto.set(paymentId, { referencia, expiresAt: Date.now() + TTL_MS });
+  const entrada = { referencia, expiresAt: Date.now() + TTL_MS };
+  pixPorPagamentoCakto.set(paymentId, entrada);
+  // Mesmo motivo do `saveTmp` das análises: quem cria o PIX é a requisição do
+  // navegador, quem lê é o webhook da Cakto, e nada garante que os dois caiam
+  // no mesmo processo. Sem isto, o pagamento cai e o relatório não abre.
+  savePixTmp(paymentId, entrada);
 }
 
 export function referenciaPorPagamentoCakto(paymentId: string): string | null {
   sweepPix();
-  return pixPorPagamentoCakto.get(paymentId)?.referencia ?? null;
+  return (pixPorPagamentoCakto.get(paymentId) ?? readPixTmp(paymentId))?.referencia ?? null;
+}
+
+function arquivoPix(paymentId: string) {
+  // O id vem do corpo de um webhook público: sem esta limpeza, um id com
+  // "../" escolheria o caminho do arquivo.
+  return path.join(TMP_DIR, `pix_${paymentId.replace(/[^A-Za-z0-9_-]/g, "")}.json`);
+}
+
+function savePixTmp(paymentId: string, entrada: { referencia: string; expiresAt: number }) {
+  try {
+    if (!fs.existsSync(TMP_DIR)) fs.mkdirSync(TMP_DIR, { recursive: true });
+    fs.writeFileSync(arquivoPix(paymentId), JSON.stringify(entrada), "utf-8");
+  } catch {}
+}
+
+function readPixTmp(paymentId: string) {
+  try {
+    const caminho = arquivoPix(paymentId);
+    if (!fs.existsSync(caminho)) return null;
+    const entrada = JSON.parse(fs.readFileSync(caminho, "utf-8")) as {
+      referencia: string;
+      expiresAt: number;
+    };
+    if (entrada.expiresAt <= Date.now()) return null;
+    pixPorPagamentoCakto.set(paymentId, entrada);
+    return entrada;
+  } catch {
+    return null;
+  }
 }
 
 export function create(

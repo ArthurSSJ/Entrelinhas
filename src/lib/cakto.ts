@@ -76,8 +76,14 @@ export type PixCakto = {
   id: string;
   status: string;
   brCode: string;
+  /**
+   * Vazio quando a Cakto devolve só o BR Code — é o caso desta conta hoje.
+   * Quem chama desenha o QR a partir do `brCode`.
+   */
   qrImage: string;
   expiresAt: number;
+  /** O que a Cakto vai cobrar de fato, em centavos, taxas já somadas. */
+  amountCents: number;
 };
 
 /**
@@ -131,17 +137,37 @@ export async function criarPixCakto(params: {
     throw new Error(`Cakto (pix) respondeu ${res.status}: ${detalhe.slice(0, 400)}`);
   }
 
+  // Só `qrCode` é garantido. O resto varia com a versão do contrato desta
+  // conta: hoje vem `expirationDate` e nenhuma imagem — a documentação
+  // descreve `expiresAt` e `qrCodeBase64`. Os dois nomes são aceitos aqui para
+  // a resposta não quebrar quando a Cakto mudar de um para o outro.
   const dados = (await res.json()) as {
     id: string;
     status: string;
-    pix: { qrCode: string; qrCodeBase64: string; expiresAt: string };
+    amount?: string | number;
+    pix: {
+      qrCode: string;
+      qrCodeBase64?: string;
+      expiresAt?: string;
+      expirationDate?: string;
+    };
   };
+
+  const validade = Date.parse(dados.pix.expiresAt ?? dados.pix.expirationDate ?? "");
+  const valor = Number(dados.amount);
 
   return {
     id: dados.id,
     status: dados.status,
     brCode: dados.pix.qrCode,
-    qrImage: dados.pix.qrCodeBase64,
-    expiresAt: new Date(dados.pix.expiresAt).getTime(),
+    qrImage: comoDataUri(dados.pix.qrCodeBase64),
+    expiresAt: Number.isNaN(validade) ? 0 : validade,
+    amountCents: Number.isFinite(valor) && valor > 0 ? Math.round(valor * 100) : 0,
   };
+}
+
+/** A Cakto ora manda o PNG com prefixo `data:`, ora só o base64 cru. */
+function comoDataUri(base64?: string) {
+  if (!base64) return "";
+  return base64.startsWith("data:") ? base64 : `data:image/png;base64,${base64}`;
 }

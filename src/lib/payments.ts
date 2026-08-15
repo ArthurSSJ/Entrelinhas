@@ -43,32 +43,46 @@ export async function createCharge(
   const expiresAt = Date.now() + EXPIRA_MS;
   const referencia = comUnlock(analysisId, unlock);
 
+  const checkout = escolherCheckout(unlock);
+
   if (pixNativoConfigurado()) {
     if (!cliente) throw new DadosClienteAusentesError();
 
-    const pix = await criarPixCakto({
-      unlock,
-      amountCents,
-      referencia,
-      cliente,
-      idempotencyKey: crypto.randomUUID(),
-    });
+    try {
+      const pix = await criarPixCakto({
+        unlock,
+        amountCents,
+        referencia,
+        cliente,
+        idempotencyKey: crypto.randomUUID(),
+      });
 
-    // O webhook só traz o `id` que a Cakto gerou agora — sem isto, ele não
-    // teria como saber qual análise/unlock este pagamento libera.
-    registrarPagamentoCakto(pix.id, referencia);
+      // O webhook só traz o `id` que a Cakto gerou agora — sem isto, ele não
+      // teria como saber qual análise/unlock este pagamento libera.
+      registrarPagamentoCakto(pix.id, referencia);
 
-    return {
-      kind: "pix",
-      unlock,
-      brCode: pix.brCode,
-      qrImage: pix.qrImage,
-      amountCents,
-      expiresAt: pix.expiresAt || expiresAt,
-    };
+      return {
+        kind: "pix",
+        unlock,
+        brCode: pix.brCode,
+        // Esta conta não recebe imagem da Cakto: o QR é desenhado aqui, a
+        // partir do mesmo BR Code que vai no copia-e-cola.
+        qrImage: pix.qrImage || (await toQrImage(pix.brCode)),
+        // O que a Cakto realmente vai cobrar — o preço da oferta lá dentro,
+        // com as taxas dela. Divergir disso seria anunciar um valor e cobrar
+        // outro.
+        amountCents: pix.amountCents || amountCents,
+        expiresAt: pix.expiresAt || expiresAt,
+      };
+    } catch (err) {
+      // A API da Cakto recusa o PIX nativo por motivos de conta, não de código
+      // (Cakto Banking ainda não liberado, oferta inexistente). Sem o checkout
+      // hospedado por baixo, a pessoa ficaria sem nenhuma forma de pagar.
+      if (!checkout) throw err;
+      console.error("[payments] PIX nativo falhou, caindo para o checkout da Cakto:", err);
+    }
   }
 
-  const checkout = escolherCheckout(unlock);
   if (checkout) {
     return {
       kind: "redirect",
